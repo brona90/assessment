@@ -1,6 +1,24 @@
 # Truist Bank Technology Assessment Framework
 ## Cognizant Consulting - Complete Assessment Package
 
+## 🌐 Interactive Web Application - NEW!
+
+**Complete the assessment online with real-time visualizations:**
+👉 **https://8090-8e4b7700-f8e5-4acd-a036-3a179e4c7398.proxy.daytona.works**
+
+### Features:
+- ✅ Interactive 20-question assessment form
+- ✅ Real-time chart generation as you answer
+- ✅ Save/Load functionality (browser localStorage)
+- ✅ Export to PDF and JSON
+- ✅ Mobile-responsive design
+- ✅ SOX compliance and PII protection dashboards
+- ✅ Implementation roadmap with recommendations
+
+📖 [View Complete Interactive Webapp Guide →](INTERACTIVE_WEBAPP_GUIDE.md)
+
+---
+
 ### 📋 Overview
 
 This comprehensive technology assessment framework is designed by Cognizant Consulting to evaluate Truist Bank's technology capabilities across four critical domains, organizing findings into MAPS (Modernization, Agility, Platforms, Security) categories. The framework includes SOX compliance, PII protection, and technology-specific assessment for platforms like Snowflake, Talend, and other enterprise tools.
@@ -17,6 +35,12 @@ This comprehensive technology assessment framework is designed by Cognizant Cons
 ```
 truist_assessment_framework/
 ├── README.md                          # This file
+├── INTERACTIVE_WEBAPP_GUIDE.md        # Complete guide for web application
+├── webapp/                            # Interactive web application
+│   ├── index.html                     # Main application page
+│   ├── styles.css                     # Professional styling
+│   ├── app.js                         # Interactive functionality
+│   └── README.md                      # Webapp documentation
 ├── documentation/                     # Core framework documentation
 │   ├── technology_assessment_framework.md
 │   ├── updated_assessment_questions.md

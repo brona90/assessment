@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truist Technology Assessment - Interactive Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div>
+                <h1>🎯 Truist Technology Assessment</h1>
+                <p class="subtitle">Interactive SRE, Automation, AI & Audit Capabilities Framework</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="saveAssessment()">
+                    💾 Save Progress
+                </button>
+                <button class="btn btn-secondary" onclick="loadAssessment()">
+                    📂 Load Assessment
+                </button>
+                <button class="btn btn-primary" onclick="exportPDF()">
+                    📄 Export PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span class="progress-label">Assessment Progress</span>
+                <span class="progress-percentage" id="progressPercentage">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%;">
+                    <span id="progressText">0/48 Questions</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('assessment')">📝 Assessment Questions</button>
+            <button class="nav-tab" onclick="showSection('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showSection('maturity')">🎯 Maturity Analysis</button>
+            <button class="nav-tab" onclick="showSection('compliance')">✅ Compliance</button>
+            <button class="nav-tab" onclick="showSection('roadmap')">🗺️ Roadmap</button>
+        </div>
+
+        <!-- Assessment Section -->
+        <div id="assessment" class="content-section active">
+            <div class="alert alert-info">
+                <span>ℹ️</span>
+                <div>
+                    <strong>Instructions:</strong> Rate each capability on a scale of 1-5, where 1 = Not Implemented, 2 = Initial, 3 = Developing, 4 = Mature, 5 = Optimized. Your responses will automatically update the visualizations in real-time.
+                </div>
+            </div>
+
+            <!-- Questions will be dynamically generated here -->
+            <div id="questionsContainer"></div>
+
+            <div class="card">
+                <div class="text-center">
+                    <button class="btn btn-success btn-lg" onclick="showSection('dashboard')">
+                        📊 View Results Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">📊 Assessment Results Dashboard</h2>
+                        <p class="card-subtitle">Real-time visualization of your technology maturity assessment</p>
+                    </div>
+                </div>
+                
+                <div class="score-summary">
+                    <div class="score-card">
+                        <div class="score-label">Overall Maturity</div>
+                        <div class="score-value" id="overallScore">0.0</div>
+                        <div class="score-max">/ 5.0</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-label">Domain 1</div>
+                        <div class="score-value" id="domain1Score">0.0</div>
+                        <div class="score-max">/ 5.0</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-label">Domain 2</div>
+                        <div class="score-value" id="domain2Score">0.0</div>
+                        <div class="score-max">/ 5.0</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-label">Domain 3</div>
+                        <div class="score-value" id="domain3Score">0.0</div>
+                        <div class="score-max">/ 5.0</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-label">Domain 4</div>
+                        <div class="score-value" id="domain4Score">0.0</div>
+                        <div class="score-max">/ 5.0</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="overviewChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maturity Analysis Section -->
+        <div id="maturity" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">🎯 Maturity Radar Analysis</h2>
+                        <p class="card-subtitle">Compare current state vs. target state vs. industry benchmark</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">📈 Domain Breakdown</h2>
+                        <p class="card-subtitle">Detailed scoring by assessment domain</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="domainChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Section -->
+        <div id="compliance" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">✅ SOX Compliance Dashboard</h2>
+                        <p class="card-subtitle">Compliance status across key control areas</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="soxChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">🔒 PII Protection Status</h2>
+                        <p class="card-subtitle">Data protection levels by category</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="piiChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Roadmap Section -->
+        <div id="roadmap" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">🗺️ Implementation Roadmap</h2>
+                        <p class="card-subtitle">Prioritized initiatives based on assessment results</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="roadmapChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">📋 Recommended Actions</h2>
+                        <p class="card-subtitle">Priority initiatives based on your assessment</p>
+                    </div>
+                </div>
+                <div id="recommendationsContent">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
