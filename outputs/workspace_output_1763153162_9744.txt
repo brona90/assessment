@@ -1,6 +1,0 @@
--rw-r--r-- 1 root root 109491 Nov 14 20:45 /workspace/final_framework/executive_summary_dashboard.svg
--rw-r--r-- 1 root root  91362 Nov 14 20:45 /workspace/final_framework/implementation_roadmap.svg
--rw-r--r-- 1 root root  88809 Nov 14 20:45 /workspace/final_framework/maturity_radar_chart.svg
--rw-r--r-- 1 root root  94530 Nov 14 20:45 /workspace/final_framework/pii_protection_dashboard.svg
--rw-r--r-- 1 root root  94495 Nov 14 20:45 /workspace/final_framework/sox_compliance_dashboard.svg
--rw-r--r-- 1 root root  89558 Nov 14 20:45 /workspace/final_framework/technology_comparison.svg

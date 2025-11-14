@@ -1,0 +1,33 @@
+=== DOCUMENTATION ===
+total 68K
+-rw-r--r-- 1 root root  22K Nov 14 20:54 comprehensive_backlog_template.md
+-rw-r--r-- 1 root root  17K Nov 14 20:53 technology_assessment_framework.md
+-rw-r--r-- 1 root root  16K Nov 14 20:13 updated_assessment_questions.md
+-rw-r--r-- 1 root root 6.4K Nov 14 20:47 visualization_summary.md
+
+=== VISUALIZATIONS ===
+total 2.4M
+-rw-r--r-- 1 root root 249K Nov 14 20:45 executive_summary_dashboard.png
+-rw-r--r-- 1 root root 107K Nov 14 20:45 executive_summary_dashboard.svg
+-rw-r--r-- 1 root root 225K Nov 14 20:45 implementation_roadmap.png
+-rw-r--r-- 1 root root  90K Nov 14 20:45 implementation_roadmap.svg
+-rw-r--r-- 1 root root 471K Nov 14 20:45 maturity_radar_chart.png
+-rw-r--r-- 1 root root  87K Nov 14 20:45 maturity_radar_chart.svg
+-rw-r--r-- 1 root root 225K Nov 14 20:45 pii_protection_dashboard.png
+-rw-r--r-- 1 root root  93K Nov 14 20:45 pii_protection_dashboard.svg
+-rw-r--r-- 1 root root 249K Nov 14 20:45 sox_compliance_dashboard.png
+-rw-r--r-- 1 root root  93K Nov 14 20:45 sox_compliance_dashboard.svg
+-rw-r--r-- 1 root root 203K Nov 14 20:45 technology_comparison.png
+-rw-r--r-- 1 root root  88K Nov 14 20:45 technology_comparison.svg
+-rw-r--r-- 1 root root 203K Nov 14 20:42 technology_comparison_chart.png
+
+=== TOOLS ===
+total 84K
+-rw-r--r-- 1 root root  16K Nov 14 20:21 cognizant_assessment_workbook.xlsx
+-rw-r--r-- 1 root root 3.6K Nov 14 20:46 display_visualization_examples.py
+-rw-r--r-- 1 root root  38K Nov 14 20:42 generate_visualizations.py
+-rw-r--r-- 1 root root  21K Nov 14 20:45 generate_visuals_simple.py
+
+=== EXAMPLES ===
+total 20K
+-rw-r--r-- 1 root root 18K Nov 14 20:54 example_bank_assessment.md
