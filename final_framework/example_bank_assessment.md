@@ -205,6 +205,12 @@ plt.show()
 - Financial Data: 95% protected (5% risk exposure)
 - Health Data: 76% protected (24% risk exposure - CRITICAL)
 
+![PII Protection Dashboard](pii_protection_dashboard.png)
+
+*Figure 4: PII Protection Status - Protection Levels vs. Risk Exposure*
+
+The PII protection dashboard shows the current protection status and risk exposure by data category, highlighting Health Data as critical risk requiring immediate remediation.
+
 **PII Protection Dashboard:**
 ```python
 # PII protection status for First National Bank
@@ -326,6 +332,14 @@ plt.tight_layout()
 plt.savefig('implementation_roadmap.html', format='html')
 plt.show()
 ```
+
+## Executive Summary Dashboard
+
+![Executive Summary Dashboard](executive_summary_dashboard.png)
+
+*Figure 5: Executive Summary Dashboard - Key Performance Indicators*
+
+The executive dashboard provides a comprehensive overview of key performance indicators in an easy-to-read grid layout, perfect for C-suite presentations and board reporting.
 
 ## Comprehensive Backlog Example
 

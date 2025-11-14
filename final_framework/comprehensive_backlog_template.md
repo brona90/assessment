@@ -131,6 +131,19 @@ This comprehensive roadmap and prioritized backlog organizes Truist Bank's techn
 
 ### MAPS Category: Security
 
+#### Implementation Roadmap Visualization
+
+![Implementation Roadmap](implementation_roadmap.png)
+
+*Figure 5: Technology Implementation Roadmap - 18-Month Timeline with Quarterly Milestones*
+
+The implementation roadmap shows the 18-month technology transformation timeline organized by MAPS categories:
+
+- **Modernization**: Snowflake optimization (Q1-Q2), Talend enhancement (Q1-Q3)
+- **Agility**: AI/ML platform deployment (Q2-Q4), monitoring unification (Q1-Q2)
+- **Platforms**: Multi-region deployment, API standardization
+- **Security**: Enhanced threat detection, PII protection improvements (Q4-Q1'25)
+
 #### Initiative 5: Enhanced Security & Compliance
 **Technology Focus**: Security platforms, Compliance tools, Encryption technologies
 **SOX Impact**: Enhanced controls, automated compliance
