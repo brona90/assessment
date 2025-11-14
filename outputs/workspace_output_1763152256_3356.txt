@@ -1,0 +1,8 @@
+total 96
+drwxr-xr-x 2 root root  4096 Nov 14 20:30 .
+drwxr-xr-x 5 root root    72 Nov 14 20:30 ..
+-rw-r--r-- 1 root root 15837 Nov 14 20:21 cognizant_assessment_workbook.xlsx
+-rw-r--r-- 1 root root 21786 Nov 14 20:20 comprehensive_backlog_template.md
+-rw-r--r-- 1 root root 16862 Nov 14 20:24 example_bank_assessment.md
+-rw-r--r-- 1 root root 14090 Nov 14 20:12 technology_assessment_framework.md
+-rw-r--r-- 1 root root 15593 Nov 14 20:13 updated_assessment_questions.md

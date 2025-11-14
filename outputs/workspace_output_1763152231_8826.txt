@@ -1,0 +1,23 @@
+total 288
+drwxr-xr-x 4 root root  4096 Nov 14 20:24 .
+drwxr-xr-x 1 root root   152 Nov 14 19:05 ..
+drwxr-xr-x 8 root root  4096 Nov 14 20:19 .git
+-rw-r--r-- 1 root root 12000 Nov 14 19:32 90_day_backlog_template.md
+-rw-r--r-- 1 root root 12053 Nov 14 19:16 ai_assessment_questions.md
+-rw-r--r-- 1 root root 22283 Nov 14 19:21 assessment_worksheet.xlsx
+-rw-r--r-- 1 root root 12332 Nov 14 19:17 audit_assessment_questions.md
+-rw-r--r-- 1 root root 11937 Nov 14 19:08 automation_assessment_questions.md
+-rw-r--r-- 1 root root 15837 Nov 14 20:21 cognizant_assessment_workbook.xlsx
+-rw-r--r-- 1 root root 21786 Nov 14 20:20 comprehensive_backlog_template.md
+-rw-r--r-- 1 root root 16862 Nov 14 20:24 example_bank_assessment.md
+-rw-r--r-- 1 root root  6706 Nov 14 19:22 implementation_checklist.md
+-rw-r--r-- 1 root root 13372 Nov 14 19:34 maps_assessment_questions.md
+-rw-r--r-- 1 root root 21300 Nov 14 19:35 maps_assessment_worksheet.xlsx
+-rw-r--r-- 1 root root  7820 Nov 14 19:36 maps_framework_summary.md
+drwxr-xr-x 2 root root  4096 Nov 14 20:30 outputs
+-rw-r--r-- 1 root root 10185 Nov 14 19:33 scoring_implementation_guide.md
+-rw-r--r-- 1 root root 12701 Nov 14 19:07 sre_assessment_questions.md
+-rw-r--r-- 1 root root 14090 Nov 14 20:12 technology_assessment_framework.md
+-rw-r--r-- 1 root root 11783 Nov 14 20:10 truist_assessment_framework.md
+-rw-r--r-- 1 root root  9117 Nov 14 19:20 truist_assessment_framework_summary.md
+-rw-r--r-- 1 root root 15593 Nov 14 20:13 updated_assessment_questions.md
