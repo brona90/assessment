@@ -1,0 +1,100 @@
+# Truist Assessment Framework - Scoring and Implementation Guide
+
+## Scoring Methodology
+
+### Rating Scale Details
+
+**5-Point Maturity Scale:**
+- **1.0 - Basic/Initial**: Ad-hoc processes, limited documentation, reactive approach
+- **2.0 - Developing**: Some standardization, basic controls, emerging practices
+- **3.0 - Established**: Defined processes, consistent execution, systematic approach
+- **4.0 - Advanced**: Optimized processes, continuous improvement, best practices
+- **5.0 - Leading Practice**: Industry-leading, innovative approaches, thought leadership
+
+### Scoring Guidelines
+
+**Score Assignment Criteria:**
+
+**Score 1 (Basic)**
+- Processes are ad-hoc and inconsistent
+- Limited documentation exists
+- Activities are primarily reactive
+- Minimal tooling or automation
+- No formal governance
+
+**Score 2 (Developing)**
+- Basic processes are documented
+- Some standardization exists
+- Initial governance framework
+- Basic tools implemented
+- Reactive with some proactive elements
+
+**Score 3 (Established)**
+- Comprehensive processes documented
+- Consistent execution across teams
+- Formal governance structure
+- Standardized tools and methods
+- Balanced proactive/reactive approach
+
+**Score 4 (Advanced)**
+- Optimized and efficient processes
+- Continuous improvement culture
+- Advanced tooling and automation
+- Predictive capabilities
+- Industry best practices adopted
+
+**Score 5 (Leading)**
+- Industry-leading practices
+- Innovation and thought leadership
+- Autonomous operations where applicable
+- External influence and sharing
+- Continuous innovation
+
+### Weighting Framework
+
+**Domain Weights for Overall Assessment:**
+- **SRE (25%)**: Critical for operational stability and customer experience
+- **Automation (25%)**: Essential for efficiency, cost reduction, and risk mitigation
+- **AI (25%)**: Strategic differentiator and competitive advantage
+- **Audit (25%)**: Regulatory requirement and risk management foundation
+
+**Calculation Formula:**
+```
+Overall Score = (SRE Score × 0.25) + (Automation Score × 0.25) + (AI Score × 0.25) + (Audit Score × 0.25)
+```
+
+### Benchmarking Framework
+
+**Industry Benchmarks:**
+- **Banking Industry Average**: 2.8-3.2
+- **Large Bank Average**: 3.2-3.6
+- **Digital Leader Banks**: 3.8-4.2
+- **Industry Leaders**: 4.3-4.7
+
+**Truist Target Maturity Levels:**
+- **Current State Target**: 3.0-3.5 (Established)
+- **2-Year Target**: 3.5-4.0 (Advanced-Established)
+- **5-Year Target**: 4.0-4.5 (Advanced)
+- **Vision Target**: 4.5+ (Leading-Advanced)
+
+## Implementation Roadmap
+
+### Phase 1: Assessment Preparation (Weeks 1-3)
+
+**Week 1: Project Initiation**
+- [ ] Stakeholder identification and engagement
+- [ ] Assessment team formation
+- [ ] Project charter development
+- [ ] Communication plan creation
+- [ ] Initial kickoff meeting
+
+**Week 2: Planning and Setup**
+- [ ] Detailed assessment planning
+- [ ] Documentation review preparation
+- [ ] Interview schedule development
+- [ ] Survey design and distribution
+- [ ] Tool and system access setup
+
+**Week 3: Pre-Assessment Activities**
+- [ ] Document collection and review
+- [ ] Initial stakeholder interviews
