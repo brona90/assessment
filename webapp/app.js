@@ -1,4 +1,4 @@
-// Truist Technology Assessment - Interactive Application
+// Technology Assessment - Interactive Application
 // Main JavaScript for handling assessment logic and visualizations
 
 // Global state
@@ -7,11 +7,33 @@ let charts = {};
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
+    // Apply configuration
+    applyConfiguration();
     generateQuestions();
     initializeCharts();
     loadFromLocalStorage();
     updateScores();
 });
+
+// Apply configuration from config.js
+function applyConfiguration() {
+    // Update page title
+    document.title = CONFIG.organization.fullName;
+    
+    // Update header title
+    const appTitle = document.getElementById('appTitle');
+    if (appTitle) {
+        appTitle.textContent = `🎯 ${CONFIG.organization.name} ${CONFIG.assessment.title}`;
+    }
+    
+    // Apply CSS color variables
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', CONFIG.colors.primary);
+    root.style.setProperty('--secondary-color', CONFIG.colors.secondary);
+    root.style.setProperty('--accent-color', CONFIG.colors.accent);
+    root.style.setProperty('--warning-color', CONFIG.colors.warning);
+    root.style.setProperty('--danger-color', CONFIG.colors.danger);
+}
 
 // Generate all questions dynamically
 function generateQuestions() {
@@ -658,7 +680,7 @@ function updateRecommendations() {
 // Save assessment to localStorage
 function saveAssessment() {
     try {
-        localStorage.setItem('truistAssessment', JSON.stringify(assessmentData));
+        localStorage.setItem(CONFIG.assessment.storageKey, JSON.stringify(assessmentData));
         alert('✅ Assessment saved successfully!');
     } catch (e) {
         alert('❌ Error saving assessment: ' + e.message);
@@ -668,7 +690,7 @@ function saveAssessment() {
 // Load assessment from localStorage
 function loadAssessment() {
     try {
-        const saved = localStorage.getItem('truistAssessment');
+        const saved = localStorage.getItem(CONFIG.assessment.storageKey);
         if (saved) {
             const data = JSON.parse(saved);
             
@@ -693,7 +715,7 @@ function loadAssessment() {
 // Load from localStorage on page load
 function loadFromLocalStorage() {
     try {
-        const saved = localStorage.getItem('truistAssessment');
+        const saved = localStorage.getItem(CONFIG.assessment.storageKey);
         if (saved) {
             const data = JSON.parse(saved);
             
@@ -751,7 +773,7 @@ async function exportPDF() {
         pdf.setTextColor(255, 255, 255);
         pdf.setFontSize(28);
         pdf.setFont(undefined, 'bold');
-        pdf.text('Truist Technology Assessment', 105, 25, { align: 'center' });
+        pdf.text(CONFIG.organization.fullName, 105, 25, { align: 'center' });
         
         pdf.setFontSize(14);
         pdf.setFont(undefined, 'normal');
@@ -848,7 +870,7 @@ async function exportPDF() {
         // Footer
         pdf.setFontSize(8);
         pdf.setTextColor(128, 128, 128);
-        pdf.text('Confidential - Truist Bank Technology Assessment', 105, 285, { align: 'center' });
+        pdf.text(CONFIG.organization.confidentialText, 105, 285, { align: 'center' });
         pdf.text('Page 1', 105, 290, { align: 'center' });
         
         // ========== PAGE 2: CHARTS &amp; VISUALIZATIONS ==========
@@ -901,7 +923,7 @@ async function exportPDF() {
         // Footer
         pdf.setFontSize(8);
         pdf.setTextColor(128, 128, 128);
-        pdf.text('Confidential - Truist Bank Technology Assessment', 105, 285, { align: 'center' });
+        pdf.text(CONFIG.organization.confidentialText, 105, 285, { align: 'center' });
         pdf.text('Page 2', 105, 290, { align: 'center' });
         
         // ========== PAGE 3: MORE CHARTS ==========
@@ -954,7 +976,7 @@ async function exportPDF() {
         // Footer
         pdf.setFontSize(8);
         pdf.setTextColor(128, 128, 128);
-        pdf.text('Confidential - Truist Bank Technology Assessment', 105, 285, { align: 'center' });
+        pdf.text(CONFIG.organization.confidentialText, 105, 285, { align: 'center' });
         pdf.text('Page 3', 105, 290, { align: 'center' });
         
         // ========== PAGE 4: DETAILED DOMAIN ANALYSIS ==========
@@ -1037,7 +1059,7 @@ async function exportPDF() {
         // Footer
         pdf.setFontSize(8);
         pdf.setTextColor(128, 128, 128);
-        pdf.text('Confidential - Truist Bank Technology Assessment', 105, 285, { align: 'center' });
+        pdf.text(CONFIG.organization.confidentialText, 105, 285, { align: 'center' });
         pdf.text('Page 4', 105, 290, { align: 'center' });
         
         // ========== PAGE 5: GAP ANALYSIS & RECOMMENDATIONS ==========
@@ -1180,7 +1202,7 @@ async function exportPDF() {
         // Footer
         pdf.setFontSize(8);
         pdf.setTextColor(128, 128, 128);
-        pdf.text('Confidential - Truist Bank Technology Assessment', 105, 285, { align: 'center' });
+        pdf.text(CONFIG.organization.confidentialText, 105, 285, { align: 'center' });
         pdf.text('Page 5', 105, 290, { align: 'center' });
         
         // ========== PAGE 6: BENCHMARKING & NEXT STEPS ==========
@@ -1272,11 +1294,11 @@ async function exportPDF() {
         // Footer
         pdf.setFontSize(8);
         pdf.setTextColor(128, 128, 128);
-        pdf.text('Confidential - Truist Bank Technology Assessment', 105, 285, { align: 'center' });
+        pdf.text(CONFIG.organization.confidentialText, 105, 285, { align: 'center' });
         pdf.text('Page 6', 105, 290, { align: 'center' });
         
         // Save PDF
-        pdf.save(`Truist-Assessment-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+        pdf.save(`${CONFIG.assessment.pdfFileName}-${new Date().toISOString().split('T')[0]}.pdf`);
         
         // Return to original section
         if (currentSectionId === 'assessment') {

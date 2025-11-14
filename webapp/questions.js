@@ -1,4 +1,4 @@
-// Truist Technology Assessment - Complete Question Set (48 Questions)
+// Technology Assessment - Complete Question Set (48 Questions)
 
 const assessmentQuestions = {
     domain1: {

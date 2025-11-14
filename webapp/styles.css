@@ -1,15 +1,25 @@
-/* Truist Technology Assessment - Interactive Web Application Styles */
+/* Technology Assessment - Interactive Web Application Styles */
 
 :root {
-    --truist-purple: #4B0082;
-    --truist-blue: #0066CC;
+    /* Default colors - can be overridden by config.js */
+    --primary-color: #6B46C1;
+    --secondary-color: #2563EB;
+    --accent-color: #10B981;
+    --warning-color: #F59E0B;
+    --danger-color: #EF4444;
+    --text-color: #1F2937;
+    --background-color: #F9FAFB;
+    
+    /* Legacy variable names for compatibility */
+    --truist-purple: var(--primary-color);
+    --truist-blue: var(--secondary-color);
     --truist-light-blue: #E6F2FF;
-    --truist-green: #28A745;
-    --truist-orange: #FFA500;
-    --truist-red: #DC3545;
+    --truist-green: var(--accent-color);
+    --truist-orange: var(--warning-color);
+    --truist-red: var(--danger-color);
     --truist-gray: #6C757D;
-    --truist-light-gray: #F8F9FA;
-    --truist-dark: #212529;
+    --truist-light-gray: var(--background-color);
+    --truist-dark: var(--text-color);
     --shadow: 0 2px 8px rgba(0,0,0,0.1);
     --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
 }
