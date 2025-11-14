@@ -205,7 +205,7 @@ plt.show()
 - Financial Data: 95% protected (5% risk exposure)
 - Health Data: 76% protected (24% risk exposure - CRITICAL)
 
-![PII Protection Dashboard](pii_protection_dashboard.png)
+![PII Protection Dashboard](../visualizations/pii_protection_dashboard.png)
 
 *Figure 4: PII Protection Status - Protection Levels vs. Risk Exposure*
 
@@ -335,7 +335,7 @@ plt.show()
 
 ## Executive Summary Dashboard
 
-![Executive Summary Dashboard](executive_summary_dashboard.png)
+![Executive Summary Dashboard](../visualizations/executive_summary_dashboard.png)
 
 *Figure 5: Executive Summary Dashboard - Key Performance Indicators*
 

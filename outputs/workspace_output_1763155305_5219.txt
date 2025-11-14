@@ -1,0 +1,7 @@
+/workspace/truist_assessment_framework/documentation/technology_assessment_framework.md
+/workspace/truist_assessment_framework/documentation/updated_assessment_questions.md
+/workspace/truist_assessment_framework/documentation/comprehensive_backlog_template.md
+/workspace/truist_assessment_framework/documentation/visualization_summary.md
+/workspace/truist_assessment_framework/examples/example_bank_assessment.md
+/workspace/truist_assessment_framework/README.md
+/workspace/truist_assessment_framework/QUICK_START.md

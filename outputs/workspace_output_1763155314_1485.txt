@@ -1,0 +1,7 @@
+/workspace/truist_assessment_framework/documentation/technology_assessment_framework.md:![Technology Maturity Assessment](maturity_radar_chart.png)
+/workspace/truist_assessment_framework/documentation/technology_assessment_framework.md:![Technology Platform Comparison](technology_comparison.png)
+/workspace/truist_assessment_framework/documentation/technology_assessment_framework.md:![SOX Compliance Dashboard](sox_compliance_dashboard.png)
+/workspace/truist_assessment_framework/documentation/technology_assessment_framework.md:![PII Protection Dashboard](pii_protection_dashboard.png)
+/workspace/truist_assessment_framework/documentation/comprehensive_backlog_template.md:![Implementation Roadmap](implementation_roadmap.png)
+/workspace/truist_assessment_framework/examples/example_bank_assessment.md:![PII Protection Dashboard](pii_protection_dashboard.png)
+/workspace/truist_assessment_framework/examples/example_bank_assessment.md:![Executive Summary Dashboard](executive_summary_dashboard.png)

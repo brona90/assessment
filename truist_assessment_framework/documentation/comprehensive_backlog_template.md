@@ -133,7 +133,7 @@ This comprehensive roadmap and prioritized backlog organizes Truist Bank's techn
 
 #### Implementation Roadmap Visualization
 
-![Implementation Roadmap](implementation_roadmap.png)
+![Implementation Roadmap](../visualizations/implementation_roadmap.png)
 
 *Figure 5: Technology Implementation Roadmap - 18-Month Timeline with Quarterly Milestones*
 

@@ -49,7 +49,7 @@ This framework provides a comprehensive methodology for assessing Truist Bank's 
 
 ### Technology Maturity Visualization
 
-![Technology Maturity Assessment](maturity_radar_chart.png)
+![Technology Maturity Assessment](../visualizations/maturity_radar_chart.png)
 
 *Figure 1: Technology Maturity Assessment - Current State vs. Target vs. Industry Benchmark*
 
@@ -63,7 +63,7 @@ The visualization clearly shows the largest gap in AI/ML capabilities, while tea
 
 ### Technology Platform Comparison
 
-![Technology Platform Comparison](technology_comparison.png)
+![Technology Platform Comparison](../visualizations/technology_comparison.png)
 
 *Figure 2: Technology Platform Capability Comparison - Enterprise Platforms*
 
@@ -178,7 +178,7 @@ This comparison chart evaluates key enterprise platforms across five capability 
 ## SOX Compliance Integration
 \n### SOX Compliance Dashboard
 
-![SOX Compliance Dashboard](sox_compliance_dashboard.png)
+![SOX Compliance Dashboard](../visualizations/sox_compliance_dashboard.png)
 
 *Figure 3: SOX Compliance Status - Current vs. Target with Gap Analysis*
 
@@ -238,7 +238,7 @@ The visualization highlights Data Integrity as the priority area requiring immed
 - Automated PII discovery and classification
 \n### PII Protection Dashboard
 
-![PII Protection Dashboard](pii_protection_dashboard.png)
+![PII Protection Dashboard](../visualizations/pii_protection_dashboard.png)
 
 *Figure 4: PII Protection Status - Protection Levels vs. Risk Exposure*
 
