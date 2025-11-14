@@ -1,0 +1,31 @@
+🚀 Generating Truist Bank Technology Assessment Visualizations...
+============================================================
+1. Creating maturity radar chart...
+   ✅ Maturity radar chart created successfully!
+2. Creating technology comparison chart...
+   ✅ Technology comparison chart created successfully!
+3. Creating SOX compliance dashboard...
+   ✅ SOX compliance dashboard created successfully!
+4. Creating PII protection dashboard...
+   ✅ PII protection dashboard created successfully!
+5. Creating implementation roadmap...
+   ✅ Implementation roadmap created successfully!
+6. Creating executive summary dashboard...
+   ✅ Executive summary dashboard created successfully!
+
+============================================================
+🎉 All visualizations created successfully!
+
+📁 Files saved to: /workspace/final_framework/
+
+Generated visualization files:
+  • maturity_radar_chart.png & .svg
+  • technology_comparison.png & .svg
+  • sox_compliance_dashboard.png & .svg
+  • pii_protection_dashboard.png & .svg
+  • implementation_roadmap.png & .svg
+  • executive_summary_dashboard.png & .svg
+
+📊 Visualizations are ready for web presentation and executive reporting!
+
+✨ Visualization generation complete! All charts are ready for presentation.

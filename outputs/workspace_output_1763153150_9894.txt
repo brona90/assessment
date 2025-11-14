@@ -1,0 +1,7 @@
+-rw-r--r-- 1 root root 254069 Nov 14 20:45 /workspace/final_framework/executive_summary_dashboard.png
+-rw-r--r-- 1 root root 229855 Nov 14 20:45 /workspace/final_framework/implementation_roadmap.png
+-rw-r--r-- 1 root root 482197 Nov 14 20:45 /workspace/final_framework/maturity_radar_chart.png
+-rw-r--r-- 1 root root 229831 Nov 14 20:45 /workspace/final_framework/pii_protection_dashboard.png
+-rw-r--r-- 1 root root 254763 Nov 14 20:45 /workspace/final_framework/sox_compliance_dashboard.png
+-rw-r--r-- 1 root root 207442 Nov 14 20:45 /workspace/final_framework/technology_comparison.png
+-rw-r--r-- 1 root root 207442 Nov 14 20:42 /workspace/final_framework/technology_comparison_chart.png
