@@ -1,0 +1,49 @@
+{
+  "name": "react-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "cucumber": "cucumber-js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "localforage": "^1.10.0",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.0",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.2.0",
+    "@eslint/js": "^9.39.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/coverage-v8": "^4.0.9",
+    "@vitest/ui": "^4.0.9",
+    "c8": "^10.1.3",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "gh-pages": "^6.3.0",
+    "globals": "^16.5.0",
+    "jsdom": "^27.2.0",
+    "vite": "^7.2.2",
+    "vitest": "^4.0.9"
+  }
+}
