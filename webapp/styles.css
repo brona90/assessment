@@ -507,12 +507,20 @@ h1 {
     height: 100%;
     background: linear-gradient(90deg, var(--truist-purple) 0%, var(--truist-blue) 100%);
     transition: width 0.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 15px;
-    color: white;
+    border-radius: 15px;
+}
+
+/* Position progress text absolutely so it's always visible */
+#progressText {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
     font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--truist-dark);
+    z-index: 10;
+    pointer-events: none;
 }
 
 /* Chart Container */
