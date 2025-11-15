@@ -240,6 +240,7 @@
 
     <link rel="stylesheet" href="evidence.css">
     <script src="evidence.js"></script>
+    <script src="charts.js"></script>
     <script>
         // Load questions from JSON and generate UI
         let assessmentData = {};
@@ -254,6 +255,10 @@
             loadFromLocalStorage();
             // Update evidence indicators
             updateAllEvidenceIndicators();
+            // Initialize charts
+            initializeCharts();
+            // Update charts with current data
+            updateCharts();
         });
         
         async function loadQuestionsFromJSON() {
@@ -343,6 +348,7 @@
             assessmentData[questionId] = parseInt(value);
             saveToLocalStorage();
             updateProgress();
+            updateCharts();
         }
         
         function saveToLocalStorage() {
@@ -457,6 +463,11 @@
             
             // Update active tab
             event.target.classList.add('active');
+            
+            // Update charts when switching to dashboard or other visual sections
+            if (section === 'dashboard' || section === 'maturity' || section === 'compliance' || section === 'roadmap') {
+                setTimeout(() => updateCharts(), 100);
+            }
         }
     </script>
 </body>
