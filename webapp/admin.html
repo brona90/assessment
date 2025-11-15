@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Technology Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .admin-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .admin-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .admin-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background-color: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-danger {
+            padding: 10px 20px;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-success {
+            padding: 10px 20px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .data-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .export-section {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .checkbox-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .checkbox-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .checkbox-item label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div>
+                <h1>⚙️ Admin Panel</h1>
+                <p class="subtitle">Manage questions, users, services, and benchmarks</p>
+            </div>
+            <div class="header-actions">
+                <a href="dashboard.html" class="btn btn-secondary">👤 User Dashboard</a>
+                <a href="index.html" class="btn btn-secondary">📝 Assessment</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Admin Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="showAdminSection('overview')">📊 Overview</button>
+            <button class="admin-tab" onclick="showAdminSection('questions')">❓ Questions</button>
+            <button class="admin-tab" onclick="showAdminSection('users')">👥 Users</button>
+            <button class="admin-tab" onclick="showAdminSection('services')">🔧 Services</button>
+            <button class="admin-tab" onclick="showAdminSection('benchmarks')">📈 Benchmarks</button>
+            <button class="admin-tab" onclick="showAdminSection('import')">📥 Import/Export</button>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overview" class="admin-section active">
+            <div class="section-header">
+                <h2>System Overview</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalQuestionsCount">0</div>
+                    <div class="stat-label">Total Questions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsersCount">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalServicesCount">0</div>
+                    <div class="stat-label">Services</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDomainsCount">4</div>
+                    <div class="stat-label">Domains</div>
+                </div>
+            </div>
+            <div class="export-section">
+                <h3>Quick Actions</h3>
+                <div class="export-buttons">
+                    <button class="btn-success" onclick="exportAllData()">📦 Export All Configuration</button>
+                    <button class="btn-primary" onclick="showAdminSection('import')">📥 Import Data</button>
+                    <button class="btn-secondary" onclick="viewInstructions()">📖 View Instructions</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div id="questions" class="admin-section">
+            <div class="section-header">
+                <h2>Manage Questions</h2>
+                <button class="btn-primary" onclick="openAddQuestionModal()">➕ Add Question</button>
+            </div>
+            <div id="questionsTable"></div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users" class="admin-section">
+            <div class="section-header">
+                <h2>Manage Users</h2>
+                <button class="btn-primary" onclick="openAddUserModal()">➕ Add User</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Assigned Questions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Services Section -->
+        <div id="services" class="admin-section">
+            <div class="section-header">
+                <h2>Manage Technology Services</h2>
+                <button class="btn-primary" onclick="openAddServiceModal()">➕ Add Service</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Questions</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Benchmarks Section -->
+        <div id="benchmarks" class="admin-section">
+            <div class="section-header">
+                <h2>Manage Industry Benchmarks</h2>
+                <button class="btn-primary" onclick="updateBenchmarks()">🔄 Update Benchmarks</button>
+            </div>
+            <div id="benchmarksContent"></div>
+        </div>
+
+        <!-- Import/Export Section -->
+        <div id="import" class="admin-section">
+            <div class="section-header">
+                <h2>Import & Export Data</h2>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h3>Export Configuration</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">Download configuration files to commit to GitHub</p>
+                <div class="export-buttons">
+                    <button class="btn-primary" onclick="exportQuestions()">📄 Export Questions</button>
+                    <button class="btn-primary" onclick="exportUsers()">👥 Export Users</button>
+                    <button class="btn-primary" onclick="exportServices()">🔧 Export Services</button>
+                    <button class="btn-primary" onclick="exportBenchmarks()">📈 Export Benchmarks</button>
+                    <button class="btn-success" onclick="exportAllData()">📦 Export All</button>
+                </div>
+            </div>
+
+            <div>
+                <h3>Import User Assessments</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">Import completed assessments from users</p>
+                <input type="file" id="importAssessmentFile" accept=".json" multiple style="margin-bottom: 15px;">
+                <button class="btn-primary" onclick="importUserAssessments()">📥 Import Assessments</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Question Modal -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="questionModalTitle">Add Question</h2>
+                <span class="close-modal" onclick="closeQuestionModal()">&times;</span>
+            </div>
+            <form id="questionForm">
+                <input type="hidden" id="questionId">
+                <div class="form-group">
+                    <label>Domain</label>
+                    <select id="questionDomain" required>
+                        <option value="">Select Domain</option>
+                        <option value="domain1">Domain 1: Data Orchestration & Platform Observability</option>
+                        <option value="domain2">Domain 2: FinOps & Data Management</option>
+                        <option value="domain3">Domain 3: Autonomous Capabilities (AI/ML)</option>
+                        <option value="domain4">Domain 4: Operations & Platform Team Alignment</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="questionCategory" required placeholder="e.g., Data Pipeline Automation">
+                </div>
+                <div class="form-group">
+                    <label>Question Text</label>
+                    <textarea id="questionText" required placeholder="Enter the question..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="questionRequiresEvidence" checked>
+                        Requires Evidence
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeQuestionModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="userModalTitle">Add User</h2>
+                <span class="close-modal" onclick="closeUserModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="userRole" required>
+                        <option value="assessor">Assessor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Assign Questions</label>
+                    <div class="checkbox-group" id="questionCheckboxes"></div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="serviceModalTitle">Add Service</h2>
+                <span class="close-modal" onclick="closeServiceModal()">&times;</span>
+            </div>
+            <form id="serviceForm">
+                <input type="hidden" id="serviceId">
+                <div class="form-group">
+                    <label>Service Name</label>
+                    <input type="text" id="serviceName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="serviceCategory" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="serviceDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="serviceActive">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeServiceModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "role": "admin",
+      "assignedQuestions": []
+    },
+    {
+      "id": "user1",
+      "name": "Data Engineer",
+      "email": "data.engineer@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d1_q1", "d1_q2", "d1_q3", "d1_q4", "d1_q5", "d1_q6", "d1_q7", "d1_q8"]
+    },
+    {
+      "id": "user2",
+      "name": "Integration Specialist",
+      "email": "integration@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d1_q9", "d1_q10", "d1_q11", "d1_q12"]
+    },
+    {
+      "id": "user3",
+      "name": "FinOps Manager",
+      "email": "finops@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d2_q1", "d2_q2", "d2_q3", "d2_q4", "d2_q5", "d2_q6", "d2_q7", "d2_q8"]
+    },
+    {
+      "id": "user4",
+      "name": "Data Governance Lead",
+      "email": "governance@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d2_q9", "d2_q10", "d2_q11", "d2_q12"]
+    },
+    {
+      "id": "user5",
+      "name": "AI/ML Engineer",
+      "email": "aiml@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d3_q1", "d3_q2", "d3_q3", "d3_q4", "d3_q5", "d3_q6", "d3_q7", "d3_q8"]
+    },
+    {
+      "id": "user6",
+      "name": "Compliance Officer",
+      "email": "compliance@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d3_q9", "d3_q10", "d3_q11", "d3_q12"]
+    },
+    {
+      "id": "user7",
+      "name": "SRE Lead",
+      "email": "sre@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d4_q1", "d4_q2", "d4_q3", "d4_q4", "d4_q5", "d4_q6", "d4_q7", "d4_q8"]
+    },
+    {
+      "id": "user8",
+      "name": "Operations Manager",
+      "email": "operations@example.com",
+      "role": "assessor",
+      "assignedQuestions": ["d4_q9", "d4_q10", "d4_q11", "d4_q12"]
+    }
+  ]
+}

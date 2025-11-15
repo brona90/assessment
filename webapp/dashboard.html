@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Technology Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="evidence.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .user-selector {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .user-selector h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .user-select-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .user-select-wrapper select {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        .user-select-wrapper button {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .user-select-wrapper button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .progress-overview {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .assigned-questions {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-item {
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+
+        .question-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .question-item.completed {
+            background-color: #d1fae5;
+            border-color: #6ee7b7;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .question-id {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .question-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .question-text {
+            color: #374151;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-answer {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-answer:hover {
+            opacity: 0.9;
+        }
+
+        .btn-export {
+            padding: 12px 24px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-export:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .no-user-selected {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .no-user-selected h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #e5e7eb;
+            color: #374151;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div>
+                <h1 id="appTitle">🎯 Technology Assessment Dashboard</h1>
+                <p class="subtitle">View and complete your assigned questions</p>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-secondary">📝 Full Assessment</a>
+                <a href="admin.html" class="btn btn-secondary">⚙️ Admin Panel</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- User Selector -->
+        <div class="user-selector">
+            <h2>Select Your Profile</h2>
+            <div class="user-select-wrapper">
+                <select id="userSelect">
+                    <option value="">-- Select Your Name --</option>
+                </select>
+                <button onclick="loadUserDashboard()">Load My Questions</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Content (hidden until user selected) -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- Progress Overview -->
+            <div class="progress-overview">
+                <h2>Your Progress</h2>
+                <div class="progress-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalQuestions">0</div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedQuestions">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingQuestions">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="progressPercent">0%</div>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Questions -->
+            <div class="assigned-questions">
+                <h2>Your Assigned Questions</h2>
+                <div id="questionsList"></div>
+                <button class="btn-export" onclick="exportUserAssessment()">
+                    📦 Export My Assessment
+                </button>
+            </div>
+        </div>
+
+        <!-- No User Selected Message -->
+        <div id="noUserMessage" class="no-user-selected">
+            <h3>👋 Welcome!</h3>
+            <p>Please select your name from the dropdown above to view your assigned questions.</p>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="evidence.js"></script>
+    <script>
+        let currentUser = null;
+        let usersData = null;
+        let questionsData = null;
+        let assessmentData = {};
+
+        // Load users and questions on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUsers();
+            await loadQuestions();
+            loadAssessmentData();
+        });
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('data/users.json');
+                usersData = await response.json();
+                populateUserSelect();
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch('data/questions.json');
+                questionsData = await response.json();
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+
+        function populateUserSelect() {
+            const select = document.getElementById('userSelect');
+            usersData.users.forEach(user => {
+                if (user.role === 'assessor') {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = `${user.name} (${user.email})`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function loadUserDashboard() {
+            const userId = document.getElementById('userSelect').value;
+            if (!userId) {
+                alert('Please select a user');
+                return;
+            }
+
+            currentUser = usersData.users.find(u => u.id === userId);
+            if (!currentUser) {
+                alert('User not found');
+                return;
+            }
+
+            // Save current user to localStorage
+            localStorage.setItem('currentUserId', userId);
+
+            // Show dashboard
+            document.getElementById('dashboardContent').style.display = 'block';
+            document.getElementById('noUserMessage').style.display = 'none';
+
+            // Load and display questions
+            displayUserQuestions();
+            updateProgressStats();
+        }
+
+        function displayUserQuestions() {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+
+            if (!currentUser.assignedQuestions || currentUser.assignedQuestions.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 40px;">No questions assigned yet.</p>';
+                return;
+            }
+
+            currentUser.assignedQuestions.forEach(questionId => {
+                const question = findQuestionById(questionId);
+                if (!question) return;
+
+                const isCompleted = assessmentData[questionId] !== undefined;
+                const hasEvidence = false; // Will check evidence later
+
+                const questionDiv = document.createElement('div');
+                questionDiv.className = `question-item ${isCompleted ? 'completed' : ''}`;
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <span class="question-id">${questionId.toUpperCase()}</span>
+                        <span class="question-status ${isCompleted ? 'status-completed' : 'status-pending'}">
+                            ${isCompleted ? '✓ Completed' : '⏳ Pending'}
+                        </span>
+                    </div>
+                    <span class="category-badge">${question.category}</span>
+                    <div class="question-text">${question.text}</div>
+                    <div class="question-actions">
+                        <button class="btn-answer" onclick="answerQuestion('${questionId}')">
+                            ${isCompleted ? '✏️ Edit Answer' : '📝 Answer Question'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function findQuestionById(questionId) {
+            for (const domainKey in questionsData.domains) {
+                const domain = questionsData.domains[domainKey];
+                for (const categoryKey in domain.categories) {
+                    const category = domain.categories[categoryKey];
+                    const question = category.questions.find(q => q.id === questionId);
+                    if (question) return question;
+                }
+            }
+            return null;
+        }
+
+        function updateProgressStats() {
+            const total = currentUser.assignedQuestions.length;
+            const completed = currentUser.assignedQuestions.filter(qId => assessmentData[qId] !== undefined).length;
+            const pending = total - completed;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalQuestions').textContent = total;
+            document.getElementById('completedQuestions').textContent = completed;
+            document.getElementById('pendingQuestions').textContent = pending;
+            document.getElementById('progressPercent').textContent = percent + '%';
+        }
+
+        function answerQuestion(questionId) {
+            // Redirect to main assessment page with question ID
+            window.location.href = `index.html?question=${questionId}&user=${currentUser.id}`;
+        }
+
+        function loadAssessmentData() {
+            const saved = localStorage.getItem(CONFIG.assessment.storageKey);
+            if (saved) {
+                try {
+                    assessmentData = JSON.parse(saved);
+                } catch (e) {
+                    assessmentData = {};
+                }
+            }
+        }
+
+        async function exportUserAssessment() {
+            if (!currentUser) {
+                alert('Please select a user first');
+                return;
+            }
+
+            // Collect user's answers
+            const userAnswers = {};
+            currentUser.assignedQuestions.forEach(qId => {
+                if (assessmentData[qId] !== undefined) {
+                    userAnswers[qId] = assessmentData[qId];
+                }
+            });
+
+            // Get evidence
+            const allEvidence = await evidenceManager.getAllEvidence();
+            const userEvidence = allEvidence.filter(e => 
+                currentUser.assignedQuestions.includes(e.questionId)
+            );
+
+            // Create export data
+            const exportData = {
+                user: {
+                    id: currentUser.id,
+                    name: currentUser.name,
+                    email: currentUser.email
+                },
+                exportDate: new Date().toISOString(),
+                answers: userAnswers,
+                evidence: userEvidence,
+                progress: {
+                    total: currentUser.assignedQuestions.length,
+                    completed: Object.keys(userAnswers).length
+                }
+            };
+
+            // Download as JSON
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `assessment-${currentUser.id}-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('Assessment exported successfully! Please send this file to the admin.');
+        }
+
+        // Auto-load user if previously selected
+        window.addEventListener('load', () => {
+            const savedUserId = localStorage.getItem('currentUserId');
+            if (savedUserId) {
+                document.getElementById('userSelect').value = savedUserId;
+                loadUserDashboard();
+            }
+        });
+    </script>
+</body>
+</html>
