@@ -10,26 +10,27 @@ Given('I am on the assessment page', async () => {
 });
 
 When('I click on the evidence button', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
+    await global.page.waitForTimeout(500);
   }
 });
 
 When('I have existing evidence', async () => {
   // Setup evidence for a question
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
-    await global.page.waitForTimeout(300);
+    await global.page.waitForTimeout(500);
     
-    const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+    const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
     if (await textArea.isVisible()) {
       await textArea.fill('Existing test evidence');
-      const saveButton = await global.page.locator('button:has-text("Save")');
+      const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
       if (await saveButton.isVisible()) {
         await saveButton.click();
-        await global.page.waitForTimeout(300);
+        await global.page.waitForTimeout(500);
       }
     }
   }
@@ -47,56 +48,63 @@ Given('I have answered some questions', async () => {
 });
 
 When('I click on an evidence button for a question', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
+    await global.page.waitForTimeout(500);
   }
 });
 
 When('I enter evidence and save', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     await textArea.fill('This is test evidence for the assessment question.');
-    const saveButton = await global.page.locator('button:has-text("Save")');
+    const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
     if (await saveButton.isVisible()) {
       await saveButton.click();
+      await global.page.waitForTimeout(500);
     }
   }
 });
 
 Given('I have evidence for a question', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
-    const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+    await global.page.waitForTimeout(500);
+    
+    const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
     if (await textArea.isVisible()) {
       await textArea.fill('Existing evidence for testing.');
-      const saveButton = await global.page.locator('button:has-text("Save")');
+      const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
       if (await saveButton.isVisible()) {
         await saveButton.click();
+        await global.page.waitForTimeout(500);
       }
     }
   }
 });
 
 When('I modify it in the modal', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     await textArea.fill('Modified evidence content for testing.');
   }
 });
 
 When('I save the changes', async () => {
-  const saveButton = await global.page.locator('button:has-text("Save")');
+  const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
   if (await saveButton.isVisible()) {
     await saveButton.click();
+    await global.page.waitForTimeout(500);
   }
 });
 
 When('I open the evidence modal', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
+    await global.page.waitForTimeout(500);
   }
 });
 
@@ -108,21 +116,21 @@ When('I click delete', async () => {
 });
 
 When('I add evidence for multiple questions', async () => {
-  const evidenceButtons = await global.page.locator('[data-testid^="evidence-button"]').all();
+  const evidenceButtons = await global.page.locator('[data-testid^="evidence-"]').all();
   for (let i = 0; i < Math.min(3, evidenceButtons.length); i++) {
     if (await evidenceButtons[i].isVisible()) {
       await evidenceButtons[i].click();
-      await global.page.waitForTimeout(300);
+      await global.page.waitForTimeout(500);
       
-      const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+      const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
       if (await textArea.isVisible()) {
         await textArea.fill(`Evidence for question ${i + 1}`);
-        const saveButton = await global.page.locator('button:has-text("Save")');
+        const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
         if (await saveButton.isVisible()) {
           await saveButton.click();
+          await global.page.waitForTimeout(500);
         }
       }
-      await global.page.waitForTimeout(300);
     }
   }
 });
@@ -143,10 +151,10 @@ When('I navigate between sections', async () => {
 });
 
 When('I try to save empty evidence', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     await textArea.fill('');
-    const saveButton = await global.page.locator('button:has-text("Save")');
+    const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
     if (await saveButton.isVisible()) {
       await saveButton.click();
     }
@@ -154,11 +162,11 @@ When('I try to save empty evidence', async () => {
 });
 
 When('I try to save evidence that\'s too long', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     const longText = 'a'.repeat(10000); // Very long text
     await textArea.fill(longText);
-    const saveButton = await global.page.locator('button:has-text("Save")');
+    const saveButton = await global.page.locator('button[data-testid="save-evidence"]');
     if (await saveButton.isVisible()) {
       await saveButton.click();
     }
@@ -173,7 +181,7 @@ Then('the evidence modal should open', async () => {
 });
 
 Then('I should see input fields for evidence', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     await expect(textArea).toBeVisible();
   }
@@ -181,7 +189,7 @@ Then('I should see input fields for evidence', async () => {
 
 Then('the evidence should be stored', async () => {
   // Check if evidence indicator shows evidence exists
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   await expect(evidenceButton).toBeVisible();
 });
 
@@ -194,7 +202,7 @@ Then('the modal should close', async () => {
 });
 
 Then('I should see the existing evidence', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     const value = await textArea.inputValue();
     expect(value.length).toBeGreaterThan(0);
@@ -202,7 +210,7 @@ Then('I should see the existing evidence', async () => {
 });
 
 Then('I should be able to edit it', async () => {
-  const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+  const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
   if (await textArea.isVisible()) {
     await expect(textArea).toBeEnabled();
   }
@@ -217,7 +225,7 @@ Then('I should be able to delete it', async () => {
 
 Then('the evidence should be updated', async () => {
   // Evidence should be modified
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   await expect(evidenceButton).toBeVisible();
 });
 
@@ -231,22 +239,22 @@ Then('the evidence should be removed', async () => {
 });
 
 Then('the evidence indicator should update', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   await expect(evidenceButton).toBeVisible();
 });
 
 Then('all evidence should be preserved', async () => {
-  const evidenceButtons = await global.page.locator('[data-testid^="evidence-button"]').all();
+  const evidenceButtons = await global.page.locator('[data-testid^="evidence-"]').all();
   expect(evidenceButtons.length).toBeGreaterThan(0);
 });
 
 Then('evidence should be available when I return', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
-    await global.page.waitForTimeout(300);
+    await global.page.waitForTimeout(500);
     
-    const textArea = await global.page.locator('textarea[data-testid="evidence-text"]');
+    const textArea = await global.page.locator('textarea[data-testid="text-evidence"]');
     if (await textArea.isVisible()) {
       const value = await textArea.inputValue();
       // Check if evidence exists (may be empty depending on test state)
@@ -259,10 +267,10 @@ Then('evidence should survive page reload', async () => {
   await global.page.reload();
   await global.page.waitForTimeout(2000);
   
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-button"]').first();
+  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
-    await global.page.waitForTimeout(300);
+    await global.page.waitForTimeout(500);
   }
 });
 
