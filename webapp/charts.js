@@ -400,11 +400,9 @@ function updateCharts() {
         chartInstances.radar.update();
     }
 
-    // Update Breakdown Chart (weighted scores)
+    // Update Breakdown Chart (show actual scores, not weighted)
     if (chartInstances.breakdown) {
-        const weights = [0.30, 0.25, 0.25, 0.20];
-        const weightedScores = domainScores.map((score, idx) => score * weights[idx] * 5);
-        chartInstances.breakdown.data.datasets[0].data = weightedScores;
+        chartInstances.breakdown.data.datasets[0].data = domainScores.map(s => parseFloat(s));
         chartInstances.breakdown.update();
     }
 

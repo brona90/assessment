@@ -5,6 +5,13 @@ async function exportPDF() {
     try {
         showPDFLoadingIndicator();
         
+        // CRITICAL: Update all charts with latest data before PDF generation
+        if (typeof updateCharts === 'function') {
+            updateCharts();
+            // Wait for charts to finish rendering
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
         // Check if jsPDF is loaded
         if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
             hidePDFLoadingIndicator();
@@ -372,12 +379,20 @@ async function addEvidencePages(pdf, margin, pageWidth, pageHeight) {
             });
         }
         
-        // Evidence images with proper aspect ratio
+        // Evidence images with proper aspect ratio - INCLUDE ALL IMAGES
         if (item.evidence.images && item.evidence.images.length > 0) {
             yPos += 5;
             
-            for (const image of item.evidence.images.slice(0, 2)) { // Max 2 images per question
-                if (yPos > pageHeight - 60) {
+            pdf.setFontSize(9);
+            pdf.setTextColor(99, 102, 241);
+            pdf.text(`📷 Evidence Images (${item.evidence.images.length}):`, margin + 5, yPos);
+            yPos += 6;
+            
+            // Include ALL images, not just first 2
+            for (let i = 0; i < item.evidence.images.length; i++) {
+                const image = item.evidence.images[i];
+                
+                if (yPos > pageHeight - 70) {
                     pdf.addPage();
                     yPos = 20;
                 }
@@ -386,19 +401,22 @@ async function addEvidencePages(pdf, margin, pageWidth, pageHeight) {
                     // Create temporary image to get dimensions
                     const img = new Image();
                     img.src = image.data;
-                    await new Promise(resolve => {
+                    await new Promise((resolve, reject) => {
                         img.onload = resolve;
-                        img.onerror = resolve;
+                        img.onerror = reject;
+                        // Timeout after 5 seconds
+                        setTimeout(resolve, 5000);
                     });
                     
                     // Calculate dimensions maintaining aspect ratio
-                    const maxWidth = (pageWidth - (2 * margin)) / 2;
-                    const maxHeight = 50;
+                    const maxWidth = pageWidth - (2 * margin) - 10;
+                    const maxHeight = 60;
                     
                     let width = img.width;
                     let height = img.height;
                     const aspectRatio = width / height;
                     
+                    // Scale down to fit
                     if (width > maxWidth) {
                         width = maxWidth;
                         height = width / aspectRatio;
@@ -408,19 +426,22 @@ async function addEvidencePages(pdf, margin, pageWidth, pageHeight) {
                         width = height * aspectRatio;
                     }
                     
-                    // Add image to PDF
+                    // Add image caption
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(107, 114, 128);
+                    pdf.text(`Image ${i + 1}: ${image.name || 'Evidence'}`, margin + 5, yPos);
+                    yPos += 4;
+                    
+                    // Add image to PDF maintaining aspect ratio
                     pdf.addImage(image.data, 'JPEG', margin + 5, yPos, width, height);
-                    yPos += height + 5;
+                    yPos += height + 8;
                 } catch (error) {
-                    console.error('Error adding image to PDF:', error);
+                    console.error(`Error adding image ${i + 1} to PDF:`, error);
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(239, 68, 68);
+                    pdf.text(`⚠️ Error loading image ${i + 1}`, margin + 5, yPos);
+                    yPos += 6;
                 }
-            }
-            
-            if (item.evidence.images.length > 2) {
-                pdf.setFontSize(8);
-                pdf.setTextColor(107, 114, 128);
-                pdf.text(`+ ${item.evidence.images.length - 2} more image(s)`, margin + 5, yPos);
-                yPos += 5;
             }
         }
         
