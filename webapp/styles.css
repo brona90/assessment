@@ -279,6 +279,74 @@ h1 {
     font-style: italic;
 }
 
+/* Category Section Styles */
+.category-section {
+    margin-bottom: 30px;
+}
+
+.category-title {
+    color: var(--truist-purple);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 25px 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--truist-light-gray);
+}
+
+/* Question Card Styles */
+.question-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.question-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.question-number {
+    background: linear-gradient(135deg, var(--truist-purple), var(--truist-blue));
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.evidence-required {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.question-text {
+    color: var(--truist-dark);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
 /* Rating Scale */
 .rating-scale {
     display: flex;
@@ -318,6 +386,17 @@ h1 {
     border-color: var(--truist-blue);
 }
 
+.rating-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--truist-dark);
+    font-weight: 500;
+}
+
+.rating-option input[type="radio"]:checked ~ .rating-label {
+    color: white;
+}
+
 .rating-value {
     display: block;
     font-size: 1.2rem;
@@ -327,6 +406,41 @@ h1 {
 .rating-text {
     display: block;
     font-size: 0.85rem;
+}
+
+/* Evidence Button Styles */
+.evidence-btn {
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid var(--truist-purple);
+    color: var(--truist-purple);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.evidence-btn:hover {
+    background: var(--truist-purple);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.evidence-btn.has-evidence {
+    background: var(--truist-purple);
+    color: white;
+    border-color: var(--truist-purple);
+}
+
+.evidence-btn.has-evidence:hover {
+    background: var(--truist-blue);
+    border-color: var(--truist-blue);
 }
 
 /* Progress Bar */
