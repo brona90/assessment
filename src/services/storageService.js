@@ -4,12 +4,14 @@ const ASSESSMENT_KEY = 'assessmentData';
 const EVIDENCE_STORE = 'evidence';
 
 // Configure localforage for evidence storage
-const evidenceDB = localforage.createInstance({
+const createEvidenceDB = () => localforage.createInstance({
   name: 'assessmentApp',
   storeName: EVIDENCE_STORE
 });
 
 export const storageService = {
+  evidenceDB: createEvidenceDB(),
+
   // Assessment data
   async saveAssessment(data) {
     try {
@@ -44,7 +46,7 @@ export const storageService = {
   // Evidence storage
   async saveEvidence(questionId, evidence) {
     try {
-      await evidenceDB.setItem(questionId, evidence);
+      await this.evidenceDB.setItem(questionId, evidence);
       return true;
     } catch (error) {
       console.error('Error saving evidence:', error);
@@ -54,7 +56,7 @@ export const storageService = {
 
   async loadEvidence(questionId) {
     try {
-      return await evidenceDB.getItem(questionId);
+      return await this.evidenceDB.getItem(questionId);
     } catch (error) {
       console.error('Error loading evidence:', error);
       return null;
@@ -63,10 +65,10 @@ export const storageService = {
 
   async loadAllEvidence() {
     try {
-      const keys = await evidenceDB.keys();
+      const keys = await this.evidenceDB.keys();
       const evidence = {};
       for (const key of keys) {
-        evidence[key] = await evidenceDB.getItem(key);
+        evidence[key] = await this.evidenceDB.getItem(key);
       }
       return evidence;
     } catch (error) {
@@ -77,7 +79,7 @@ export const storageService = {
 
   async clearAllEvidence() {
     try {
-      await evidenceDB.clear();
+      await this.evidenceDB.clear();
       return true;
     } catch (error) {
       console.error('Error clearing evidence:', error);

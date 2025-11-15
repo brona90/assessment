@@ -1,0 +1,30 @@
+    [90m   | [39m         [31m^[39m
+    [90m172| [39m      
+    [90m173| [39m      vi[33m.[39m[34mresetModules[39m()[33m;[39m
+
+[31m[1mCaused by: TypeError[22m: Cannot redefine property: createInstance[39m
+[36m [2m❯[22m src/services/storageService.test.jsx:[2m171:10[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/services/storageService.test.jsx[2m > [22mStorageService[2m > [22mEvidence Storage[2m > [22mshould handle clear all evidence errors gracefully
+[31m[1mTypeError[22m: Cannot spy on export "createInstance". Module namespace is not configurable in ESM. See: https://vitest.dev/guide/browser/#limitations[39m
+[36m [2m❯[22m src/services/storageService.test.jsx:[2m192:10[22m[39m
+    [90m190| [39m        clear[33m:[39m vi[33m.[39m[34mfn[39m()[33m.[39m[34mmockRejectedValue[39m([35mnew[39m [33mError[39m([32m'Clear error'[39m))
+    [90m191| [39m      }[33m;[39m
+    [90m192| [39m      vi.spyOn(localforage, 'createInstance').mockReturnValue(mockInst…
+    [90m   | [39m         [31m^[39m
+    [90m193| [39m      
+    [90m194| [39m      vi[33m.[39m[34mresetModules[39m()[33m;[39m
+
+[31m[1mCaused by: TypeError[22m: Cannot redefine property: createInstance[39m
+[36m [2m❯[22m src/services/storageService.test.jsx:[2m192:10[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m90 passed[39m[22m[90m (94)[39m
+[2m   Start at [22m 22:41:05
+[2m   Duration [22m 4.76s[2m (transform 2.02s, setup 4.98s, collect 4.30s, tests 3.27s, environment 13.25s, prepare 195ms)[22m
+

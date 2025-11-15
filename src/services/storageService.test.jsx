@@ -119,42 +119,53 @@ describe('StorageService', () => {
 
     it('should handle save evidence errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-        throw new Error('Storage error');
-      });
+      const setItemSpy = vi.spyOn(storageService.evidenceDB, 'setItem')
+        .mockRejectedValue(new Error('Storage error'));
       
       const result = await storageService.saveEvidence('q1', { text: 'test' });
       expect(result).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('Error saving evidence:', expect.any(Error));
       
+      setItemSpy.mockRestore();
       consoleSpy.mockRestore();
     });
 
     it('should handle load evidence errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const getItemSpy = vi.spyOn(storageService.evidenceDB, 'getItem')
+        .mockRejectedValue(new Error('Load error'));
       
-      const result = await storageService.loadEvidence('error-test');
+      const result = await storageService.loadEvidence('q1');
       expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('Error loading evidence:', expect.any(Error));
       
+      getItemSpy.mockRestore();
       consoleSpy.mockRestore();
     });
 
     it('should handle load all evidence errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const keysSpy = vi.spyOn(storageService.evidenceDB, 'keys')
+        .mockRejectedValue(new Error('Keys error'));
       
       const result = await storageService.loadAllEvidence();
       expect(result).toEqual({});
+      expect(consoleSpy).toHaveBeenCalledWith('Error loading all evidence:', expect.any(Error));
       
+      keysSpy.mockRestore();
       consoleSpy.mockRestore();
     });
 
     it('should handle clear all evidence errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const clearSpy = vi.spyOn(storageService.evidenceDB, 'clear')
+        .mockRejectedValue(new Error('Clear error'));
       
-      // clearAllEvidence doesn't actually fail in the current implementation
-      // It always returns true unless there's an exception
       const result = await storageService.clearAllEvidence();
-      expect(result).toBe(true);
+      expect(result).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('Error clearing evidence:', expect.any(Error));
       
+      clearSpy.mockRestore();
       consoleSpy.mockRestore();
     });
   });

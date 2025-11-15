@@ -113,6 +113,13 @@ describe('ScoreCalculator', () => {
       const progress = scoreCalculator.calculateProgress(mockDomains, answers);
       expect(progress.percentage).toBe(100);
     });
+
+    it('should handle empty domains', () => {
+      const progress = scoreCalculator.calculateProgress({}, {});
+      expect(progress.answered).toBe(0);
+      expect(progress.total).toBe(0);
+      expect(progress.percentage).toBe(0);
+    });
   });
 
   describe('calculateComplianceScore', () => {
@@ -123,11 +130,34 @@ describe('ScoreCalculator', () => {
     it('should calculate compliance score as percentage', () => {
       const answers = { q1: 4, q2: 5, q3: 3 };
       const score = scoreCalculator.calculateComplianceScore(mockFramework, null, answers);
-      expect(score).toBe(80); // ((4/5*100 + 5/5*100 + 3/5*100) / 3) = 80
+      expect(score).toBe(80);
     });
 
     it('should return 0 for framework without mapped questions', () => {
       const score = scoreCalculator.calculateComplianceScore({}, null, mockAnswers);
+      expect(score).toBe(0);
+    });
+
+    it('should return 0 when no questions are answered', () => {
+      const score = scoreCalculator.calculateComplianceScore(mockFramework, null, {});
+      expect(score).toBe(0);
+    });
+
+    it('should handle partial answers', () => {
+      const answers = { q1: 5 };
+      const score = scoreCalculator.calculateComplianceScore(mockFramework, null, answers);
+      expect(score).toBe(100);
+    });
+
+    it('should return 0 for null mappedQuestions', () => {
+      const framework = { mappedQuestions: null };
+      const score = scoreCalculator.calculateComplianceScore(framework, null, mockAnswers);
+      expect(score).toBe(0);
+    });
+
+    it('should return 0 for empty mappedQuestions array', () => {
+      const framework = { mappedQuestions: [] };
+      const score = scoreCalculator.calculateComplianceScore(framework, null, mockAnswers);
       expect(score).toBe(0);
     });
   });

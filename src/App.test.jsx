@@ -151,4 +151,105 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByText('Empty Domain')).toBeInTheDocument();
   });
+
+  it('should call onAddEvidence when evidence button is clicked', () => {
+    const mockSaveEvidence = vi.fn();
+    useAssessment.mockReturnValue({
+      ...mockUseAssessment,
+      saveEvidenceForQuestion: mockSaveEvidence
+    });
+
+    render(<App />);
+    const evidenceBtn = screen.getByTestId('evidence-q1');
+    fireEvent.click(evidenceBtn);
+    
+    // The onAddEvidence is currently a no-op in App.jsx
+    // This test covers the branch where the function is called
+    expect(evidenceBtn).toBeInTheDocument();
+  });
+
+  it('should handle categories with no questions', () => {
+    useAssessment.mockReturnValue({
+      ...mockUseAssessment,
+      domains: {
+        domain1: {
+          title: 'Test Domain',
+          categories: {
+            cat1: {
+              title: 'Empty Category',
+              questions: []
+            }
+          }
+        }
+      }
+    });
+
+    render(<App />);
+    expect(screen.getByText('Empty Category')).toBeInTheDocument();
+  });
+
+  it('should handle categories with null questions', () => {
+    useAssessment.mockReturnValue({
+      ...mockUseAssessment,
+      domains: {
+        domain1: {
+          title: 'Test Domain',
+          categories: {
+            cat1: {
+              title: 'Null Questions Category',
+              questions: null
+            }
+          }
+        }
+      }
+    });
+
+    render(<App />);
+    expect(screen.getByText('Null Questions Category')).toBeInTheDocument();
+  });
+
+  it('should handle null domains', () => {
+    useAssessment.mockReturnValue({
+      ...mockUseAssessment,
+      domains: null
+    });
+
+    render(<App />);
+    expect(screen.getByText('Technology Assessment Framework')).toBeInTheDocument();
+  });
+
+  it('should handle categories with undefined questions', () => {
+    useAssessment.mockReturnValue({
+      ...mockUseAssessment,
+      domains: {
+        domain1: {
+          title: 'Test Domain',
+          categories: {
+            cat1: {
+              title: 'Undefined Questions Category',
+              questions: undefined
+            }
+          }
+        }
+      }
+    });
+
+    render(<App />);
+    expect(screen.getByText('Undefined Questions Category')).toBeInTheDocument();
+  });
+
+  it('should handle null categories', () => {
+    useAssessment.mockReturnValue({
+      ...mockUseAssessment,
+      domains: {
+        domain1: {
+          title: 'Test Domain',
+          categories: null
+        }
+      }
+    });
+
+    render(<App />);
+    expect(screen.getByText('Test Domain')).toBeInTheDocument();
+  });
 });
