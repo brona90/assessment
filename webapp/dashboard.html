@@ -213,6 +213,69 @@
             font-size: 12px;
             margin-bottom: 10px;
         }
+
+        .rating-scale {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .rating-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-option:hover {
+            border-color: var(--primary-color);
+            background-color: #f9fafb;
+        }
+
+        .rating-option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .rating-option input[type="radio"]:checked + .rating-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .rating-label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .evidence-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .evidence-btn:hover {
+            background-color: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .evidence-btn.has-evidence {
+            background-color: #d1fae5;
+            border-color: #6ee7b7;
+            color: #065f46;
+        }
     </style>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
@@ -369,7 +432,6 @@
                 if (!question) return;
 
                 const isCompleted = assessmentData[questionId] !== undefined;
-                const hasEvidence = false; // Will check evidence later
 
                 const questionDiv = document.createElement('div');
                 questionDiv.className = `question-item ${isCompleted ? 'completed' : ''}`;
@@ -382,14 +444,41 @@
                     </div>
                     <span class="category-badge">${question.category}</span>
                     <div class="question-text">${question.text}</div>
-                    <div class="question-actions">
-                        <button class="btn-answer" onclick="answerQuestion('${questionId}')">
-                            ${isCompleted ? '✏️ Edit Answer' : '📝 Answer Question'}
-                        </button>
+                    <div class="rating-scale">
+                        <label class="rating-option">
+                            <input type="radio" name="${questionId}" value="1" onchange="handleAnswerChange('${questionId}', 1)" ${assessmentData[questionId] === 1 ? 'checked' : ''}>
+                            <span class="rating-label">1 - Not Implemented</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="${questionId}" value="2" onchange="handleAnswerChange('${questionId}', 2)" ${assessmentData[questionId] === 2 ? 'checked' : ''}>
+                            <span class="rating-label">2 - Initial/Ad-hoc</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="${questionId}" value="3" onchange="handleAnswerChange('${questionId}', 3)" ${assessmentData[questionId] === 3 ? 'checked' : ''}>
+                            <span class="rating-label">3 - Defined/Repeatable</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="${questionId}" value="4" onchange="handleAnswerChange('${questionId}', 4)" ${assessmentData[questionId] === 4 ? 'checked' : ''}>
+                            <span class="rating-label">4 - Managed/Measured</span>
+                        </label>
+                        <label class="rating-option">
+                            <input type="radio" name="${questionId}" value="5" onchange="handleAnswerChange('${questionId}', 5)" ${assessmentData[questionId] === 5 ? 'checked' : ''}>
+                            <span class="rating-label">5 - Optimized/Innovating</span>
+                        </label>
                     </div>
+                    <button class="evidence-btn" data-evidence-indicator="${questionId}" onclick="openEvidenceModal('${questionId}')">
+                        📎 Add Evidence
+                    </button>
                 `;
                 container.appendChild(questionDiv);
             });
+            
+            // Update evidence indicators after rendering
+            setTimeout(() => {
+                currentUser.assignedQuestions.forEach(questionId => {
+                    updateEvidenceIndicator(questionId);
+                });
+            }, 100);
         }
 
         function findQuestionById(questionId) {
@@ -416,9 +505,42 @@
             document.getElementById('progressPercent').textContent = percent + '%';
         }
 
-        function answerQuestion(questionId) {
-            // Redirect to main assessment page with question ID
-            window.location.href = `index.html?question=${questionId}&user=${currentUser.id}`;
+        function handleAnswerChange(questionId, value) {
+            assessmentData[questionId] = parseInt(value);
+            saveAssessmentData();
+            updateProgressStats();
+            
+            // Update question item styling
+            const questionItem = document.querySelector(`input[name="${questionId}"]`).closest('.question-item');
+            if (questionItem && !questionItem.classList.contains('completed')) {
+                questionItem.classList.add('completed');
+            }
+            
+            // Update status badge
+            const statusBadge = questionItem.querySelector('.question-status');
+            if (statusBadge) {
+                statusBadge.className = 'question-status status-completed';
+                statusBadge.textContent = '✓ Completed';
+            }
+        }
+        
+        function saveAssessmentData() {
+            localStorage.setItem(CONFIG.assessment.storageKey, JSON.stringify(assessmentData));
+        }
+
+        function updateEvidenceIndicator(questionId) {
+            evidenceManager.getEvidence(questionId).then(evidence => {
+                const indicator = document.querySelector(`[data-evidence-indicator="${questionId}"]`);
+                if (indicator) {
+                    if (evidence && (evidence.text || (evidence.images && evidence.images.length > 0))) {
+                        indicator.classList.add('has-evidence');
+                        indicator.textContent = '📎 Evidence Added';
+                    } else {
+                        indicator.classList.remove('has-evidence');
+                        indicator.textContent = '📎 Add Evidence';
+                    }
+                }
+            });
         }
 
         function loadAssessmentData() {
