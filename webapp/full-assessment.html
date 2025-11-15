@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <header>
@@ -241,6 +242,7 @@
     <link rel="stylesheet" href="evidence.css">
     <script src="evidence.js"></script>
     <script src="charts.js"></script>
+    <script src="pdf-export.js"></script>
     <script>
         // Load questions from JSON and generate UI
         let assessmentData = {};
@@ -445,10 +447,6 @@
             loadFromLocalStorage();
             updateAllEvidenceIndicators();
             alert('✅ Assessment data reloaded!\n\nAll imported answers and evidence are now visible.');
-        }
-        
-        function exportPDF() {
-            alert('PDF export functionality - to be implemented with full charts and evidence');
         }
         
         function showSection(section) {
