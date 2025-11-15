@@ -43,11 +43,36 @@ Visit `http://localhost:5173`
 ### Testing
 
 ```bash
-# Run tests
+# Run unit tests
 npm test
 
 # Run tests with UI
 npm run test:ui
+
+# Run BDD/Cucumber tests
+npm run cucumber
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+#### BDD Testing with Cucumber
+This application includes comprehensive Behavior-Driven Development tests using Cucumber.js and Playwright. The BDD tests cover:
+
+- **Assessment Workflow**: Complete assessment scenarios including navigation and answer validation
+- **PDF Export**: PDF generation and download functionality testing
+- **Compliance Frameworks**: Framework enable/disable and mapping validation
+- **Evidence Management**: Evidence addition, editing, and persistence testing
+- **Visualizations**: Chart rendering, responsiveness, and interaction testing
+
+To run specific BDD features:
+```bash
+npx cucumber-js features/assessment_workflow.feature
+npx cucumber-js features/pdf_export.feature
+npx cucumber-js features/compliance_frameworks.feature
+```
+
+The BDD tests serve as both tests and living documentation, ensuring the application behaves correctly from a user's perspective.
 
 # Run tests with coverage
 npm run test:coverage
