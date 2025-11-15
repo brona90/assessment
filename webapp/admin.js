@@ -712,6 +712,84 @@ Workflow:
 5. Users see updated questions/assignments`);
 }
 
+// Reset All Assessment Data (Admin Only)
+async function resetAllData() {
+    const confirmation = confirm(
+        '⚠️ WARNING: Reset All Assessment Data\n\n' +
+        'This will permanently delete:\n' +
+        '• All assessment responses\n' +
+        '• All evidence (text and images)\n' +
+        '• All progress tracking\n' +
+        '• User selections\n\n' +
+        'This action CANNOT be undone!\n\n' +
+        'Are you absolutely sure you want to proceed?'
+    );
+    
+    if (!confirmation) {
+        return;
+    }
+    
+    // Second confirmation
+    const doubleConfirm = confirm(
+        '🚨 FINAL CONFIRMATION\n\n' +
+        'You are about to delete ALL assessment data.\n\n' +
+        'Type YES in your mind and click OK to proceed, or Cancel to abort.'
+    );
+    
+    if (!doubleConfirm) {
+        showNotification('Reset cancelled', 'info');
+        return;
+    }
+    
+    try {
+        // Show loading indicator
+        showNotification('Resetting all data...', 'info');
+        
+        // Clear localStorage assessment data
+        const storageKey = CONFIG.assessment.storageKey || 'techAssessment';
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem('currentUserId');
+        
+        // Clear IndexedDB evidence data
+        if (typeof evidenceManager !== 'undefined') {
+            await evidenceManager.clearAll();
+        }
+        
+        // Clear any other assessment-related storage
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.includes('assessment') || key.includes('evidence') || key.includes('user'))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        // Success message
+        showNotification('✅ All data has been reset successfully!', 'success');
+        
+        alert(
+            '✅ Reset Complete!\n\n' +
+            'All assessment data has been permanently deleted:\n' +
+            '• Assessment responses cleared\n' +
+            '• Evidence database cleared\n' +
+            '• Progress tracking reset\n' +
+            '• User selections cleared\n\n' +
+            'The system is now ready for a fresh assessment.'
+        );
+        
+        // Refresh the page after a short delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error resetting data:', error);
+        showNotification('❌ Error resetting data. Check console for details.', 'error');
+        alert('Error resetting data: ' + error.message);
+    }
+}
+
 // Notification
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
