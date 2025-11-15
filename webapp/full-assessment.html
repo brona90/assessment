@@ -240,7 +240,220 @@
 
     <link rel="stylesheet" href="evidence.css">
     <script src="evidence.js"></script>
-    <script src="questions.js"></script>
-    <script src="app.js"></script>
+    <script>
+        // Load questions from JSON and generate UI
+        let assessmentData = {};
+        let questionsData = null;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load questions from JSON
+            await loadQuestionsFromJSON();
+            // Generate questions UI
+            generateQuestionsUI();
+            // Load saved data
+            loadFromLocalStorage();
+            // Update evidence indicators
+            updateAllEvidenceIndicators();
+        });
+        
+        async function loadQuestionsFromJSON() {
+            try {
+                const response = await fetch('data/questions.json');
+                const data = await response.json();
+                questionsData = data.domains;
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                alert('Error loading questions. Please refresh the page.');
+            }
+        }
+        
+        function generateQuestionsUI() {
+            const container = document.getElementById('questionsContainer');
+            if (!container || !questionsData) return;
+            
+            let html = '';
+            
+            Object.keys(questionsData).forEach(domainKey => {
+                const domain = questionsData[domainKey];
+                const domainNumber = domainKey.replace('domain', '');
+                
+                html += `
+                    <div class="domain-section">
+                        <div class="domain-header">
+                            <h2 class="domain-title">Domain ${domainNumber}: ${domain.title}</h2>
+                            <span class="domain-weight">Weight: ${(domain.weight * 100).toFixed(0)}%</span>
+                        </div>
+                `;
+                
+                Object.keys(domain.categories).forEach(categoryKey => {
+                    const category = domain.categories[categoryKey];
+                    
+                    html += `
+                        <div class="category-section">
+                            <h3 class="category-title">${category.title}</h3>
+                    `;
+                    
+                    category.questions.forEach(question => {
+                        html += `
+                            <div class="question-card" data-question-id="${question.id}">
+                                <div class="question-header-row">
+                                    <span class="question-number">${question.id.toUpperCase()}</span>
+                                    ${question.requiresEvidence ? '<span class="evidence-required">📎 Evidence Required</span>' : ''}
+                                </div>
+                                <p class="question-text">${question.text}</p>
+                                <div class="rating-scale">
+                                    <label class="rating-option">
+                                        <input type="radio" name="${question.id}" value="1" onchange="handleAnswerChange('${question.id}', 1)">
+                                        <span class="rating-label">1 - Not Implemented</span>
+                                    </label>
+                                    <label class="rating-option">
+                                        <input type="radio" name="${question.id}" value="2" onchange="handleAnswerChange('${question.id}', 2)">
+                                        <span class="rating-label">2 - Initial/Ad-hoc</span>
+                                    </label>
+                                    <label class="rating-option">
+                                        <input type="radio" name="${question.id}" value="3" onchange="handleAnswerChange('${question.id}', 3)">
+                                        <span class="rating-label">3 - Defined/Repeatable</span>
+                                    </label>
+                                    <label class="rating-option">
+                                        <input type="radio" name="${question.id}" value="4" onchange="handleAnswerChange('${question.id}', 4)">
+                                        <span class="rating-label">4 - Managed/Measured</span>
+                                    </label>
+                                    <label class="rating-option">
+                                        <input type="radio" name="${question.id}" value="5" onchange="handleAnswerChange('${question.id}', 5)">
+                                        <span class="rating-label">5 - Optimized/Innovating</span>
+                                    </label>
+                                </div>
+                                <button class="evidence-btn" data-evidence-indicator="${question.id}" onclick="openEvidenceModal('${question.id}')">
+                                    📎 Add Evidence
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`; // Close category-section
+                });
+                
+                html += `</div>`; // Close domain-section
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function handleAnswerChange(questionId, value) {
+            assessmentData[questionId] = parseInt(value);
+            saveToLocalStorage();
+            updateProgress();
+        }
+        
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem(CONFIG.assessment.storageKey, JSON.stringify(assessmentData));
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem(CONFIG.assessment.storageKey);
+                if (saved) {
+                    assessmentData = JSON.parse(saved);
+                    console.log('Loaded assessment data:', assessmentData);
+                    
+                    // Restore radio button selections
+                    Object.keys(assessmentData).forEach(questionId => {
+                        const value = assessmentData[questionId];
+                        const radio = document.querySelector(`input[name="${questionId}"][value="${value}"]`);
+                        if (radio) {
+                            radio.checked = true;
+                        }
+                    });
+                    
+                    updateProgress();
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+            }
+        }
+        
+        function updateProgress() {
+            if (!questionsData) return;
+            
+            let totalQuestions = 0;
+            let answeredQuestions = 0;
+            
+            Object.keys(questionsData).forEach(domainKey => {
+                const domain = questionsData[domainKey];
+                Object.keys(domain.categories).forEach(categoryKey => {
+                    const category = domain.categories[categoryKey];
+                    category.questions.forEach(question => {
+                        totalQuestions++;
+                        if (assessmentData[question.id] !== undefined) {
+                            answeredQuestions++;
+                        }
+                    });
+                });
+            });
+            
+            const percentage = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const progressPercentage = document.getElementById('progressPercentage');
+            
+            if (progressBar) progressBar.style.width = percentage + '%';
+            if (progressText) progressText.textContent = `${answeredQuestions}/${totalQuestions} Questions`;
+            if (progressPercentage) progressPercentage.textContent = percentage + '%';
+        }
+        
+        function updateAllEvidenceIndicators() {
+            if (!questionsData) return;
+            
+            Object.keys(questionsData).forEach(domainKey => {
+                const domain = questionsData[domainKey];
+                Object.keys(domain.categories).forEach(categoryKey => {
+                    const category = domain.categories[categoryKey];
+                    category.questions.forEach(question => {
+                        updateEvidenceIndicator(question.id);
+                    });
+                });
+            });
+        }
+        
+        function updateEvidenceIndicator(questionId) {
+            evidenceManager.getEvidence(questionId).then(evidence => {
+                const indicator = document.querySelector(`[data-evidence-indicator="${questionId}"]`);
+                if (indicator) {
+                    if (evidence && (evidence.text || (evidence.images && evidence.images.length > 0))) {
+                        indicator.classList.add('has-evidence');
+                        indicator.textContent = '📎 Evidence Added';
+                    } else {
+                        indicator.classList.remove('has-evidence');
+                        indicator.textContent = '📎 Add Evidence';
+                    }
+                }
+            });
+        }
+        
+        function reloadAssessment() {
+            loadFromLocalStorage();
+            updateAllEvidenceIndicators();
+            alert('✅ Assessment data reloaded!\n\nAll imported answers and evidence are now visible.');
+        }
+        
+        function exportPDF() {
+            alert('PDF export functionality - to be implemented with full charts and evidence');
+        }
+        
+        function showSection(section) {
+            // Tab switching logic
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            const sectionEl = document.getElementById(section + 'Section');
+            if (sectionEl) sectionEl.style.display = 'block';
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>
