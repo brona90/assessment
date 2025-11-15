@@ -6,7 +6,19 @@ async function exportPDF() {
         // Show loading indicator
         showPDFLoadingIndicator();
         
-        const { jsPDF } = window.jspdf;
+        // Check if jsPDF is loaded - try multiple ways
+        let jsPDF;
+        if (window.jspdf &amp;&amp; window.jspdf.jsPDF) {
+            jsPDF = window.jspdf.jsPDF;
+        } else if (window.jsPDF) {
+            jsPDF = window.jsPDF;
+        } else {
+            hidePDFLoadingIndicator();
+            alert('PDF library not loaded. Please refresh the page and try again.');
+            console.error('jsPDF not found. window.jspdf:', window.jspdf, 'window.jsPDF:', window.jsPDF);
+            return;
+        }
+        
         const pdf = new jsPDF('p', 'mm', 'a4');
         
         let yPosition = 20;
@@ -43,7 +55,9 @@ async function exportPDF() {
         
     } catch (error) {
         console.error('Error generating PDF:', error);
+        console.error('Error stack:', error.stack);
         hidePDFLoadingIndicator();
+        alert('Error generating PDF: ' + error.message + '\n\nPlease check the browser console for details.');
         showNotification('Error generating PDF. Please try again.', 'error');
     }
 }
