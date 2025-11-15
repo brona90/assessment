@@ -717,19 +717,28 @@ function loadFromLocalStorage() {
     try {
         const saved = localStorage.getItem(CONFIG.assessment.storageKey);
         if (saved) {
-            const data = JSON.parse(saved);
+            assessmentData = JSON.parse(saved);
             
             // Restore radio button selections
-            Object.keys(data).forEach(questionName => {
-                const radio = document.querySelector(`input[name="${questionName}"][value="${data[questionName]}"]`);
+            Object.keys(assessmentData).forEach(questionName => {
+                const radio = document.querySelector(`input[name="${questionName}"][value="${assessmentData[questionName]}"]`);
                 if (radio) {
                     radio.checked = true;
                 }
             });
+            
+            // Update scores after loading
+            updateScores();
         }
     } catch (e) {
         console.error('Error loading from localStorage:', e);
     }
+}
+
+// Reload assessment data (for use after admin import)
+function reloadAssessment() {
+    loadFromLocalStorage();
+    alert('✅ Assessment data reloaded from storage!\n\nAll imported answers are now visible.');
 }
 
 // Export to PDF with comprehensive report including charts

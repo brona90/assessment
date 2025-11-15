@@ -644,20 +644,45 @@ async function consolidateAssessments(assessments) {
         consolidated.users.push(assessment.user);
     });
     
-    // Save consolidated answers to localStorage
+    // Save consolidated answers to localStorage with the correct key from config
     try {
-        localStorage.setItem('techAssessment', JSON.stringify(consolidated.answers));
+        const storageKey = CONFIG.assessment.storageKey || 'techAssessment';
+        
+        // Get existing data and merge
+        const existing = localStorage.getItem(storageKey);
+        const existingData = existing ? JSON.parse(existing) : {};
+        const mergedData = { ...existingData, ...consolidated.answers };
+        
+        // Save merged data
+        localStorage.setItem(storageKey, JSON.stringify(mergedData));
+        console.log('Saved to localStorage:', storageKey, mergedData);
         
         // Import evidence into IndexedDB
-        if (typeof evidenceManager !== 'undefined') {
+        if (typeof evidenceManager !== 'undefined' && evidenceManager.db) {
+            let evidenceCount = 0;
             for (const evidence of consolidated.evidence) {
                 await evidenceManager.saveEvidence(evidence.questionId, evidence);
+                evidenceCount++;
             }
+            console.log('Imported evidence items:', evidenceCount);
         }
         
-        showNotification(`Successfully imported ${assessments.length} assessments and saved to system!`, 'success');
+        // Show detailed success message
+        const message = `✅ Successfully imported ${assessments.length} assessments!\n\n` +
+                       `📊 Summary:\n` +
+                       `- ${Object.keys(consolidated.answers).length} answers saved\n` +
+                       `- ${consolidated.evidence.length} evidence items imported\n` +
+                       `- Consolidated backup downloaded\n\n` +
+                       `📝 Next Steps:\n` +
+                       `1. Open Dashboard to see all answers\n` +
+                       `2. Open Full Assessment and click "🔄 Reload Data"\n` +
+                       `3. Generate PDF report with all evidence`;
+        
+        alert(message);
+        showNotification('Import successful! Data saved to system.', 'success');
     } catch (error) {
         console.error('Error saving consolidated data:', error);
+        alert('Error saving consolidated data: ' + error.message);
         showNotification('Error saving consolidated data: ' + error.message, 'error');
     }
     
