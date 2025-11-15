@@ -266,12 +266,82 @@ function updateEvidenceIndicator(questionId) {
             if (evidence && (evidence.text || (evidence.images && evidence.images.length > 0))) {
                 indicator.classList.add('has-evidence');
                 indicator.textContent = '📎 Evidence Added';
+                
+                // Display thumbnails
+                displayEvidenceThumbnails(questionId, evidence);
             } else {
                 indicator.classList.remove('has-evidence');
                 indicator.textContent = '📎 Add Evidence';
+                
+                // Remove thumbnails
+                removeEvidenceThumbnails(questionId);
             }
         }
     });
+}
+
+// Display evidence thumbnails next to the question
+function displayEvidenceThumbnails(questionId, evidence) {
+    // Find the question card
+    const questionCard = document.querySelector(`[data-question-id="${questionId}"]`);
+    if (!questionCard) return;
+    
+    // Remove existing thumbnails
+    removeEvidenceThumbnails(questionId);
+    
+    // Create thumbnails container
+    const thumbnailsContainer = document.createElement('div');
+    thumbnailsContainer.className = 'evidence-thumbnails';
+    thumbnailsContainer.setAttribute('data-thumbnails-for', questionId);
+    
+    // Add image thumbnails
+    if (evidence.images && evidence.images.length > 0) {
+        const firstImage = evidence.images[0];
+        const thumbnailDiv = document.createElement('div');
+        thumbnailDiv.className = 'evidence-thumbnail-container';
+        thumbnailDiv.onclick = () => openEvidenceModal(questionId);
+        
+        const img = document.createElement('img');
+        img.className = 'evidence-thumbnail-img';
+        img.src = firstImage.data;
+        img.alt = firstImage.name;
+        
+        thumbnailDiv.appendChild(img);
+        
+        // Add count badge if multiple images
+        if (evidence.images.length > 1) {
+            const countBadge = document.createElement('div');
+            countBadge.className = 'evidence-thumbnail-count';
+            countBadge.textContent = `+${evidence.images.length - 1}`;
+            thumbnailDiv.appendChild(countBadge);
+        }
+        
+        thumbnailsContainer.appendChild(thumbnailDiv);
+    }
+    
+    // Add text indicator if text evidence exists
+    if (evidence.text && evidence.text.trim()) {
+        const textIndicator = document.createElement('div');
+        textIndicator.className = 'evidence-thumbnail-text-indicator';
+        textIndicator.textContent = '📝';
+        textIndicator.title = 'Text evidence available';
+        textIndicator.onclick = () => openEvidenceModal(questionId);
+        thumbnailsContainer.appendChild(textIndicator);
+    }
+    
+    // Insert thumbnails after the evidence button
+    const evidenceBtn = questionCard.querySelector(`[data-evidence-indicator="${questionId}"]`);
+    if (evidenceBtn && evidenceBtn.parentNode) {
+        evidenceBtn.parentNode.insertBefore(thumbnailsContainer, evidenceBtn.nextSibling);
+    }
+}
+
+// Remove evidence thumbnails
+function removeEvidenceThumbnails(questionId) {
+    const existingThumbnails = document.querySelector(`[data-thumbnails-for="${questionId}"]`);
+    if (existingThumbnails) {
+        existingThumbnails.remove();
+    }
 }
 
 function showNotification(message, type = 'info') {
