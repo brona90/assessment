@@ -1,0 +1,71 @@
+{
+  "services": [
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "category": "Data Platform",
+      "description": "Cloud data warehouse platform",
+      "questionIds": ["d1_q5", "d1_q6", "d1_q7", "d1_q8"],
+      "benchmarks": {
+        "performance": 4.2,
+        "security": 3.8,
+        "integration": 3.5,
+        "operations": 3.2
+      },
+      "active": true
+    },
+    {
+      "id": "talend",
+      "name": "Talend",
+      "category": "Data Integration",
+      "description": "ETL and data integration platform",
+      "questionIds": ["d1_q9", "d1_q10", "d1_q11", "d1_q12"],
+      "benchmarks": {
+        "integration": 3.9,
+        "development": 3.1,
+        "governance": 2.8,
+        "scalability": 3.4
+      },
+      "active": true
+    },
+    {
+      "id": "servicenow",
+      "name": "ServiceNow",
+      "category": "ITSM Platform",
+      "description": "IT service management and operations",
+      "questionIds": ["d4_q1", "d4_q2", "d4_q10"],
+      "benchmarks": {
+        "incidentManagement": 4.0,
+        "changeManagement": 3.7,
+        "automation": 3.3
+      },
+      "active": true
+    },
+    {
+      "id": "newrelic",
+      "name": "New Relic",
+      "category": "Observability",
+      "description": "Application performance monitoring and observability",
+      "questionIds": ["d1_q2", "d4_q3"],
+      "benchmarks": {
+        "monitoring": 4.1,
+        "alerting": 3.9,
+        "analytics": 3.6
+      },
+      "active": true
+    },
+    {
+      "id": "aws",
+      "name": "AWS",
+      "category": "Cloud Platform",
+      "description": "Amazon Web Services cloud infrastructure",
+      "questionIds": ["d2_q1", "d2_q2", "d2_q3", "d2_q4"],
+      "benchmarks": {
+        "costManagement": 3.4,
+        "governance": 3.2,
+        "optimization": 3.0
+      },
+      "active": true
+    }
+  ]
+}

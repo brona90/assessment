@@ -1,0 +1,376 @@
+{
+  "domains": {
+    "domain1": {
+      "title": "Data Orchestration & Platform Observability",
+      "weight": 0.30,
+      "categories": {
+        "dataOrchestration": {
+          "title": "Data Pipeline Automation",
+          "questions": [
+            {
+              "id": "d1_q1",
+              "text": "How mature is your data pipeline automation and workflow orchestration?",
+              "category": "Data Pipeline Automation",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q2",
+              "text": "How effectively do you monitor and alert on data pipeline health?",
+              "category": "Data Pipeline Automation",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q3",
+              "text": "How well do you handle data pipeline failures and recovery?",
+              "category": "Data Pipeline Automation",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q4",
+              "text": "How mature is your data lineage and impact analysis capability?",
+              "category": "Data Pipeline Automation",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "snowflake": {
+          "title": "Snowflake Platform",
+          "questions": [
+            {
+              "id": "d1_q5",
+              "text": "How effectively do you utilize Snowflake's performance optimization features?",
+              "category": "Snowflake Platform",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q6",
+              "text": "How mature is your Snowflake security and access control implementation?",
+              "category": "Snowflake Platform",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q7",
+              "text": "How well integrated is Snowflake with your data ecosystem?",
+              "category": "Snowflake Platform",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q8",
+              "text": "How effectively do you monitor and optimize Snowflake operations?",
+              "category": "Snowflake Platform",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "talend": {
+          "title": "Talend Integration",
+          "questions": [
+            {
+              "id": "d1_q9",
+              "text": "How mature is your Talend integration and ETL development process?",
+              "category": "Talend Integration",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q10",
+              "text": "How effectively do you manage Talend job development and deployment?",
+              "category": "Talend Integration",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q11",
+              "text": "How well do you govern and maintain data quality in Talend?",
+              "category": "Talend Integration",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d1_q12",
+              "text": "How scalable and performant is your Talend infrastructure?",
+              "category": "Talend Integration",
+              "requiresEvidence": true
+            }
+          ]
+        }
+      }
+    },
+    "domain2": {
+      "title": "FinOps & Data Management",
+      "weight": 0.25,
+      "categories": {
+        "finops": {
+          "title": "Cloud Cost Management",
+          "questions": [
+            {
+              "id": "d2_q1",
+              "text": "How mature is your cloud cost monitoring and optimization process?",
+              "category": "Cloud Cost Management",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q2",
+              "text": "How effectively do you implement financial governance and budgeting?",
+              "category": "Cloud Cost Management",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q3",
+              "text": "How well do you track and allocate costs across teams and projects?",
+              "category": "Cloud Cost Management",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q4",
+              "text": "How mature is your cost forecasting and capacity planning?",
+              "category": "Cloud Cost Management",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "sox": {
+          "title": "SOX Compliance for FinOps",
+          "questions": [
+            {
+              "id": "d2_q5",
+              "text": "How effectively do you maintain SOX-compliant access controls for financial data?",
+              "category": "SOX Compliance for FinOps",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q6",
+              "text": "How mature is your change management process for financial systems?",
+              "category": "SOX Compliance for FinOps",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q7",
+              "text": "How well do you ensure data integrity in financial reporting?",
+              "category": "SOX Compliance for FinOps",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q8",
+              "text": "How comprehensive is your IT general controls (ITGC) framework?",
+              "category": "SOX Compliance for FinOps",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "dataManagement": {
+          "title": "Data Management & PII Protection",
+          "questions": [
+            {
+              "id": "d2_q9",
+              "text": "How mature is your data quality monitoring and controls?",
+              "category": "Data Management & PII Protection",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q10",
+              "text": "How effectively do you classify and protect PII data?",
+              "category": "Data Management & PII Protection",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q11",
+              "text": "How well do you implement data encryption and access controls?",
+              "category": "Data Management & PII Protection",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d2_q12",
+              "text": "How mature is your data architecture and modernization strategy?",
+              "category": "Data Management & PII Protection",
+              "requiresEvidence": true
+            }
+          ]
+        }
+      }
+    },
+    "domain3": {
+      "title": "Autonomous Capabilities (AI/ML)",
+      "weight": 0.25,
+      "categories": {
+        "aiml": {
+          "title": "AI/ML Platform Capabilities",
+          "questions": [
+            {
+              "id": "d3_q1",
+              "text": "How mature is your self-healing and automated remediation capability?",
+              "category": "AI/ML Platform Capabilities",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q2",
+              "text": "How effectively do you implement predictive maintenance and alerting?",
+              "category": "AI/ML Platform Capabilities",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q3",
+              "text": "How mature is your MLOps implementation and model lifecycle management?",
+              "category": "AI/ML Platform Capabilities",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q4",
+              "text": "How well do you implement intelligent alerting and root cause analysis?",
+              "category": "AI/ML Platform Capabilities",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "futureAI": {
+          "title": "Future AI/ML Capabilities",
+          "questions": [
+            {
+              "id": "d3_q5",
+              "text": "How mature is your AI/ML strategy and roadmap?",
+              "category": "Future AI/ML Capabilities",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q6",
+              "text": "How effectively do you evaluate and adopt new AI/ML technologies?",
+              "category": "Future AI/ML Capabilities",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q7",
+              "text": "How well do you manage AI/ML model governance and ethics?",
+              "category": "Future AI/ML Capabilities",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q8",
+              "text": "How mature is your data science team and capability development?",
+              "category": "Future AI/ML Capabilities",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "soxAI": {
+          "title": "SOX Compliance for AI/ML",
+          "questions": [
+            {
+              "id": "d3_q9",
+              "text": "How effectively do you maintain audit trails for AI/ML model decisions?",
+              "category": "SOX Compliance for AI/ML",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q10",
+              "text": "How mature is your AI/ML model validation and testing process?",
+              "category": "SOX Compliance for AI/ML",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q11",
+              "text": "How well do you document and control AI/ML model changes?",
+              "category": "SOX Compliance for AI/ML",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d3_q12",
+              "text": "How comprehensive is your AI/ML risk assessment and mitigation?",
+              "category": "SOX Compliance for AI/ML",
+              "requiresEvidence": true
+            }
+          ]
+        }
+      }
+    },
+    "domain4": {
+      "title": "Operations & Platform Team Alignment",
+      "weight": 0.20,
+      "categories": {
+        "operations": {
+          "title": "Platform Operations",
+          "questions": [
+            {
+              "id": "d4_q1",
+              "text": "How mature is your incident management and response process?",
+              "category": "Platform Operations",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q2",
+              "text": "How effectively do you implement SRE practices and SLOs?",
+              "category": "Platform Operations",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q3",
+              "text": "How well do you manage platform reliability and availability?",
+              "category": "Platform Operations",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q4",
+              "text": "How mature is your operational excellence and continuous improvement?",
+              "category": "Platform Operations",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "collaboration": {
+          "title": "Team Collaboration & MAPS Alignment",
+          "questions": [
+            {
+              "id": "d4_q5",
+              "text": "How effectively do teams collaborate across organizational boundaries?",
+              "category": "Team Collaboration & MAPS Alignment",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q6",
+              "text": "How well do you implement shared tooling and platforms?",
+              "category": "Team Collaboration & MAPS Alignment",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q7",
+              "text": "How mature is your alignment with MAPS initiatives?",
+              "category": "Team Collaboration & MAPS Alignment",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q8",
+              "text": "How effectively do you manage integrated workflows and processes?",
+              "category": "Team Collaboration & MAPS Alignment",
+              "requiresEvidence": true
+            }
+          ]
+        },
+        "soxOps": {
+          "title": "SOX Compliance for Operations",
+          "questions": [
+            {
+              "id": "d4_q9",
+              "text": "How effectively do you maintain access controls for operational systems?",
+              "category": "SOX Compliance for Operations",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q10",
+              "text": "How mature is your change management and deployment process?",
+              "category": "SOX Compliance for Operations",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q11",
+              "text": "How well do you maintain audit logs and monitoring?",
+              "category": "SOX Compliance for Operations",
+              "requiresEvidence": true
+            },
+            {
+              "id": "d4_q12",
+              "text": "How comprehensive is your disaster recovery and business continuity?",
+              "category": "SOX Compliance for Operations",
+              "requiresEvidence": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

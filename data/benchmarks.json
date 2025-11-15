@@ -1,0 +1,63 @@
+{
+  "current": {
+    "source": "Industry Average 2024 Q4",
+    "lastUpdated": "2024-11-14",
+    "industry": "Financial Services",
+    "sampleSize": 150,
+    "domain1": 3.2,
+    "domain2": 3.5,
+    "domain3": 2.8,
+    "domain4": 3.1,
+    "overall": 3.15
+  },
+  "target": {
+    "domain1": 4.0,
+    "domain2": 4.0,
+    "domain3": 4.0,
+    "domain4": 4.0,
+    "overall": 4.0
+  },
+  "history": [
+    {
+      "date": "2024-Q3",
+      "source": "Industry Average",
+      "domain1": 3.1,
+      "domain2": 3.4,
+      "domain3": 2.7,
+      "domain4": 3.0,
+      "overall": 3.05
+    },
+    {
+      "date": "2024-Q2",
+      "source": "Industry Average",
+      "domain1": 3.0,
+      "domain2": 3.3,
+      "domain3": 2.6,
+      "domain4": 2.9,
+      "overall": 2.95
+    },
+    {
+      "date": "2024-Q1",
+      "source": "Industry Average",
+      "domain1": 2.9,
+      "domain2": 3.2,
+      "domain3": 2.5,
+      "domain4": 2.8,
+      "overall": 2.85
+    }
+  ],
+  "byCategory": {
+    "dataOrchestration": 3.3,
+    "snowflake": 3.8,
+    "talend": 3.1,
+    "finops": 3.4,
+    "sox": 3.6,
+    "dataManagement": 3.5,
+    "aiml": 2.7,
+    "futureAI": 2.5,
+    "soxAI": 3.0,
+    "operations": 3.2,
+    "collaboration": 3.0,
+    "soxOps": 3.3
+  }
+}
