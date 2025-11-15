@@ -623,7 +623,7 @@ function importUserAssessments() {
     });
 }
 
-function consolidateAssessments(assessments) {
+async function consolidateAssessments(assessments) {
     // Merge all assessments
     const consolidated = {
         answers: {},
@@ -644,10 +644,25 @@ function consolidateAssessments(assessments) {
         consolidated.users.push(assessment.user);
     });
     
-    // Download consolidated assessment
-    downloadJSON(consolidated, `consolidated-assessment-${new Date().toISOString().split('T')[0]}.json`);
+    // Save consolidated answers to localStorage
+    try {
+        localStorage.setItem('techAssessment', JSON.stringify(consolidated.answers));
+        
+        // Import evidence into IndexedDB
+        if (typeof evidenceManager !== 'undefined') {
+            for (const evidence of consolidated.evidence) {
+                await evidenceManager.saveEvidence(evidence.questionId, evidence);
+            }
+        }
+        
+        showNotification(`Successfully imported ${assessments.length} assessments and saved to system!`, 'success');
+    } catch (error) {
+        console.error('Error saving consolidated data:', error);
+        showNotification('Error saving consolidated data: ' + error.message, 'error');
+    }
     
-    showNotification(`Successfully imported ${assessments.length} assessments!`, 'success');
+    // Also download consolidated assessment as backup
+    downloadJSON(consolidated, `consolidated-assessment-${new Date().toISOString().split('T')[0]}.json`);
 }
 
 // Instructions

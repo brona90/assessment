@@ -31,6 +31,7 @@ This framework provides a structured approach to assess organizational technolog
 3. Select "GitHub Actions" as the source
 4. Push changes to trigger deployment
 5. Access at `https://yourusername.github.io/assessment/`
+6. **Start at Dashboard** (`index.html`) - Select your user and begin!
 
 ### Option 2: Local Development
 
@@ -45,7 +46,14 @@ python -m http.server 8000
 
 # Open in browser
 open http://localhost:8000
+# This opens the Dashboard (index.html) - your starting point!
 ```
+
+### Application Structure
+
+- **Dashboard** (`index.html`) - **START HERE** - User-specific questions and progress
+- **Full Assessment** (`full-assessment.html`) - Complete view of all 48 questions
+- **Admin Panel** (`admin.html`) - Manage questions, users, services, and benchmarks
 
 ## 🎨 Customization
 

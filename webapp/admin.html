@@ -309,8 +309,8 @@
                 <p class="subtitle">Manage questions, users, services, and benchmarks</p>
             </div>
             <div class="header-actions">
-                <a href="dashboard.html" class="btn btn-secondary">👤 User Dashboard</a>
-                <a href="index.html" class="btn btn-secondary">📝 Assessment</a>
+                <a href="index.html" class="btn btn-secondary">👤 Dashboard</a>
+                <a href="full-assessment.html" class="btn btn-secondary">📝 Full Assessment</a>
             </div>
         </div>
     </header>
@@ -438,7 +438,17 @@
 
             <div>
                 <h3>Import User Assessments</h3>
-                <p style="color: #6b7280; margin-bottom: 15px;">Import completed assessments from users</p>
+                <p style="color: #6b7280; margin-bottom: 15px;">Import completed assessments from users. This will merge all answers and evidence into the system.</p>
+                <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #f59e0b;">
+                    <strong>📋 Instructions:</strong>
+                    <ol style="margin: 10px 0 0 20px; color: #92400e;">
+                        <li>Collect assessment JSON files from all users</li>
+                        <li>Select all files below (hold Ctrl/Cmd for multiple)</li>
+                        <li>Click "Import Assessments"</li>
+                        <li>System will merge answers and evidence automatically</li>
+                        <li>View consolidated data in Dashboard or Full Assessment</li>
+                    </ol>
+                </div>
                 <input type="file" id="importAssessmentFile" accept=".json" multiple style="margin-bottom: 15px;">
                 <button class="btn-primary" onclick="importUserAssessments()">📥 Import Assessments</button>
             </div>
@@ -559,6 +569,7 @@
     </div>
 
     <script src="config.js"></script>
+    <script src="evidence.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>
