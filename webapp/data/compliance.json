@@ -1,0 +1,146 @@
+{
+  "frameworks": {
+    "sox": {
+      "id": "sox",
+      "name": "SOX (Sarbanes-Oxley)",
+      "enabled": true,
+      "description": "Financial controls and IT governance for publicly traded companies",
+      "category": "Financial",
+      "mappedQuestions": [],
+      "threshold": 4.0,
+      "color": "#10b981",
+      "icon": "✓",
+      "requirements": [
+        "Access controls and authentication",
+        "Change management processes",
+        "Data integrity and accuracy",
+        "Audit trails and logging"
+      ]
+    },
+    "pii": {
+      "id": "pii",
+      "name": "PII Protection (GDPR/CCPA)",
+      "enabled": true,
+      "description": "Personal data protection and privacy requirements",
+      "category": "Privacy",
+      "mappedQuestions": [],
+      "threshold": 4.5,
+      "color": "#3b82f6",
+      "icon": "🔒",
+      "requirements": [
+        "Data encryption at rest and in transit",
+        "Access control and authentication",
+        "Data retention and deletion policies",
+        "Privacy by design principles"
+      ]
+    },
+    "hipaa": {
+      "id": "hipaa",
+      "name": "HIPAA",
+      "enabled": false,
+      "description": "Healthcare data security and privacy standards",
+      "category": "Healthcare",
+      "mappedQuestions": [],
+      "threshold": 4.5,
+      "color": "#8b5cf6",
+      "icon": "🏥",
+      "requirements": [
+        "Protected Health Information (PHI) security",
+        "Access controls and audit logs",
+        "Encryption of health data",
+        "Business associate agreements"
+      ]
+    },
+    "pci_dss": {
+      "id": "pci_dss",
+      "name": "PCI DSS",
+      "enabled": false,
+      "description": "Payment card industry data security standards",
+      "category": "Financial",
+      "mappedQuestions": [],
+      "threshold": 4.0,
+      "color": "#f59e0b",
+      "icon": "💳",
+      "requirements": [
+        "Secure network architecture",
+        "Cardholder data protection",
+        "Vulnerability management",
+        "Access control measures"
+      ]
+    },
+    "iso_27001": {
+      "id": "iso_27001",
+      "name": "ISO 27001",
+      "enabled": false,
+      "description": "Information security management system standard",
+      "category": "Security",
+      "mappedQuestions": [],
+      "threshold": 4.0,
+      "color": "#06b6d4",
+      "icon": "🛡️",
+      "requirements": [
+        "Information security policies",
+        "Risk assessment and treatment",
+        "Security controls implementation",
+        "Continuous improvement process"
+      ]
+    },
+    "nist_csf": {
+      "id": "nist_csf",
+      "name": "NIST Cybersecurity Framework",
+      "enabled": false,
+      "description": "Cybersecurity risk management framework",
+      "category": "Security",
+      "mappedQuestions": [],
+      "threshold": 3.5,
+      "color": "#ec4899",
+      "icon": "🔐",
+      "requirements": [
+        "Identify assets and risks",
+        "Protect critical infrastructure",
+        "Detect security events",
+        "Respond to incidents",
+        "Recover from attacks"
+      ]
+    },
+    "fedramp": {
+      "id": "fedramp",
+      "name": "FedRAMP",
+      "enabled": false,
+      "description": "Federal cloud security authorization program",
+      "category": "Government",
+      "mappedQuestions": [],
+      "threshold": 4.5,
+      "color": "#14b8a6",
+      "icon": "🏛️",
+      "requirements": [
+        "Cloud security controls",
+        "Continuous monitoring",
+        "Incident response",
+        "Federal compliance requirements"
+      ]
+    },
+    "custom": {
+      "id": "custom",
+      "name": "Custom Framework",
+      "enabled": false,
+      "description": "User-defined compliance framework",
+      "category": "Custom",
+      "mappedQuestions": [],
+      "threshold": 3.0,
+      "color": "#6b7280",
+      "icon": "⚙️",
+      "requirements": []
+    }
+  },
+  "categories": [
+    "Financial",
+    "Privacy",
+    "Healthcare",
+    "Security",
+    "Government",
+    "Custom"
+  ],
+  "calculationMethod": "average",
+  "lastUpdated": "2024-11-15T00:00:00Z"
+}

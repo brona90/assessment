@@ -810,3 +810,333 @@ function showNotification(message, type = 'info') {
 
     setTimeout(() => notification.remove(), 3000);
 }
+
+// ============================================
+// COMPLIANCE MANAGEMENT FUNCTIONS
+// ============================================
+
+// Load and render compliance overview
+async function loadComplianceOverview() {
+    await complianceManager.loadCompliance();
+    complianceManager.loadFromLocalStorage();
+    
+    const overview = document.getElementById('complianceOverview');
+    if (!overview) return;
+    
+    const frameworks = complianceManager.getFrameworks();
+    const enabledCount = Object.values(frameworks).filter(fw => fw.enabled).length;
+    const totalCount = Object.keys(frameworks).length;
+    
+    overview.innerHTML = `
+        <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 20px; border-radius: 12px;">
+            <div style="font-size: 2rem; font-weight: bold;">${enabledCount}</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Active Frameworks</div>
+        </div>
+        <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 20px; border-radius: 12px;">
+            <div style="font-size: 2rem; font-weight: bold;">${totalCount}</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Total Frameworks</div>
+        </div>
+        <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 20px; border-radius: 12px;">
+            <div style="font-size: 2rem; font-weight: bold;">8</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Categories</div>
+        </div>
+    `;
+}
+
+// Load and render frameworks list
+async function loadFrameworksList() {
+    const container = document.getElementById('frameworksList');
+    if (!container) return;
+    
+    const frameworks = complianceManager.getFrameworks();
+    
+    let html = '<div style="display: grid; gap: 20px;">';
+    
+    Object.values(frameworks).forEach(framework => {
+        const mappedCount = framework.mappedQuestions.length;
+        
+        html += `
+            <div style="border: 2px solid ${framework.enabled ? framework.color : '#e5e7eb'}; border-radius: 12px; padding: 20px; background: ${framework.enabled ? framework.color + '10' : '#f9fafb'};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.5rem;">${framework.icon}</span>
+                            <h4 style="margin: 0; color: ${framework.enabled ? framework.color : '#6b7280'};">${framework.name}</h4>
+                        </div>
+                        <p style="color: #6b7280; font-size: 0.9rem; margin: 0 0 10px 0;">${framework.description}</p>
+                        <div style="display: flex; gap: 15px; font-size: 0.85rem; color: #6b7280;">
+                            <span>📁 ${framework.category}</span>
+                            <span>🔗 ${mappedCount} questions mapped</span>
+                            <span>🎯 Threshold: ${framework.threshold}/5.0</span>
+                        </div>
+                    </div>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" ${framework.enabled ? 'checked' : ''} 
+                               onchange="toggleFramework('${framework.id}', this.checked)"
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button onclick="editFramework('${framework.id}')" 
+                            style="padding: 8px 16px; background: white; border: 2px solid ${framework.color}; color: ${framework.color}; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                        ✏️ Edit
+                    </button>
+                    <button onclick="viewFrameworkDetails('${framework.id}')" 
+                            style="padding: 8px 16px; background: white; border: 2px solid #6b7280; color: #6b7280; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                        👁️ View Details
+                    </button>
+                    ${framework.category === 'Custom' ? `
+                        <button onclick="deleteFramework('${framework.id}')" 
+                                style="padding: 8px 16px; background: white; border: 2px solid #ef4444; color: #ef4444; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                            🗑️ Delete
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// Toggle framework enabled/disabled
+function toggleFramework(frameworkId, enabled) {
+    complianceManager.toggleFramework(frameworkId, enabled);
+    loadFrameworksList();
+    loadComplianceOverview();
+    showNotification(`Framework ${enabled ? 'enabled' : 'disabled'} successfully`, 'success');
+}
+
+// Load question mapping interface
+async function loadQuestionMapping() {
+    const select = document.getElementById('mappingFrameworkSelect');
+    const container = document.getElementById('questionMappingContainer');
+    
+    if (!select || !container) return;
+    
+    const frameworkId = select.value;
+    
+    if (!frameworkId) {
+        container.innerHTML = '<p style="color: #6b7280;">Please select a framework to map questions.</p>';
+        return;
+    }
+    
+    const framework = complianceManager.getFramework(frameworkId);
+    const mappedQuestions = framework.mappedQuestions;
+    
+    // Load questions data
+    if (!questionsData) {
+        container.innerHTML = '<p style="color: #ef4444;">Error: Questions data not loaded.</p>';
+        return;
+    }
+    
+    let html = `
+        <div style="background: ${framework.color}20; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="color: ${framework.color}; margin-bottom: 10px;">${framework.icon} ${framework.name}</h4>
+            <p style="color: #6b7280; font-size: 0.9rem;">${framework.description}</p>
+            <div style="margin-top: 10px;">
+                <strong>Currently Mapped:</strong> ${mappedQuestions.length} questions
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Threshold Score:</label>
+            <input type="number" min="1" max="5" step="0.1" value="${framework.threshold}" 
+                   onchange="updateFrameworkThreshold('${frameworkId}', this.value)"
+                   style="width: 150px; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px;">
+            <span style="color: #6b7280; margin-left: 10px;">/ 5.0</span>
+        </div>
+        
+        <h4 style="margin: 20px 0 15px 0;">Select Questions to Map:</h4>
+    `;
+    
+    // List all questions with checkboxes
+    Object.keys(questionsData).forEach((domainKey, domainIndex) => {
+        const domain = questionsData[domainKey];
+        
+        html += `
+            <div style="margin-bottom: 25px; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <h5 style="color: #6366f1; margin-bottom: 15px;">Domain ${domainIndex + 1}: ${domain.title}</h5>
+        `;
+        
+        Object.keys(domain.categories).forEach(categoryKey => {
+            const category = domain.categories[categoryKey];
+            
+            html += `<div style="margin-bottom: 15px;">
+                <h6 style="color: #6b7280; margin-bottom: 10px;">${category.title}</h6>
+            `;
+            
+            category.questions.forEach(question => {
+                const isChecked = mappedQuestions.includes(question.id);
+                
+                html += `
+                    <label style="display: flex; align-items: start; padding: 10px; margin-bottom: 8px; background: ${isChecked ? framework.color + '20' : '#f9fafb'}; border-radius: 8px; cursor: pointer;">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                               onchange="toggleQuestionMapping('${frameworkId}', '${question.id}', this.checked)"
+                               style="margin-right: 10px; margin-top: 3px; width: 18px; height: 18px; cursor: pointer;">
+                        <div style="flex: 1;">
+                            <strong style="color: #374151;">${question.id.toUpperCase()}</strong>
+                            <span style="color: #6b7280; font-size: 0.9rem;"> - ${question.text}</span>
+                        </div>
+                    </label>
+                `;
+            });
+            
+            html += `</div>`;
+        });
+        
+        html += `</div>`;
+    });
+    
+    container.innerHTML = html;
+}
+
+// Toggle question mapping
+function toggleQuestionMapping(frameworkId, questionId, checked) {
+    if (checked) {
+        complianceManager.addQuestionToFramework(frameworkId, questionId);
+    } else {
+        complianceManager.removeQuestionFromFramework(frameworkId, questionId);
+    }
+    loadFrameworksList();
+    showNotification(`Question ${checked ? 'added to' : 'removed from'} framework`, 'success');
+}
+
+// Update framework threshold
+function updateFrameworkThreshold(frameworkId, threshold) {
+    complianceManager.updateThreshold(frameworkId, threshold);
+    showNotification('Threshold updated successfully', 'success');
+}
+
+// Edit framework
+function editFramework(frameworkId) {
+    const framework = complianceManager.getFramework(frameworkId);
+    
+    const name = prompt('Framework Name:', framework.name);
+    if (name === null) return;
+    
+    const description = prompt('Description:', framework.description);
+    if (description === null) return;
+    
+    complianceManager.updateFramework(frameworkId, {
+        name: name,
+        description: description
+    });
+    
+    loadFrameworksList();
+    showNotification('Framework updated successfully', 'success');
+}
+
+// View framework details
+function viewFrameworkDetails(frameworkId) {
+    const framework = complianceManager.getFramework(frameworkId);
+    
+    let details = `Framework: ${framework.name}\n\n`;
+    details += `Description: ${framework.description}\n\n`;
+    details += `Category: ${framework.category}\n`;
+    details += `Threshold: ${framework.threshold}/5.0\n`;
+    details += `Mapped Questions: ${framework.mappedQuestions.length}\n\n`;
+    
+    if (framework.requirements && framework.requirements.length > 0) {
+        details += `Requirements:\n`;
+        framework.requirements.forEach(req => {
+            details += `• ${req}\n`;
+        });
+    }
+    
+    alert(details);
+}
+
+// Delete framework
+function deleteFramework(frameworkId) {
+    if (!confirm('Are you sure you want to delete this custom framework?')) return;
+    
+    if (complianceManager.deleteFramework(frameworkId)) {
+        loadFrameworksList();
+        loadComplianceOverview();
+        showNotification('Framework deleted successfully', 'success');
+    } else {
+        showNotification('Cannot delete built-in frameworks', 'error');
+    }
+}
+
+// Export compliance configuration
+function exportComplianceConfig() {
+    const config = complianceManager.exportConfiguration();
+    const blob = new Blob([config], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `compliance-config-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showNotification('Configuration exported successfully', 'success');
+}
+
+// Import compliance configuration
+function importComplianceConfig(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const success = complianceManager.importConfiguration(e.target.result);
+            if (success) {
+                loadFrameworksList();
+                loadComplianceOverview();
+                populateMappingFrameworkSelect();
+                showNotification('Configuration imported successfully', 'success');
+            } else {
+                showNotification('Invalid configuration file', 'error');
+            }
+        } catch (error) {
+            showNotification('Error importing configuration', 'error');
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    event.target.value = '';
+}
+
+// Refresh compliance data
+async function refreshComplianceData() {
+    await loadComplianceOverview();
+    await loadFrameworksList();
+    populateMappingFrameworkSelect();
+    showNotification('Compliance data refreshed', 'success');
+}
+
+// Populate framework select dropdown
+function populateMappingFrameworkSelect() {
+    const select = document.getElementById('mappingFrameworkSelect');
+    if (!select) return;
+    
+    const frameworks = complianceManager.getFrameworks();
+    
+    let html = '<option value="">-- Select Framework --</option>';
+    Object.values(frameworks).forEach(framework => {
+        html += `<option value="${framework.id}">${framework.icon} ${framework.name}</option>`;
+    });
+    
+    select.innerHTML = html;
+}
+
+// Initialize compliance tab when shown
+function initializeComplianceTab() {
+    loadComplianceOverview();
+    loadFrameworksList();
+    populateMappingFrameworkSelect();
+}
+
+// Update showAdminSection to initialize compliance tab
+const originalShowAdminSection = showAdminSection;
+showAdminSection = function(sectionId) {
+    originalShowAdminSection(sectionId);
+    if (sectionId === 'compliance') {
+        initializeComplianceTab();
+    }
+};
