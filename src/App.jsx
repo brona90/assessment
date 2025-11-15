@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { useAssessment } from './hooks/useAssessment';
 import { QuestionCard } from './components/QuestionCard';
 import { ProgressBar } from './components/ProgressBar';
+import { ComplianceDashboard } from './components/ComplianceDashboard';
+import { DomainRadarChart } from './components/DomainRadarChart';
+import { DomainBarChart } from './components/DomainBarChart';
+import { EvidenceModal } from './components/EvidenceModal';
+import { pdfService } from './services/pdfService';
+import { useCompliance } from './hooks/useCompliance';
 
 function App() {
   const {
@@ -17,6 +23,36 @@ function App() {
   } = useAssessment();
 
   const [activeSection, setActiveSection] = useState('assessment');
+  const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
+  const [currentQuestionId, setCurrentQuestionId] = useState(null);
+  const { frameworks } = useCompliance(answers);
+
+  const handleOpenEvidence = (questionId) => {
+    setCurrentQuestionId(questionId);
+    setEvidenceModalOpen(true);
+  };
+
+  const handleCloseEvidence = () => {
+    setEvidenceModalOpen(false);
+    setCurrentQuestionId(null);
+  };
+
+  const handleSaveEvidence = async (evidenceData) => {
+    if (currentQuestionId) {
+      await saveEvidenceForQuestion(currentQuestionId, evidenceData);
+      handleCloseEvidence();
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, frameworks);
+      await pdfService.downloadPDF(pdf);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -41,7 +77,16 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Technology Assessment Framework</h1>
+        <div className="header-content">
+          <h1>Technology Assessment Framework</h1>
+          <button 
+            className="export-btn" 
+            onClick={handleExportPDF}
+            data-testid="export-pdf"
+          >
+            📄 Export PDF
+          </button>
+        </div>
         <ProgressBar {...progress} />
       </header>
 
@@ -51,6 +96,12 @@ function App() {
           onClick={() => setActiveSection('assessment')}
         >
           Assessment
+        </button>
+        <button
+          className={activeSection === 'compliance' ? 'active' : ''}
+          onClick={() => setActiveSection('compliance')}
+        >
+          Compliance
         </button>
         <button
           className={activeSection === 'dashboard' ? 'active' : ''}
@@ -76,7 +127,7 @@ function App() {
                         answer={answers[question.id]}
                         onAnswerChange={(value) => saveAnswer(question.id, value)}
                         onClearAnswer={() => clearAnswer(question.id)}
-                        onAddEvidence={() => {}}
+                        onAddEvidence={() => handleOpenEvidence(question.id)}
                         hasEvidence={!!evidence[question.id]}
                       />
                     ))}
@@ -87,13 +138,37 @@ function App() {
           </div>
         )}
 
+        {activeSection === 'compliance' && (
+          <div className="compliance-section" data-testid="compliance-section">
+            <ComplianceDashboard answers={answers} />
+          </div>
+        )}
+
         {activeSection === 'dashboard' && (
           <div className="dashboard-section" data-testid="dashboard-section">
             <h2>Assessment Dashboard</h2>
-            <p>Dashboard content coming soon...</p>
+            <div className="charts-grid">
+              <div className="chart-card">
+                <h3>Domain Maturity Overview</h3>
+                <DomainBarChart domains={domains} answers={answers} />
+              </div>
+              <div className="chart-card">
+                <h3>Maturity Radar Analysis</h3>
+                <DomainRadarChart domains={domains} answers={answers} />
+              </div>
+            </div>
           </div>
         )}
       </main>
+
+      {evidenceModalOpen && (
+        <EvidenceModal
+          questionId={currentQuestionId}
+          existingEvidence={evidence[currentQuestionId]}
+          onSave={handleSaveEvidence}
+          onClose={handleCloseEvidence}
+        />
+      )}
     </div>
   );
 }

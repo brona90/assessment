@@ -34,3 +34,7 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+outputs/
+
+# Generated files
+*.pdf
