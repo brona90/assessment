@@ -380,7 +380,9 @@ h1 {
     background: var(--truist-light-blue);
 }
 
-.rating-option input[type="radio"]:checked + label {
+/* Fix for nested input inside label */
+.rating-option:has(input[type="radio"]:checked) label,
+.rating-option label:has(input[type="radio"]:checked) {
     background: var(--truist-blue);
     color: white;
     border-color: var(--truist-blue);
@@ -389,11 +391,13 @@ h1 {
 .rating-label {
     display: block;
     font-size: 0.9rem;
-    color: var(--truist-dark);
+    color: inherit;
     font-weight: 500;
 }
 
-.rating-option input[type="radio"]:checked ~ .rating-label {
+/* Ensure label text is white when checked */
+.rating-option:has(input[type="radio"]:checked) .rating-label,
+.rating-option label:has(input[type="radio"]:checked) .rating-label {
     color: white;
 }
 
@@ -441,6 +445,29 @@ h1 {
 .evidence-btn.has-evidence:hover {
     background: var(--truist-blue);
     border-color: var(--truist-blue);
+}
+
+/* Clear Answer Button */
+.clear-answer-btn {
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.clear-answer-btn:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Progress Bar */
