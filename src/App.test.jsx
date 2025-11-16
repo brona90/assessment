@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import App from './App';
 import { useAssessment } from './hooks/useAssessment';
 import { useUser } from './hooks/useUser';
@@ -93,14 +93,22 @@ describe('App', () => {
   it('should switch to compliance section when clicked', () => {
     render(<App />);
     const complianceBtn = screen.getByText('Compliance');
-    fireEvent.click(complianceBtn);
+    act(() => {
+
+      fireEvent.click(complianceBtn);
+
+     });
     expect(screen.getByTestId('compliance-section')).toBeInTheDocument();
   });
 
   it('should switch to dashboard section when clicked', () => {
     render(<App />);
     const dashboardBtn = screen.getByText('Dashboard');
-    fireEvent.click(dashboardBtn);
+    act(() => {
+
+      fireEvent.click(dashboardBtn);
+
+     });
     expect(screen.getByTestId('dashboard-section')).toBeInTheDocument();
   });
 
@@ -122,7 +130,11 @@ describe('App', () => {
   it('should call saveAnswer when answer is selected', async () => {
     render(<App />);
     const option = screen.getByTestId('option-q1-3');
-    fireEvent.click(option);
+    act(() => {
+
+      fireEvent.click(option);
+
+     });
     
     await waitFor(() => {
       expect(mockUseAssessment.saveAnswer).toHaveBeenCalledWith('q1', 3);
@@ -137,7 +149,11 @@ describe('App', () => {
 
     render(<App />);
     const clearBtn = screen.getByTestId('clear-q1');
-    fireEvent.click(clearBtn);
+    act(() => {
+
+      fireEvent.click(clearBtn);
+
+     });
     
     await waitFor(() => {
       expect(mockUseAssessment.clearAnswer).toHaveBeenCalledWith('q1');
@@ -147,11 +163,19 @@ describe('App', () => {
   it('should switch back to assessment section', () => {
     render(<App />);
     const complianceBtn = screen.getByText('Compliance');
-    fireEvent.click(complianceBtn);
+    act(() => {
+
+      fireEvent.click(complianceBtn);
+
+     });
     expect(screen.getByTestId('compliance-section')).toBeInTheDocument();
     
     const dashboardBtn = screen.getByText('Dashboard');
-    fireEvent.click(dashboardBtn);
+    act(() => {
+
+      fireEvent.click(dashboardBtn);
+
+     });
     expect(screen.getByTestId('dashboard-section')).toBeInTheDocument();
   });
 
@@ -173,7 +197,11 @@ describe('App', () => {
   it('should open evidence modal when evidence button clicked', () => {
     render(<App />);
     const evidenceBtn = screen.getByTestId('evidence-q1');
-    fireEvent.click(evidenceBtn);
+    act(() => {
+
+      fireEvent.click(evidenceBtn);
+
+     });
     
     expect(screen.getByTestId('evidence-modal')).toBeInTheDocument();
   });
@@ -181,10 +209,18 @@ describe('App', () => {
   it('should close evidence modal when close button clicked', () => {
     render(<App />);
     const evidenceBtn = screen.getByTestId('evidence-q1');
-    fireEvent.click(evidenceBtn);
+    act(() => {
+
+      fireEvent.click(evidenceBtn);
+
+     });
     
     const closeBtn = screen.getByTestId('close-modal');
-    fireEvent.click(closeBtn);
+    act(() => {
+
+      fireEvent.click(closeBtn);
+
+     });
     
     expect(screen.queryByTestId('evidence-modal')).not.toBeInTheDocument();
   });
@@ -192,13 +228,25 @@ describe('App', () => {
   it('should save evidence and close modal', async () => {
     render(<App />);
     const evidenceBtn = screen.getByTestId('evidence-q1');
-    fireEvent.click(evidenceBtn);
+    act(() => {
+
+      fireEvent.click(evidenceBtn);
+
+     });
     
     const textarea = screen.getByTestId('text-evidence');
-    fireEvent.change(textarea, { target: { value: 'Test evidence' } });
+    act(() => {
+
+      fireEvent.change(textarea, { target: { value: 'Test evidence' } });
+
+     });
     
     const saveBtn = screen.getByTestId('save-evidence');
-    fireEvent.click(saveBtn);
+    act(() => {
+
+      fireEvent.click(saveBtn);
+
+     });
     
     await waitFor(() => {
       expect(mockUseAssessment.saveEvidenceForQuestion).toHaveBeenCalledWith('q1', {
@@ -263,7 +311,11 @@ describe('App', () => {
   it('should render charts in dashboard section', () => {
     render(<App />);
     const dashboardBtn = screen.getByText('Dashboard');
-    fireEvent.click(dashboardBtn);
+    act(() => {
+
+      fireEvent.click(dashboardBtn);
+
+     });
     
     expect(screen.getByText('Domain Maturity Overview')).toBeInTheDocument();
     expect(screen.getByText('Maturity Radar Analysis')).toBeInTheDocument();
@@ -307,7 +359,11 @@ describe('App', () => {
   it('should render charts in dashboard section', () => {
     render(<App />);
     const dashboardBtn = screen.getByText('Dashboard');
-    fireEvent.click(dashboardBtn);
+    act(() => {
+
+      fireEvent.click(dashboardBtn);
+
+     });
     
     expect(screen.getByText('Domain Maturity Overview')).toBeInTheDocument();
     expect(screen.getByText('Maturity Radar Analysis')).toBeInTheDocument();
@@ -318,11 +374,19 @@ describe('App', () => {
     
     // Open modal
     const evidenceBtn = screen.getByTestId('evidence-q1');
-    fireEvent.click(evidenceBtn);
+    act(() => {
+
+      fireEvent.click(evidenceBtn);
+
+     });
     
     // Close modal to set currentQuestionId to null
     const closeBtn = screen.getByTestId('close-modal');
-    fireEvent.click(closeBtn);
+    act(() => {
+
+      fireEvent.click(closeBtn);
+
+     });
     
     // Verify saveEvidenceForQuestion was not called
     expect(mockUseAssessment.saveEvidenceForQuestion).not.toHaveBeenCalled();
