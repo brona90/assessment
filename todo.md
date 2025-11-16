@@ -12,15 +12,17 @@
 - [x] All 286 tests passing
 - Note: Image loading tests skipped due to test environment limitations
 
-## 2. Create In-Memory Data Store 🔄
-- [ ] Create src/services/dataStore.js for in-memory storage
-- [ ] Implement domains CRUD operations
-- [ ] Implement compliance frameworks CRUD operations
-- [ ] Implement users CRUD operations
-- [ ] Implement questions CRUD operations
-- [ ] Add export/import functionality for persistence
-- [ ] Load initial data from JSON files
-- [ ] Write unit tests for dataStore (100% coverage)
+## 2. Create In-Memory Data Store ✅
+- [x] Create src/services/dataStore.js for in-memory storage
+- [x] Implement domains CRUD operations
+- [x] Implement compliance frameworks CRUD operations
+- [x] Implement users CRUD operations
+- [x] Implement questions CRUD operations
+- [x] Implement question assignment operations
+- [x] Add export/import functionality for persistence
+- [x] Load initial data from JSON files
+- [x] Write unit tests for dataStore (43 tests, 100% passing)
+- [x] Framework visibility control (admin-only selection)
 
 ## 3. Implement Domain Management 🔄
 - [ ] Add domain CRUD to AdminPanel component
