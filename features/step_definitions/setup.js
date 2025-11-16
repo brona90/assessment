@@ -15,17 +15,23 @@ Before(async () => {
 });
 
 Given('I am on the technology assessment page', async () => {
-  // Try both ports
-  try {
-    await global.page.goto('http://localhost:5174');
-  } catch (error) {
+  // Try multiple ports in order
+  const ports = [5175, 5174, 5173];
+  let connected = false;
+  
+  for (const port of ports) {
     try {
-      await global.page.goto('http://localhost:5173');
-    } catch (error2) {
-      // If server is not running, wait and try again
-      await global.page.waitForTimeout(2000);
-      await global.page.goto('http://localhost:5174');
+      await global.page.goto(`http://localhost:${port}/assessment/`, { timeout: 5000 });
+      connected = true;
+      break;
+    } catch (error) {
+      // Try next port
+      continue;
     }
+  }
+  
+  if (!connected) {
+    throw new Error('Could not connect to dev server on any port');
   }
 });
 

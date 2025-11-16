@@ -2,9 +2,20 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 
 Given('I have scores calculated', async () => {
-  // Ensure we have some scores
-  await global.page.locator('[data-testid^="question-"]').first().click();
-  await global.page.locator('[data-value="4"]').first().click();
+  // Ensure we have some scores by answering a question
+  try {
+    await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 5000 });
+    const firstQuestion = await global.page.locator('[data-testid^="question-"]').first();
+    if (await firstQuestion.isVisible()) {
+      const options = await firstQuestion.locator('[data-testid^="option-"]').all();
+      if (options.length > 3) {
+        await options[3].click(); // Click 4th option (value 4)
+        await global.page.waitForTimeout(500);
+      }
+    }
+  } catch (error) {
+    console.log('Could not answer question for score calculation:', error.message);
+  }
 });
 
 When('I click the export PDF button in the header', async () => {

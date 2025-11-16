@@ -35,7 +35,8 @@ When('I resize the browser window', async () => {
 });
 
 When('I hover over chart elements', async () => {
-  const chart = await global.page.locator('canvas');
+  // Hover over the first visible chart
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
     await chart.hover({ position: { x: 100, y: 100 } });
     await global.page.waitForTimeout(500);
@@ -52,36 +53,46 @@ When('I have no answers', async () => {
 });
 
 When('I interact with data points', async () => {
-  const chart = await global.page.locator('canvas');
+  // Click on the first visible chart
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
     await chart.click({ position: { x: 100, y: 100 } });
     await global.page.waitForTimeout(500);
   }
 });
 
-Then('I should see a radar chart', async () => {
-  const radarChart = await global.page.locator('[data-testid="radar-chart"]');
-  if (await radarChart.isVisible()) {
+Then('I should see a radar chart', async function() {
+  // Increase timeout for this step
+  this.timeout = 30000;
+  
+  // Take screenshot for debugging
+  await global.page.screenshot({ path: 'debug-radar-chart.png' });
+  
+  // Wait for the chart container to be visible
+  try {
+    await global.page.waitForSelector('[data-testid="radar-chart"]', { timeout: 15000 });
+    const radarChart = await global.page.locator('[data-testid="radar-chart"]');
     await expect(radarChart).toBeVisible();
-  } else {
-    // Chart might be implemented as canvas
-    const canvas = await global.page.locator('canvas');
-    await expect(canvas.first()).toBeVisible();
+    
+    // Also verify canvas is present
+    const canvas = await radarChart.locator('canvas');
+    await expect(canvas).toBeVisible();
+  } catch (error) {
+    console.log('Radar chart not found. Page content:', await global.page.content());
+    throw error;
   }
 });
 
 Then('the chart should show all domains', async () => {
-  const chart = await global.page.locator('canvas');
-  if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
-  }
+  // Check that the radar chart canvas is visible
+  const radarChart = await global.page.locator('[data-testid="radar-chart"] canvas');
+  await expect(radarChart).toBeVisible();
 });
 
 Then('the chart should reflect current scores', async () => {
-  const chart = await global.page.locator('canvas');
-  if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
-  }
+  // Verify the radar chart is still visible and rendering
+  const radarChart = await global.page.locator('[data-testid="radar-chart"] canvas');
+  await expect(radarChart).toBeVisible();
 });
 
 Then('I should see a bar chart', async () => {
@@ -89,9 +100,9 @@ Then('I should see a bar chart', async () => {
   if (await barChart.isVisible()) {
     await expect(barChart).toBeVisible();
   } else {
-    // Chart might be implemented as canvas
-    const canvas = await global.page.locator('canvas');
-    await expect(canvas.first()).toBeVisible();
+    // Chart might be implemented as canvas - check bar chart specifically
+    const canvas = await global.page.locator('[data-testid="bar-chart"] canvas');
+    await expect(canvas).toBeVisible();
   }
 });
 
@@ -104,10 +115,9 @@ Then('the chart should display domain scores', async () => {
 });
 
 Then('the chart should have proper labels', async () => {
-  const chart = await global.page.locator('canvas');
-  if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
-  }
+  // Check that the bar chart canvas is visible
+  const barChart = await global.page.locator('[data-testid="bar-chart"] canvas');
+  await expect(barChart).toBeVisible();
 });
 
 Then('the charts should update', async () => {
@@ -118,9 +128,10 @@ Then('the charts should update', async () => {
     await global.page.waitForTimeout(1000);
   }
   
-  const chart = await global.page.locator('canvas');
+  // Verify charts are still visible after update
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
+    await expect(chart).toBeVisible();
   }
 });
 
@@ -133,16 +144,17 @@ Then('the visualization should reflect new scores', async () => {
 
 Then('transitions should be smooth', async () => {
   // Verify chart transitions don't break
-  const chart = await global.page.locator('canvas');
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
+    await expect(chart).toBeVisible();
   }
 });
 
 Then('charts should handle empty data gracefully', async () => {
-  const chart = await global.page.locator('canvas');
+  // Charts should still render even with no data
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
+    await expect(chart).toBeVisible();
   }
 });
 
@@ -170,13 +182,15 @@ Then('no errors should occur', async () => {
 });
 
 Then('charts should resize appropriately', async () => {
-  const chart = await global.page.locator('canvas');
+  // Verify charts are still visible after resize
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
+    await expect(chart).toBeVisible();
   }
 });
 
 Then('labels should remain readable', async () => {
+  // Check that text labels are still visible
   const labels = await global.page.locator('text=/\\d+|\\w+/');
   if (await labels.first().isVisible()) {
     await expect(labels.first()).toBeVisible();
@@ -184,9 +198,10 @@ Then('labels should remain readable', async () => {
 });
 
 Then('functionality should be preserved', async () => {
-  const chart = await global.page.locator('canvas');
+  // Verify charts remain functional after resize
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
+    await expect(chart).toBeVisible();
   }
 });
 
@@ -198,9 +213,10 @@ Then('I should see tooltips with details', async () => {
 });
 
 Then('I should be able to interact with data points', async () => {
-  const chart = await global.page.locator('canvas');
+  // Verify charts are interactive
+  const chart = await global.page.locator('canvas').first();
   if (await chart.isVisible()) {
-    await expect(chart.first()).toBeVisible();
+    await expect(chart).toBeVisible();
   }
 });
 

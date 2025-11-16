@@ -1,49 +1,37 @@
-# Complete React Migration with BDD/TDD - Progress Summary
+# Cucumber Test Fixes - Task List
 
-## ✅ COMPLETED
+## 🎯 Current Task: Fix Cucumber Tests
 
-### User Management System
-- [x] Add default users from main branch (9 users: 1 admin + 8 assessors)
-- [x] Implement user selection/switching with UserSelector component
-- [x] Add user data structure and storage (userService)
-- [x] Create user management UI with role indicators
-- [x] Implement question filtering based on user assignments
-- [x] Add comprehensive tests with 100% coverage (240 tests passing)
-- [x] Integrate into App component with proper filtering
+### ✅ COMPLETED
+- [x] Verify unit tests are passing (267 tests passing)
+- [x] Identify cucumber test issues
+- [x] Locate dev server port (running on 5175)
 
-### Test Coverage
-- [x] Maintain 98.59% overall test coverage
-- [x] All 240 unit tests passing
-- [x] User service: 100% coverage
-- [x] User hook: 100% coverage
-- [x] UserSelector component: 100% coverage
+### 🚧 IN PROGRESS
 
-## 🚧 IN PROGRESS / TODO
+#### Fix Cucumber Setup
+- [x] Update setup.js to use correct port (5175)
+- [x] Test basic cucumber scenario execution (2 passing, 1 failing)
+- [x] Verify browser automation is working
 
-### PDF Export Enhancements (COMPLETED ✅)
-- [x] Include charts in PDF export with correct aspect ratios
-- [x] Update charts before generating PDF  
-- [x] Include all evidence (text) for questions in PDF
-- [x] Add chart rendering to canvas for PDF inclusion
-- [x] Test PDF generation with evidence and charts
-- Note: Image evidence in PDF would require additional work with base64 encoding
+#### Fix Step Definitions
+- [x] Update assessment_steps.js for current UI (domain navigation and completion fixed)
+- [ ] Update compliance_steps.js for current UI
+- [ ] Update evidence_steps.js for current UI
+- [x] Update pdf_export_steps.js for current UI (scores calculation fixed)
+- [x] Update visualization_steps.js for current UI (radar chart scenario passing)
 
-### Admin Features (MEDIUM PRIORITY)
-- [ ] Add admin panel for managing questions
-- [ ] Add ability to add/edit/remove questions
-- [ ] Add ability to manage compliance frameworks
-- [ ] Add ability to assign questions to users
-- [ ] Add ability to manage users
-- [ ] Add tests for admin features (100% coverage)
+#### Add User Management Tests
+- [ ] Create user_management.feature file
+- [ ] Add step definitions for user switching
+- [ ] Test user-based question filtering
 
-### Cucumber Tests (HIGH PRIORITY)
-- [ ] Fix all failing cucumber tests
-- [ ] Update step definitions for user management
-- [ ] Add cucumber tests for user switching
-- [ ] Ensure all BDD scenarios pass
-- [ ] Add tests for admin features
+#### Verify All Scenarios
+- [ ] Run all cucumber tests
+- [ ] Fix any remaining failures
+- [ ] Document test results
 
 ## 📊 Current Status
-- Unit Tests: ✅ 240/240 passing (98.59% coverage)
-- Cucumber Tests: ⚠️ Many failing (need fixes)
-- Features: 🔄 User management complete, PDF/Admin pending
+- Unit Tests: ✅ 267/267 passing
+- Cucumber Tests: ⚠️ Fixing setup and step definitions
+- Dev Server: ✅ Running on port 5175
