@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 
 Given('I am on the assessment page', async () => {
   // Navigate to the page first
-  const ports = [5175, 5174, 5173];
+  const ports = [5173, 5174, 5175];
   let connected = false;
   
   for (const port of ports) {

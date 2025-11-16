@@ -1,0 +1,16 @@
+.Connected to dev server on port 5173
+........Connected to dev server on port 5173
+.......Connected to dev server on port 5173
+.......Connected to dev server on port 5173
+........Connected to dev server on port 5173
+.........Connected to dev server on port 5173
+.................................................................................................................Found 48 questions to answer
+.........Found 48 questions to answer
+..........Found 48 questions to answer
+..........Found 48 questions to answer
+..........Found 48 questions to answer
+.............................................................
+
+29 scenarios (29 passed)
+195 steps (195 passed)
+4m28.096s (executing steps: 4m27.821s)

@@ -47,6 +47,7 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
       text: textEvidence,
       images: images
     });
+    onClose();
   };
 
   return (
