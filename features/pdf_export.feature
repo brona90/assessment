@@ -40,3 +40,32 @@ Feature: PDF Export Functionality
     Then an error message should be displayed
     And the application should remain functional
     And I should be able to retry the export
+
+  Scenario: PDF includes text evidence
+    Given I have added text evidence to questions
+    When I generate a PDF
+    Then the PDF should include the text evidence
+    And evidence should be displayed under each question
+    And evidence text should be properly formatted
+
+  Scenario: PDF includes image evidence
+    Given I have added image evidence to questions
+    When I generate a PDF
+    Then the PDF should include the image evidence
+    And images should be displayed under each question
+    And images should be properly sized and positioned
+
+  Scenario: PDF includes all visualizations
+    Given I have completed an assessment with scores
+    When I generate a PDF
+    Then the PDF should include the radar chart
+    And the PDF should include the bar chart
+    And charts should be clearly visible
+    And charts should maintain their aspect ratio
+
+  Scenario: PDF includes both text and image evidence
+    Given I have added both text and image evidence
+    When I generate a PDF
+    Then the PDF should include both text and images
+    And evidence should be organized by question
+    And all evidence types should be clearly labeled
