@@ -94,7 +94,7 @@ describe('PdfService', () => {
   });
 
   describe('generatePDF', () => {
-    it('should generate PDF with assessment data', async () => {
+    it('should generate PDF with compliance data', async () => {
       const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
       expect(pdf).toBeDefined();
       expect(pdf.internal).toBeDefined();
@@ -124,7 +124,7 @@ describe('PdfService', () => {
     it('should use default filename', async () => {
       const mockPdf = { save: vi.fn() };
       await pdfService.downloadPDF(mockPdf);
-      expect(mockPdf.save).toHaveBeenCalledWith('assessment-report.pdf');
+      expect(mockPdf.save).toHaveBeenCalledWith('compliance-report.pdf');
     });
   });
 });

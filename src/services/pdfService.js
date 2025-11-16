@@ -315,7 +315,7 @@ export const pdfService = {
     return 'Not Implemented';
   },
 
-  async downloadPDF(pdf, filename = 'assessment-report.pdf') {
+  async downloadPDF(pdf, filename = 'compliance-report.pdf') {
     pdf.save(filename);
   }
 };

@@ -150,9 +150,9 @@ describe('App', () => {
     fireEvent.click(complianceBtn);
     expect(screen.getByTestId('compliance-section')).toBeInTheDocument();
     
-    const assessmentBtn = screen.getByText('Assessment');
-    fireEvent.click(assessmentBtn);
-    expect(screen.getByTestId('assessment-section')).toBeInTheDocument();
+    const dashboardBtn = screen.getByText('Dashboard');
+    fireEvent.click(dashboardBtn);
+    expect(screen.getByTestId('dashboard-section')).toBeInTheDocument();
   });
 
   it('should handle domains with no categories', () => {
