@@ -35,7 +35,7 @@ export const pdfService = {
     pdf.text('Domain Scores:', margin, yPos);
     yPos += 10;
 
-    Object.entries(domains).forEach(([key, domain]) => {
+    Object.entries(domains).forEach(([, domain]) => {
       const score = this.calculateDomainScore(domain, answers);
       pdf.setFontSize(12);
       pdf.text(`${domain.title}: ${score.toFixed(2)}/5.0`, margin + 5, yPos);
@@ -54,7 +54,7 @@ export const pdfService = {
     pdf.text('Detailed Assessment Results', margin, yPos);
     yPos += 15;
 
-    Object.entries(domains).forEach(([key, domain]) => {
+    Object.entries(domains).forEach(([, domain]) => {
       if (yPos > pageHeight - 40) {
         pdf.addPage();
         yPos = margin;
@@ -139,7 +139,7 @@ export const pdfService = {
     return pdf;
   },
 
-  async addChartsToPage(pdf, domains, answers) {
+  async addChartsToPage(pdf) {
     try {
       // Try to capture charts from the DOM if they exist
       const radarChartContainer = document.querySelector('[data-testid="radar-chart"]');

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { dataService } from './dataService';
 

@@ -68,7 +68,7 @@ describe('QuestionCard', () => {
   });
 
   it('should deselect when clicking selected option', () => {
-    const { rerender } = render(<QuestionCard {...mockProps} answer={3} />);
+    render(<QuestionCard {...mockProps} answer={3} />);
     const option = screen.getByTestId('option-q1-3');
     fireEvent.click(option);
     expect(mockProps.onClearAnswer).toHaveBeenCalled();

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { complianceService } from '../services/complianceService';
 
-export const ComplianceCard = ({ framework, score, answers }) => {
+export const ComplianceCard = ({ framework, score }) => {
   const { status, color } = complianceService.getComplianceStatus(
     score,
     framework.threshold

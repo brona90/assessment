@@ -3,7 +3,7 @@ import { ComplianceCard } from './ComplianceCard';
 import PropTypes from 'prop-types';
 
 export const ComplianceDashboard = ({ answers }) => {
-  const { frameworks, loading, error, getEnabledFrameworks, getFrameworkScore } = useCompliance(answers);
+  const { loading, error, getEnabledFrameworks, getFrameworkScore } = useCompliance(answers);
 
   if (loading) {
     return (

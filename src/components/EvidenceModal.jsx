@@ -1,16 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose }) => {
-  const [textEvidence, setTextEvidence] = useState('');
-  const [images, setImages] = useState([]);
-
-  useEffect(() => {
-    if (existingEvidence) {
-      setTextEvidence(existingEvidence.text || '');
-      setImages(existingEvidence.images || []);
-    }
-  }, [existingEvidence]);
+  const [textEvidence, setTextEvidence] = useState(existingEvidence?.text || '');
+  const [images, setImages] = useState(existingEvidence?.images || []);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);

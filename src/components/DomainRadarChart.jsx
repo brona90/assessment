@@ -19,7 +19,7 @@ ChartJS.register(
   Legend
 );
 
-export const DomainRadarChart = ({ domains, answers, benchmarks }) => {
+export const DomainRadarChart = ({ domains, answers }) => {
   if (!domains || Object.keys(domains).length === 0) {
     return <div className="chart-empty">No data available</div>;
   }

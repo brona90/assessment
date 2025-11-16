@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import './AdminPanel.css';
@@ -8,8 +9,8 @@ export const AdminPanel = ({
   onUpdateQuestion, 
   onAddQuestion, 
   onDeleteQuestion,
-  onUpdateUserAssignments,
-  onAddUser,
+  onUpdateUserAssignments: _onUpdateUserAssignments,
+  onAddUser: _onAddUser,
   onDeleteUser
 }) => {
   const [activeTab, setActiveTab] = useState('questions');
