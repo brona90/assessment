@@ -1,5 +1,5 @@
-import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
+const { Given, When, Then } = require('@cucumber/cucumber');
+const { expect } = require('@playwright/test');
 
 Given('I am on the assessment page', async () => {
   // Navigate to the page first

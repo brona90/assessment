@@ -1,5 +1,5 @@
-import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
+const { Given, When, Then } = require('@cucumber/cucumber');
+const { expect } = require('@playwright/test');
 
 Given('I have completed an assessment', async () => {
   // First ensure we're on the assessment page - try multiple ports

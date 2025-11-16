@@ -11,7 +11,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "cucumber": "cucumber-js",
+    "cucumber": "cucumber-js --config cucumber.cjs",
+    "cucumber:parallel": "npx cucumber-parallel --require-module @babel/register --require features/step_definitions/**/*.cjs --format progress --format html:cucumber-report.html --timeout 60000",
+    "cucumber:parallel:pdf": "npx cucumber-parallel --require-module @babel/register --require features/step_definitions/**/*.cjs --format progress --format html:cucumber-report.html --timeout 60000 features/pdf_export.feature",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
@@ -42,6 +44,7 @@
     "@vitest/coverage-v8": "^4.0.9",
     "@vitest/ui": "^4.0.9",
     "c8": "^10.1.3",
+    "cucumber-parallel": "^2.0.3",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

@@ -3,6 +3,19 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+// Suppress React act warnings globally
+const originalError = console.error
+console.error = (...args) => {
+  if (
+    typeof args[0] === 'string' &&
+    args[0].includes('act(...)') &&
+    args[0].includes('not wrapped in act')
+  ) {
+    return
+  }
+  originalError.call(console, ...args)
+}
+
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),

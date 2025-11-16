@@ -1,5 +1,5 @@
 import { Given, When, Then, Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
+const { expect } = require('@playwright/test');
 import { chromium } from 'playwright';
 
 // Set default timeout for all steps to 60 seconds

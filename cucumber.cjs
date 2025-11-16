@@ -1,7 +1,7 @@
-export default {
+module.exports = {
   default: {
     requireModule: ['@babel/register'],
-    require: ['features/step_definitions/**/*.js'],
+    require: ['features/step_definitions/**/*.cjs'],
     format: ['progress', 'html:cucumber-report.html'],
     publishQuiet: true,
     timeout: 60000,

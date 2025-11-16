@@ -1,5 +1,5 @@
-import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
+const { Given, When, Then } = require('@cucumber/cucumber');
+const { expect } = require('@playwright/test');
 
 Given('I am logged in as an admin user', async () => {
   // The default user in the system should be admin

@@ -1,5 +1,46 @@
-import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
+const { Given, When, Then } = require('@cucumber/cucumber');
+const { expect } = require('@playwright/test');
+
+Given('I have completed an assessment', async () => {
+  // Navigate to assessment section
+  const assessmentTab = await global.page.locator('button:has-text("Assessment")');
+  if (await assessmentTab.isVisible()) {
+    await assessmentTab.click();
+    await global.page.waitForTimeout(1000);
+  }
+  
+  // Answer some questions to complete assessment
+  const questions = await global.page.locator('[data-testid^="question-"]').all();
+  if (questions.length > 0) {
+    for (let i = 0; i < Math.min(3, questions.length); i++) {
+      const question = questions[i];
+      await question.click();
+      await global.page.waitForTimeout(500);
+      
+      const options = await global.page.locator('[data-value]').all();
+      if (options.length > 0) {
+        await options[Math.min(3, options.length - 1)].click();
+        await global.page.waitForTimeout(500);
+      }
+    }
+  }
+});
+
+Given('I have answers for all questions', async () => {
+  // Ensure we have answers by answering remaining questions
+  const unansweredQuestions = await global.page.locator('[data-testid^="question-"]:not(:has([class*="selected"]))').all();
+  
+  for (const question of unansweredQuestions.slice(0, 5)) {
+    await question.click();
+    await global.page.waitForTimeout(500);
+    
+    const options = await global.page.locator('[data-value]').all();
+    if (options.length > 0) {
+      await options[2].click(); // Select middle option
+      await global.page.waitForTimeout(500);
+    }
+  }
+});
 
 Given('I have scores calculated', async () => {
   // Ensure we have some scores by answering a question
