@@ -12,8 +12,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "cucumber": "cucumber-js --config cucumber.cjs",
-    "cucumber:parallel": "npx cucumber-parallel --require-module @babel/register --require features/step_definitions/**/*.cjs --format progress --format html:cucumber-report.html --timeout 60000",
-    "cucumber:parallel:pdf": "npx cucumber-parallel --require-module @babel/register --require features/step_definitions/**/*.cjs --format progress --format html:cucumber-report.html --timeout 60000 features/pdf_export.feature",
+    "cucumber:parallel": "node node_modules/cucumber-parallel/bin/cucumber-parallel features --require-module @babel/register --require features/step_definitions/**/*.cjs --format progress --format html:cucumber-report.html --timeout 60000",
+    "cucumber:parallel:pdf": "node node_modules/cucumber-parallel/bin/cucumber-parallel features --require-module @babel/register --require features/step_definitions/**/*.cjs --format progress --format html:cucumber-report.html --timeout 60000 --name PDF includes detailed results",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
