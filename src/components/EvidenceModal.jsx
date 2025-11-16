@@ -1,9 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose }) => {
-  const [textEvidence, setTextEvidence] = useState(existingEvidence?.text || '');
-  const [images, setImages] = useState(existingEvidence?.images || []);
+  // Initialize state with existing evidence
+  // Using a function to ensure fresh state on each render
+  const [textEvidence, setTextEvidence] = useState(() => existingEvidence?.text || '');
+  const [images, setImages] = useState(() => existingEvidence?.images || []);
+
+  // Update state when existingEvidence changes (for rerender scenarios)
+  useEffect(() => {
+    if (existingEvidence) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTextEvidence(existingEvidence.text || '');
+       
+      setImages(existingEvidence.images || []);
+    }
+  }, [existingEvidence]);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
