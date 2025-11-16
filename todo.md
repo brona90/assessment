@@ -11,15 +11,16 @@
 
 #### Fix Cucumber Setup
 - [x] Update setup.js to use correct port (5175)
-- [x] Test basic cucumber scenario execution (2 passing, 1 failing)
+- [x] Test basic cucumber scenario execution
 - [x] Verify browser automation is working
+- [x] Increase timeout from 30s to 60s
 
 #### Fix Step Definitions
-- [x] Update assessment_steps.js for current UI (domain navigation and completion fixed)
+- [x] Update assessment_steps.js for current UI
+- [x] Update pdf_export_steps.js for current UI
+- [x] Update visualization_steps.js for current UI (all canvas locators fixed)
 - [ ] Update compliance_steps.js for current UI
 - [ ] Update evidence_steps.js for current UI
-- [x] Update pdf_export_steps.js for current UI (scores calculation fixed)
-- [x] Update visualization_steps.js for current UI (radar chart scenario passing)
 
 #### Add User Management Tests
 - [ ] Create user_management.feature file

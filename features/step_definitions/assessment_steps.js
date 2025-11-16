@@ -60,10 +60,7 @@ When('I have answered questions', async () => {
   }
 });
 
-Given('I have answers for all questions', async function() {
-  // Increase timeout for this step
-  this.timeout = 30000;
-  
+Given('I have answers for all questions', async () => {
   // Make sure we're on the Assessment tab
   const assessmentButton = await global.page.locator('button:has-text("Assessment")');
   if (await assessmentButton.isVisible()) {

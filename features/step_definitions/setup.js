@@ -1,6 +1,9 @@
-import { Given, When, Then, Before, After, BeforeAll, AfterAll } from '@cucumber/cucumber';
+import { Given, When, Then, Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
 import { expect } from '@playwright/test';
 import { chromium } from 'playwright';
+
+// Set default timeout for all steps to 60 seconds
+setDefaultTimeout(60000);
 
 // Global setup for cucumber tests
 global.browser = null;

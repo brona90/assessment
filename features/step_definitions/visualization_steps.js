@@ -61,10 +61,7 @@ When('I interact with data points', async () => {
   }
 });
 
-Then('I should see a radar chart', async function() {
-  // Increase timeout for this step
-  this.timeout = 30000;
-  
+Then('I should see a radar chart', async () => {
   // Take screenshot for debugging
   await global.page.screenshot({ path: 'debug-radar-chart.png' });
   
