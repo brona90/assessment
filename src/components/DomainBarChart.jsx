@@ -87,7 +87,7 @@ export const DomainBarChart = ({ domains, answers }) => {
   };
 
   return (
-    <div className="chart-container" style={{ height: '400px' }}>
+    <div className="chart-container" style={{ height: '400px' }} data-testid="bar-chart">
       <Bar data={data} options={options} />
     </div>
   );

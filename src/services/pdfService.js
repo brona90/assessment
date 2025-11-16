@@ -42,7 +42,10 @@ export const pdfService = {
       yPos += 8;
     });
 
-    // Page 2: Detailed Results
+    // Add charts if available
+    await this.addChartsToPage(pdf, domains, answers);
+
+    // Page 2: Detailed Results with Evidence
     pdf.addPage();
     yPos = margin;
     
@@ -66,7 +69,7 @@ export const pdfService = {
         if (category.questions) {
           category.questions.forEach(question => {
             if (answers[question.id] !== undefined) {
-              if (yPos > pageHeight - 30) {
+              if (yPos > pageHeight - 40) {
                 pdf.addPage();
                 yPos = margin;
               }
@@ -74,6 +77,27 @@ export const pdfService = {
               pdf.setFontSize(10);
               pdf.text(`${question.id.toUpperCase()}: ${answers[question.id]}/5`, margin + 5, yPos);
               yPos += 6;
+
+              // Add evidence if available
+              const questionEvidence = evidence[question.id];
+              if (questionEvidence && questionEvidence.text) {
+                pdf.setFontSize(9);
+                pdf.setTextColor(100, 100, 100);
+                const evidenceText = `Evidence: ${questionEvidence.text}`;
+                const lines = pdf.splitTextToSize(evidenceText, pageWidth - margin * 2 - 10);
+                
+                lines.forEach(line => {
+                  if (yPos > pageHeight - 20) {
+                    pdf.addPage();
+                    yPos = margin;
+                  }
+                  pdf.text(line, margin + 10, yPos);
+                  yPos += 5;
+                });
+                
+                pdf.setTextColor(0, 0, 0);
+                yPos += 3;
+              }
             }
           });
         }
@@ -81,7 +105,96 @@ export const pdfService = {
       yPos += 5;
     });
 
+    // Add compliance frameworks if available
+    if (complianceFrameworks && Object.keys(complianceFrameworks).length > 0) {
+      pdf.addPage();
+      yPos = margin;
+      
+      pdf.setFontSize(18);
+      pdf.setTextColor(99, 102, 241);
+      pdf.text('Compliance Frameworks', margin, yPos);
+      yPos += 15;
+
+      Object.entries(complianceFrameworks).forEach(([key, framework]) => {
+        if (framework.enabled) {
+          if (yPos > pageHeight - 30) {
+            pdf.addPage();
+            yPos = margin;
+          }
+
+          pdf.setFontSize(14);
+          pdf.setTextColor(0, 0, 0);
+          pdf.text(framework.name || key, margin, yPos);
+          yPos += 10;
+
+          if (framework.score !== undefined) {
+            pdf.setFontSize(12);
+            pdf.text(`Compliance Score: ${framework.score.toFixed(2)}%`, margin + 5, yPos);
+            yPos += 10;
+          }
+        }
+      });
+    }
+
     return pdf;
+  },
+
+  async addChartsToPage(pdf, domains, answers) {
+    try {
+      // Try to capture charts from the DOM if they exist
+      const radarChartContainer = document.querySelector('[data-testid="radar-chart"]');
+      const barChartContainer = document.querySelector('[data-testid="bar-chart"]');
+      
+      const radarChart = radarChartContainer?.querySelector('canvas');
+      const barChart = barChartContainer?.querySelector('canvas');
+
+      if (radarChart || barChart) {
+        pdf.addPage();
+        let yPos = 20;
+        
+        pdf.setFontSize(18);
+        pdf.setTextColor(99, 102, 241);
+        pdf.text('Visual Analysis', 20, yPos);
+        yPos += 15;
+
+        if (radarChart) {
+          const radarCanvas = await html2canvas(radarChart, {
+            scale: 2,
+            backgroundColor: '#ffffff'
+          });
+          
+          const radarImgData = radarCanvas.toDataURL('image/png');
+          const aspectRatio = radarCanvas.width / radarCanvas.height;
+          const imgWidth = 170;
+          const imgHeight = imgWidth / aspectRatio;
+          
+          pdf.addImage(radarImgData, 'PNG', 20, yPos, imgWidth, imgHeight);
+          yPos += imgHeight + 10;
+        }
+
+        if (barChart && yPos < 200) {
+          const barCanvas = await html2canvas(barChart, {
+            scale: 2,
+            backgroundColor: '#ffffff'
+          });
+          
+          const barImgData = barCanvas.toDataURL('image/png');
+          const aspectRatio = barCanvas.width / barCanvas.height;
+          const imgWidth = 170;
+          const imgHeight = imgWidth / aspectRatio;
+          
+          if (yPos + imgHeight > 270) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          
+          pdf.addImage(barImgData, 'PNG', 20, yPos, imgWidth, imgHeight);
+        }
+      }
+    } catch (error) {
+      console.error('Error adding charts to PDF:', error);
+      // Continue without charts if there's an error
+    }
   },
 
   calculateDomainScore(domain, answers) {

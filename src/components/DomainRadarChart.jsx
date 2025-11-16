@@ -100,7 +100,7 @@ export const DomainRadarChart = ({ domains, answers, benchmarks }) => {
   };
 
   return (
-    <div className="chart-container" style={{ height: '400px' }}>
+    <div className="chart-container" style={{ height: '400px' }} data-testid="radar-chart">
       <Radar data={data} options={options} />
     </div>
   );
