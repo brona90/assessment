@@ -80,23 +80,56 @@ export const pdfService = {
 
               // Add evidence if available
               const questionEvidence = evidence[question.id];
-              if (questionEvidence && questionEvidence.text) {
-                pdf.setFontSize(9);
-                pdf.setTextColor(100, 100, 100);
-                const evidenceText = `Evidence: ${questionEvidence.text}`;
-                const lines = pdf.splitTextToSize(evidenceText, pageWidth - margin * 2 - 10);
-                
-                lines.forEach(line => {
-                  if (yPos > pageHeight - 20) {
-                    pdf.addPage();
-                    yPos = margin;
-                  }
-                  pdf.text(line, margin + 10, yPos);
-                  yPos += 5;
-                });
-                
-                pdf.setTextColor(0, 0, 0);
-                yPos += 3;
+              if (questionEvidence) {
+                   
+                   // Add text evidence
+                   if (questionEvidence.text) {
+                     pdf.setFontSize(9);
+                     pdf.setTextColor(100, 100, 100);
+                     const evidenceText = `Evidence: ${questionEvidence.text}`;
+                     const lines = pdf.splitTextToSize(evidenceText, pageWidth - margin * 2 - 10);
+                     
+                     lines.forEach(line => {
+                       if (yPos > pageHeight - 20) {
+                         pdf.addPage();
+                         yPos = margin;
+                       }
+                       pdf.text(line, margin + 10, yPos);
+                       yPos += 5;
+                     });
+                     
+                     pdf.setTextColor(0, 0, 0);
+                     yPos += 3;
+                   }
+                   
+                   // Add image evidence
+                   if (questionEvidence.images && questionEvidence.images.length > 0) {
+                     pdf.setFontSize(9);
+                     pdf.setTextColor(100, 100, 100);
+                     pdf.text('Image Evidence:', margin + 10, yPos);
+                     yPos += 5;
+                     
+                     for (const imageUrl of questionEvidence.images) {
+                       try {
+                         if (yPos > pageHeight - 80) {
+                           pdf.addPage();
+                           yPos = margin;
+                         }
+                         
+                         const imgWidth = 80;
+                         const imgHeight = 60;
+                         pdf.addImage(imageUrl, 'JPEG', margin + 10, yPos, imgWidth, imgHeight);
+                         yPos += imgHeight + 5;
+                       } catch (error) {
+                         console.error('Error adding image to PDF:', error);
+                         pdf.text('(Image could not be loaded)', margin + 10, yPos);
+                         yPos += 5;
+                       }
+                     }
+                     
+                     pdf.setTextColor(0, 0, 0);
+                     yPos += 3;
+                   }
               }
             }
           });
