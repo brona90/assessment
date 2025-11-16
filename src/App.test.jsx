@@ -95,9 +95,9 @@ describe('App', () => {
     const complianceBtn = screen.getByText('Compliance');
     act(() => {
 
-      fireEvent.click(complianceBtn);
-
-     });
+      act(() => {
+        fireEvent.click(complianceBtn);
+      });
     expect(screen.getByTestId('compliance-section')).toBeInTheDocument();
   });
 
