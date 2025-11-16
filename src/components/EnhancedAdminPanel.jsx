@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDataStore } from '../hooks/useDataStore';
+import { userExportService } from '../services/userExportService';
 import './AdminPanel.css';
 
 export const EnhancedAdminPanel = () => {
@@ -81,6 +82,10 @@ export const EnhancedAdminPanel = () => {
   // Assignment state
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
+
+  // Multi-user import state
+  const [importedExports, setImportedExports] = useState([]);
+  const [mergedReport, setMergedReport] = useState(null);
 
   // Load data when initialized
   useEffect(() => {
@@ -403,6 +408,57 @@ export const EnhancedAdminPanel = () => {
       }
     };
     reader.readAsText(file);
+  };
+
+  // Multi-user import handlers
+  // eslint-disable-next-line no-unused-vars
+  const handleImportUserExport = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = userExportService.importUserExport(e.target.result);
+      if (result.success) {
+        setImportedExports([...importedExports, result.data]);
+        showMessage('success', `Imported data for ${result.data.user.name}`);
+      } else {
+        showMessage('error', result.error);
+      }
+    };
+    reader.readAsText(file);
+    // Reset input
+    event.target.value = '';
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const handleMergeExports = () => {
+    if (importedExports.length === 0) {
+      showMessage('error', 'No user exports to merge');
+      return;
+    }
+
+    const merged = userExportService.mergeUserExports(importedExports);
+    setMergedReport(merged);
+    showMessage('success', `Merged ${importedExports.length} user exports`);
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const handleDownloadMergedReport = () => {
+    if (!mergedReport) {
+      showMessage('error', 'No merged report available');
+      return;
+    }
+
+    userExportService.downloadMergedReport(mergedReport);
+    showMessage('success', 'Merged report downloaded');
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const handleClearImports = () => {
+    setImportedExports([]);
+    setMergedReport(null);
+    showMessage('success', 'Cleared all imports');
   };
 
   if (loading) {

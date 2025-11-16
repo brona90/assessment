@@ -11,6 +11,8 @@ import { UserSelector } from './components/UserSelector';
 import { EnhancedAdminPanel } from './components/EnhancedAdminPanel';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
+import { userExportService } from './services/userExportService';
+import { useDataStore } from './hooks/useDataStore';
 
 function App() {
   const {
@@ -38,6 +40,7 @@ function App() {
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const { frameworks } = useCompliance(answers);
+  const { getQuestionsForUser } = useDataStore();
 
   const handleOpenEvidence = (questionId) => {
     setCurrentQuestionId(questionId);
@@ -84,6 +87,30 @@ function App() {
     }
   };
 
+  const handleExportUserData = () => {
+    try {
+      if (!currentUser) {
+        alert('Please select a user first');
+        return;
+      }
+
+      // Get user's assigned questions
+      const userQuestions = getQuestionsForUser(currentUser.id);
+      
+      // Export user data
+      userExportService.downloadUserExport(
+        currentUser.id,
+        currentUser.name,
+        userQuestions,
+        answers,
+        evidence
+      );
+    } catch (error) {
+      console.error('Error exporting user data:', error);
+      alert('Failed to export user data. Please try again.');
+    }
+  };
+
   if (loading || userLoading) {
     return (
       <div className="loading-container" data-testid="loading">
@@ -122,6 +149,15 @@ function App() {
           >
             📄 Export PDF
           </button>
+          {!isAdmin() && (
+            <button 
+              className="export-btn" 
+              onClick={handleExportUserData}
+              data-testid="export-user-data"
+            >
+              💾 Export My Data
+            </button>
+          )}
         </div>
         <UserSelector 
           users={users}
