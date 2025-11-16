@@ -8,7 +8,7 @@ import { DomainRadarChart } from './components/DomainRadarChart';
 import { DomainBarChart } from './components/DomainBarChart';
 import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelector } from './components/UserSelector';
-import { AdminPanel } from './components/AdminPanel';
+import { EnhancedAdminPanel } from './components/EnhancedAdminPanel';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 

@@ -16,7 +16,8 @@ describe('DataStore', () => {
     });
 
     it('should initialize from JSON files', async () => {
-      global.fetch = vi.fn()
+      // eslint-disable-next-line no-undef
+    global.fetch = vi.fn()
         .mockResolvedValueOnce({
           json: async () => ({
             domains: {
