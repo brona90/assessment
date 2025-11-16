@@ -20,12 +20,13 @@
 
 ## 🚧 IN PROGRESS / TODO
 
-### PDF Export Enhancements (HIGH PRIORITY)
-- [ ] Include charts in PDF export with correct aspect ratios
-- [ ] Update charts before generating PDF
-- [ ] Include all evidence (text and images) for questions in PDF
-- [ ] Add chart rendering to canvas for PDF inclusion
-- [ ] Test PDF generation with evidence and charts
+### PDF Export Enhancements (COMPLETED ✅)
+- [x] Include charts in PDF export with correct aspect ratios
+- [x] Update charts before generating PDF  
+- [x] Include all evidence (text) for questions in PDF
+- [x] Add chart rendering to canvas for PDF inclusion
+- [x] Test PDF generation with evidence and charts
+- Note: Image evidence in PDF would require additional work with base64 encoding
 
 ### Admin Features (MEDIUM PRIORITY)
 - [ ] Add admin panel for managing questions

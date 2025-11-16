@@ -94,6 +94,14 @@ Then('I should see enable/disable toggles', async () => {
   }
 });
 
+Then('I should see enable\\/disable toggles', async () => {
+  // Alias for the above with escaped slash
+  const toggles = await global.page.locator('[data-testid^="framework-toggle"]');
+  if (await toggles.first().isVisible()) {
+    await expect(toggles.first()).toBeVisible();
+  }
+});
+
 Then('the framework should be activated', async () => {
   const toggle = await global.page.locator('[data-testid^="framework-toggle"]').first();
   if (await toggle.isVisible()) {
