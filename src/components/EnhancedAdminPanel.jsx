@@ -470,7 +470,7 @@ export const EnhancedAdminPanel = () => {
   }
 
   return (
-    <div className="admin-panel">
+    <div className="admin-panel" data-testid="admin-panel">
       <h2>Admin Panel</h2>
 
       {message.text && (

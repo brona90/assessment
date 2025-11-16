@@ -255,7 +255,7 @@ function App() {
 
         {activeSection === 'admin' && isAdmin() && (
           <div className="admin-section" data-testid="admin-section">
-            <AdminPanel
+            <EnhancedAdminPanel
               domains={domains}
               users={users}
               onUpdateQuestion={() => {}}

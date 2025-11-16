@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { complianceService } from '../services/complianceService';
+import { dataStore } from '../services/dataStore';
 
 export const useCompliance = (answers = {}) => {
   const [frameworks, setFrameworks] = useState({});
@@ -13,9 +14,25 @@ export const useCompliance = (answers = {}) => {
   const loadFrameworks = async () => {
     try {
       setLoading(true);
-      const saved = complianceService.loadSavedCompliance();
-      const loaded = saved || await complianceService.loadCompliance();
-      setFrameworks(loaded);
+      
+      // Initialize dataStore if not already initialized
+      if (!dataStore.initialized) {
+        await dataStore.initialize();
+      }
+      
+      // Get only selected frameworks from dataStore
+      const selectedFrameworks = dataStore.getSelectedFrameworks();
+      
+      // Convert array to object format expected by compliance service
+      const frameworksObj = {};
+      selectedFrameworks.forEach(fw => {
+        frameworksObj[fw.id] = {
+          ...fw,
+          enabled: true
+        };
+      });
+      
+      setFrameworks(frameworksObj);
       setError(null);
     } catch (err) {
       setError(err.message);
