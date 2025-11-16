@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 import { useAssessment } from './hooks/useAssessment';
+import { useUser } from './hooks/useUser';
 
 vi.mock('./hooks/useAssessment');
+vi.mock('./hooks/useUser');
 
 describe('App', () => {
   const mockUseAssessment = {
@@ -33,6 +35,15 @@ describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useAssessment.mockReturnValue(mockUseAssessment);
+    useUser.mockReturnValue({
+      users: [],
+      currentUser: null,
+      loading: false,
+      selectUser: vi.fn(),
+      isAdmin: vi.fn(() => false),
+      canAccessQuestion: vi.fn(() => true),
+      getAssignedQuestions: vi.fn(() => [])
+    });
   });
 
   it('should render loading state', () => {

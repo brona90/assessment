@@ -135,30 +135,37 @@ function App() {
       <main className="app-main">
         {activeSection === 'assessment' && domains && (
           <div className="assessment-section" data-testid="assessment-section">
-            {Object.entries(domains).map(([domainKey, domain]) => (
-              <div key={domainKey} className="domain-section">
-                <h2>{domain.title}</h2>
-                {Object.entries(domain.categories || {}).map(([catKey, category]) => (
-                  <div key={catKey} className="category-section">
-                    <h3>{category.title}</h3>
-                    {category.questions?.map(question => (
-                      <QuestionCard
-                        key={question.id}
-                        question={question}
-                        answer={answers[question.id]}
-                        onAnswerChange={(value) => saveAnswer(question.id, value)}
-                        onClearAnswer={() => clearAnswer(question.id)}
-                        onAddEvidence={() => handleOpenEvidence(question.id)}
-                        hasEvidence={!!evidence[question.id]}
-                      />
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
-
+              {Object.entries(domains).map(([domainKey, domain]) => (
+                <div key={domainKey} className="domain-section">
+                  <h2>{domain.title}</h2>
+                  {Object.entries(domain.categories || {}).map(([catKey, category]) => {
+                    const filteredQuestions = filterQuestionsByUser(category.questions || []);
+                    
+                    return (
+                      <div key={catKey} className="category-section">
+                        <h3>{category.title}</h3>
+                        {filteredQuestions.length === 0 ? (
+                          <p className="no-questions">No questions assigned or available.</p>
+                        ) : (
+                          filteredQuestions.map(question => (
+                            <QuestionCard
+                              key={question.id}
+                              question={question}
+                              answer={answers[question.id]}
+                              onAnswerChange={(value) => saveAnswer(question.id, value)}
+                              onClearAnswer={() => clearAnswer(question.id)}
+                              onAddEvidence={() => handleOpenEvidence(question.id)}
+                              hasEvidence={!!evidence[question.id]}
+                            />
+                          ))
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
         {activeSection === 'compliance' && (
           <div className="compliance-section" data-testid="compliance-section">
             <ComplianceDashboard answers={answers} />
