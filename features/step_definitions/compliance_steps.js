@@ -177,8 +177,11 @@ Then('the compliance tab should be hidden', async () => {
 });
 
 Then('the main navigation should update', async () => {
-  const navButtons = await global.page.locator('button[role="tab"]').all();
-  expect(navButtons.length).toBeGreaterThan(0);
+  // Navigation should still have Assessment and Dashboard buttons
+  await global.page.waitForTimeout(500);
+  const assessmentButton = await global.page.locator('button:has-text("Assessment")');
+  const isVisible = await assessmentButton.isVisible().catch(() => false);
+  expect(isVisible).toBe(true);
 });
 
 Then('the layout should adjust accordingly', async () => {
