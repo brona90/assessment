@@ -24,8 +24,8 @@
 - [ ] Verify all scenarios passing
 
 ### 4. Enhance PDF Export
-- [ ] Add all evidence including images to PDF
-- [ ] Add all graphs/charts to PDF
+- [x] Add all evidence including images to PDF
+- [x] Add all graphs/charts to PDF (already implemented)
 - [ ] Test PDF generation with all content
 - [ ] Update unit tests
 
