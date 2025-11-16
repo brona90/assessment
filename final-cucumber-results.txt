@@ -1,0 +1,67 @@
+...........................F-................F......................................F-...................................................................Found 48 questions to answer
+.........Found 48 questions to answer
+..........Found 48 questions to answer
+..........Found 48 questions to answer
+..........Found 48 questions to answer
+.............................................................
+
+Failures:
+
+1) Scenario: Complete assessment with all domains # features/assessment_workflow.feature:26
+   ✔ Before # file:/workspace/features/step_definitions/setup.js:16
+   ✔ Given I am on the technology assessment page # file:/workspace/features/step_definitions/setup.js:20
+   ✔ And the assessment data is loaded # file:/workspace/features/step_definitions/setup.js:41
+   ✔ When I answer all questions across all domains # file:/workspace/features/step_definitions/assessment_steps.js:122
+   ✔ Then I should see a completion message # file:/workspace/features/step_definitions/assessment_steps.js:257
+   ✖ And the overall score should be calculated # file:/workspace/features/step_definitions/assessment_steps.js:265
+       Error: expect(locator).toBeVisible() failed
+
+       Locator: locator('text=/\\d+\\.\\d+/').first()
+       Expected: visible
+       Timeout: 5000ms
+       Error: element(s) not found
+
+       Call log:
+         - Expect "to.be.visible" with timeout 5000ms
+         - waiting for locator('text=/\\d+\\.\\d+/').first()
+
+           at Proxy.<anonymous> (/workspace/node_modules/playwright/lib/matchers/expect.js:221:24)
+           at World.<anonymous> (file:///workspace/features/step_definitions/assessment_steps.js:274:38)
+   - And domain scores should be displayed # file:/workspace/features/step_definitions/assessment_steps.js:289
+   ✔ After # file:/workspace/features/step_definitions/setup.js:52
+
+2) Scenario: Reset assessment # features/assessment_workflow.feature:39
+   ✔ Before # file:/workspace/features/step_definitions/setup.js:16
+   ✔ Given I am on the technology assessment page # file:/workspace/features/step_definitions/setup.js:20
+   ✔ And the assessment data is loaded # file:/workspace/features/step_definitions/setup.js:41
+   ✔ When I have answered questions # file:/workspace/features/step_definitions/assessment_steps.js:52
+   ✔ And I reset the assessment # file:/workspace/features/step_definitions/assessment_steps.js:188
+   ✔ Then all answers should be cleared # file:/workspace/features/step_definitions/assessment_steps.js:311
+   ✖ And progress should be reset to 0 # file:/workspace/features/step_definitions/assessment_steps.js:319
+       Error: expect(received).toBe(expected) // Object.is equality
+
+       Expected: true
+       Received: false
+           at Proxy.<anonymous> (/workspace/node_modules/playwright/lib/matchers/expect.js:221:24)
+           at World.<anonymous> (file:///workspace/features/step_definitions/assessment_steps.js:324:21)
+   ✔ After # file:/workspace/features/step_definitions/setup.js:52
+
+3) Scenario: Hide compliance when no frameworks enabled # features/compliance_frameworks.feature:34
+   ✔ Before # file:/workspace/features/step_definitions/setup.js:16
+   ✔ Given I am on the compliance section # file:/workspace/features/step_definitions/compliance_steps.js:4
+   ✔ And compliance data is loaded # file:/workspace/features/step_definitions/compliance_steps.js:23
+   ✔ When all frameworks are disabled # file:/workspace/features/step_definitions/compliance_steps.js:62
+   ✔ Then the compliance tab should be hidden # file:/workspace/features/step_definitions/compliance_steps.js:168
+   ✖ And the main navigation should update # file:/workspace/features/step_definitions/compliance_steps.js:179
+       Error: expect(received).toBe(expected) // Object.is equality
+
+       Expected: true
+       Received: false
+           at Proxy.<anonymous> (/workspace/node_modules/playwright/lib/matchers/expect.js:221:24)
+           at World.<anonymous> (file:///workspace/features/step_definitions/compliance_steps.js:184:21)
+   - And the layout should adjust accordingly # file:/workspace/features/step_definitions/compliance_steps.js:187
+   ✔ After # file:/workspace/features/step_definitions/setup.js:52
+
+29 scenarios (3 failed, 26 passed)
+195 steps (3 failed, 2 skipped, 190 passed)
+4m47.151s (executing steps: 4m46.858s)
