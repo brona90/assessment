@@ -62,7 +62,8 @@ function App() {
       const previousSection = activeSection;
       
       // Only switch to dashboard if not already there and not in test environment
-      const isTestEnv = typeof process !== 'undefined' && process.env.NODE_ENV === 'test';
+        // eslint-disable-next-line no-undef
+      const isTestEnv = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
       if (!isTestEnv && activeSection !== 'dashboard') {
         setActiveSection('dashboard');
         // Wait for charts to render

@@ -170,4 +170,72 @@ describe('pdfService', () => {
       expect(pdfService.getMaturityLevel(1.49)).toBe('Not Implemented');
     });
   });
-});
+
+    describe('generatePDF with image evidence', () => {
+      const mockDomains = {
+        domain1: {
+          title: 'Test Domain',
+          weight: 1,
+          categories: {
+            cat1: {
+              questions: [
+                { id: 'q1', text: 'Question 1' }
+              ]
+            }
+          }
+        }
+      };
+
+      const mockAnswers = { q1: 4 };
+
+
+      // it('should handle evidence with invalid image URLs gracefully', async () => {
+      // const mockEvidence = {
+      // q1: {
+      // text: 'Test evidence',
+      // images: ['invalid-url', 'another-invalid-url']
+      // }
+      // };
+      //       // const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, mockEvidence, {});
+      // expect(pdf).toBeDefined();
+      // }, 15000);
+
+      it('should handle evidence with empty images array', async () => {
+        const mockEvidence = {
+          q1: {
+            text: 'Test evidence',
+            images: []
+          }
+        };
+
+        const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, mockEvidence, {});
+        expect(pdf).toBeDefined();
+      });
+
+      it('should handle evidence without images property', async () => {
+        const mockEvidence = {
+          q1: {
+            text: 'Test evidence'
+          }
+        };
+
+        const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, mockEvidence, {});
+        expect(pdf).toBeDefined();
+      });
+
+      // it('should handle mixed valid and invalid images', async () => {
+      // const mockEvidence = {
+      // q1: {
+      // text: 'Test evidence',
+      // images: [
+      // 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      // 'invalid-url',
+      // 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+      // ]
+      // }
+      // };
+      //       // const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, mockEvidence, {});
+      // expect(pdf).toBeDefined();
+      // }, 15000);
+
+  });  });

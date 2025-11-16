@@ -1,6 +1,40 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+// Helper function to load image and convert to base64
+const loadImageAsBase64 = (url) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; // Handle CORS
+    
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(dataURL);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    img.onerror = () => {
+      reject(new Error('Failed to load image'));
+    };
+    
+    // Handle data URLs and blob URLs directly
+    if (url.startsWith('data:') || url.startsWith('blob:')) {
+      img.src = url;
+    } else {
+      // For regular URLs, try to load them
+      img.src = url;
+    }
+  });
+};
+
 export const pdfService = {
   async generatePDF(domains, answers, evidence, complianceFrameworks) {
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -35,12 +69,12 @@ export const pdfService = {
     pdf.text('Domain Scores:', margin, yPos);
     yPos += 10;
 
-    Object.entries(domains).forEach(([, domain]) => {
+    for (const [, domain] of Object.entries(domains)) {
       const score = this.calculateDomainScore(domain, answers);
       pdf.setFontSize(12);
       pdf.text(`${domain.title}: ${score.toFixed(2)}/5.0`, margin + 5, yPos);
       yPos += 8;
-    });
+    }
 
     // Add charts if available
     await this.addChartsToPage(pdf, domains, answers);
@@ -54,7 +88,7 @@ export const pdfService = {
     pdf.text('Detailed Assessment Results', margin, yPos);
     yPos += 15;
 
-    Object.entries(domains).forEach(([, domain]) => {
+    for (const [, domain] of Object.entries(domains)) {
       if (yPos > pageHeight - 40) {
         pdf.addPage();
         yPos = margin;
@@ -65,9 +99,9 @@ export const pdfService = {
       pdf.text(domain.title, margin, yPos);
       yPos += 10;
 
-      Object.values(domain.categories || {}).forEach(category => {
+      for (const category of Object.values(domain.categories || {})) {
         if (category.questions) {
-          category.questions.forEach(question => {
+          for (const question of category.questions) {
             if (answers[question.id] !== undefined) {
               if (yPos > pageHeight - 40) {
                 pdf.addPage();
@@ -109,34 +143,42 @@ export const pdfService = {
                      pdf.text('Image Evidence:', margin + 10, yPos);
                      yPos += 5;
                      
-                     for (const imageUrl of questionEvidence.images) {
-                       try {
-                         if (yPos > pageHeight - 80) {
-                           pdf.addPage();
-                           yPos = margin;
-                         }
+                        for (const imageUrl of questionEvidence.images) {
+                          try {
+                            if (yPos > pageHeight - 80) {
+                              pdf.addPage();
+                              yPos = margin;
+                            }
+                            
+                            // Load and convert image to base64
+                            const base64Image = await loadImageAsBase64(imageUrl);
+                            
+                            const imgWidth = 80;
+                            const imgHeight = 60;
+                            pdf.addImage(base64Image, 'JPEG', margin + 10, yPos, imgWidth, imgHeight);
+                            yPos += imgHeight + 5;
+                          } catch (error) {
+                            console.error('Error adding image to PDF:', error, imageUrl);
+                            pdf.setFontSize(8);
+                            pdf.setTextColor(200, 0, 0);
+                            pdf.text('(Image could not be loaded)', margin + 10, yPos);
+                            pdf.setFontSize(9);
+                            pdf.setTextColor(100, 100, 100);
+                            yPos += 5;
+                          }
+                        }
                          
-                         const imgWidth = 80;
-                         const imgHeight = 60;
-                         pdf.addImage(imageUrl, 'JPEG', margin + 10, yPos, imgWidth, imgHeight);
-                         yPos += imgHeight + 5;
-                       } catch (error) {
-                         console.error('Error adding image to PDF:', error);
-                         pdf.text('(Image could not be loaded)', margin + 10, yPos);
-                         yPos += 5;
-                       }
                      }
                      
                      pdf.setTextColor(0, 0, 0);
                      yPos += 3;
-                   }
               }
             }
-          });
+          }
         }
-      });
+      }
       yPos += 5;
-    });
+    }
 
     // Add compliance frameworks if available
     if (complianceFrameworks && Object.keys(complianceFrameworks).length > 0) {
