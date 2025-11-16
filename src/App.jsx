@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useAssessment } from './hooks/useAssessment';
+import { useUser } from './hooks/useUser';
 import { QuestionCard } from './components/QuestionCard';
 import { ProgressBar } from './components/ProgressBar';
 import { ComplianceDashboard } from './components/ComplianceDashboard';
 import { DomainRadarChart } from './components/DomainRadarChart';
 import { DomainBarChart } from './components/DomainBarChart';
 import { EvidenceModal } from './components/EvidenceModal';
+import { UserSelector } from './components/UserSelector';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 
@@ -21,6 +23,14 @@ function App() {
     saveEvidenceForQuestion,
     getProgress
   } = useAssessment();
+
+  const {
+    users,
+    currentUser,
+    loading: userLoading,
+    selectUser,
+    canAccessQuestion
+  } = useUser();
 
   const [activeSection, setActiveSection] = useState('assessment');
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
@@ -54,7 +64,7 @@ function App() {
     }
   };
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
       <div className="loading-container" data-testid="loading">
         <div className="spinner"></div>
@@ -74,6 +84,12 @@ function App() {
 
   const progress = getProgress();
 
+  // Filter questions based on user access
+  const filterQuestionsByUser = (questions) => {
+    if (!questions) return [];
+    return questions.filter(q => canAccessQuestion(q.id));
+  };
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -87,6 +103,11 @@ function App() {
             📄 Export PDF
           </button>
         </div>
+        <UserSelector 
+          users={users}
+          currentUser={currentUser}
+          onSelectUser={selectUser}
+        />
         <ProgressBar {...progress} />
       </header>
 
