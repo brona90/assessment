@@ -14,6 +14,10 @@ BeforeAll(async () => {
 });
 
 Before(async () => {
+  // Ensure browser is still open
+  if (!global.browser || !global.browser.isConnected()) {
+    global.browser = await chromium.launch({ headless: true });
+  }
   global.page = await global.browser.newPage();
 });
 
@@ -57,15 +61,23 @@ Given('the assessment data is loaded', async () => {
 
 // Cleanup after each scenario
 After(async () => {
-  if (global.page) {
-    await global.page.close();
+  if (global.page && !global.page.isClosed()) {
+    try {
+      await global.page.close();
+    } catch (error) {
+      console.log('Error closing page:', error.message);
+    }
     global.page = null;
   }
 });
 
 AfterAll(async () => {
   if (global.browser) {
-    await global.browser.close();
+    try {
+      await global.browser.close();
+    } catch (error) {
+      console.log('Error closing browser:', error.message);
+    }
     global.browser = null;
   }
 });
