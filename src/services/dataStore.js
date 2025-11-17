@@ -39,8 +39,8 @@ class DataStore {
       // Extract all questions from domains
       this.data.questions = this.extractQuestionsFromDomains(this.data.domains);
 
-      // Store users
-      this.data.users = usersData || [];
+      // Store users - extract users array from the data
+      this.data.users = usersData.users || [];
 
       // Store frameworks - convert object to array if needed
       if (complianceData.frameworks) {

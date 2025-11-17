@@ -36,9 +36,11 @@ describe('DataStore', () => {
           })
         })
         .mockResolvedValueOnce({
-          json: async () => ([
-            { id: 'user1', name: 'Test User' }
-          ])
+          json: async () => ({
+            users: [
+              { id: 'user1', name: 'Test User' }
+            ]
+          })
         })
         .mockResolvedValueOnce({
           json: async () => ({
