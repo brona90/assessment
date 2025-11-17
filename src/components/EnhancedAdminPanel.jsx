@@ -421,10 +421,10 @@ export const EnhancedAdminPanel = () => {
       return;
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    // Validate file size (max 100MB)
+    const maxSize = 100 * 1024 * 1024; // 100MB in bytes
     if (file.size > maxSize) {
-      showMessage('error', 'File size exceeds 10MB limit');
+      showMessage('error', 'File size exceeds 100MB limit');
       event.target.value = '';
       return;
     }
