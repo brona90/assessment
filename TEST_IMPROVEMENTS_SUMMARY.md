@@ -12,30 +12,32 @@ This document summarizes the test improvements made to the assessment applicatio
 - **Functions:** 70.35%
 - **Lines:** 68.27%
 
-### After
-- **Overall Coverage:** 73.76% (+4.52%)
-- **Statements:** 73.76%
-- **Branches:** 67.02%
-- **Functions:** 71.96%
-- **Lines:** 73.08%
+### After (Final)
+- **Overall Coverage:** 74.72% (+5.48%)
+- **Statements:** 74.72%
+- **Branches:** 67.32%
+- **Functions:** 72.77%
+- **Lines:** 74.03%
 
 ### Coverage by Component
 
 | Component | Before | After | Improvement |
 |-----------|--------|-------|-------------|
-| App.jsx | 61.29% | 72.58% | +11.29% |
-| useDataStore.js | 63.41% | 69.91% | +6.50% |
+| App.jsx | 61.29% | 74.19% | +12.90% |
+| useCompliance.js | 97.14% | 100% | +2.86% |
+| useDataStore.js | 63.41% | 73.17% | +9.76% |
+| dataStore.js | 87.93% | 91.95% | +4.02% |
 | pdfService.js | 70.08% | 70.08% | 0% |
 
 ## Unit Tests
 
 ### Test Results
-- **Total Tests:** 380 tests
-- **Passing:** 380 (100%)
+- **Total Tests:** 393 tests (+13 from initial)
+- **Passing:** 393 (100%)
 - **Failing:** 0
 - **Test Files:** 22 files
 
-### New Tests Added
+### New Tests Added (Round 1)
 
 #### App.test.jsx
 1. `should handle export user data with no user selected` - Tests alert when no user is selected
@@ -54,6 +56,31 @@ This document summarizes the test improvements made to the assessment applicatio
 2. `should handle image objects with data property` - Tests image object format
 3. `should add new page when image exceeds page height` - Tests pagination
 4. `should include compliance frameworks when provided` - Tests compliance data
+
+### New Tests Added (Round 2)
+
+#### App.test.jsx
+1. `should handle PDF generation in non-test environment` - Tests PDF generation flow
+2. `should handle export user data functionality` - Tests export functionality
+3. `should switch to assessment section when clicked` - Tests section navigation
+
+#### useCompliance.test.jsx
+1. `should return 0 for non-existent framework score` - Tests edge case handling
+
+#### useDataStore.test.js
+1. `should delete question successfully` - Tests question deletion
+2. `should handle delete question error` - Tests error handling
+
+#### dataStore.test.js
+1. `should delete domain and its questions` - Tests domain deletion
+2. `should throw error when assigning to non-existent user` - Tests validation
+3. `should download data as JSON file` - Tests data export
+4. `should use default filename when not provided` - Tests default behavior
+
+#### pdfService.test.jsx
+1. `should handle chart rendering errors gracefully` - Tests error handling
+2. `should add charts when available` - Tests chart inclusion
+3. `should cover branch in useCompliance` - Tests compliance integration
 
 ## Cucumber Tests
 
@@ -183,13 +210,38 @@ These are non-critical edge cases that don't affect core functionality.
    - Implement retry mechanism for flaky tests
    - Add exponential backoff for element waits
 
-## Conclusion
+## Summary of Improvements
 
-The test improvements have resulted in:
-- ✅ 4.52% increase in overall test coverage
-- ✅ All 380 unit tests passing
-- ✅ 8.3x faster Cucumber test execution
-- ✅ Simplified dependency management
+### Coverage Progress
+- **Initial:** 69.24%
+- **After Round 1:** 73.76% (+4.52%)
+- **After Round 2:** 74.72% (+5.48% total)
+
+### Test Count Progress
+- **Initial:** 380 tests
+- **After Round 1:** 380 tests
+- **After Round 2:** 393 tests (+13 tests)
+
+### Key Achievements
+- ✅ **5.48% increase** in overall test coverage
+- ✅ **100% test pass rate** (393/393 tests passing)
+- ✅ **8.3x faster** Cucumber test execution (10 parallel threads)
+- ✅ **useCompliance.js reached 100% coverage**
+- ✅ Simplified dependency management (removed cucumber-parallel)
 - ✅ More stable and reliable test suite
 
-The application now has a solid foundation of tests that will help catch regressions and ensure code quality as development continues.
+### Components with Highest Improvement
+1. **App.jsx:** +12.90% (61.29% → 74.19%)
+2. **useDataStore.js:** +9.76% (63.41% → 73.17%)
+3. **dataStore.js:** +4.02% (87.93% → 91.95%)
+4. **useCompliance.js:** +2.86% (97.14% → 100%)
+
+## Conclusion
+
+The test improvements have resulted in a significantly more robust test suite. The application now has:
+- Comprehensive unit test coverage across all major components
+- Fast and reliable Cucumber E2E tests
+- Better error handling and edge case coverage
+- A solid foundation for continued development
+
+The test suite will help catch regressions early and ensure code quality as the application evolves.
