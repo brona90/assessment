@@ -38,6 +38,7 @@ outputs/
 
 # Generated files
 *.pdf
+*.png
 
 # Conversation summaries and documentation
 summarized_conversations/
