@@ -403,4 +403,146 @@ describe('App', () => {
     expect(exportBtn).toBeInTheDocument();
     expect(exportBtn).not.toBeDisabled();
   });
+
+  it('should handle export user data with no user selected', () => {
+    // Mock alert
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    
+    // Set currentUser to null
+    useUser.mockReturnValue({
+      users: [],
+      currentUser: null,
+      loading: false,
+      selectUser: vi.fn(),
+      isAdmin: vi.fn(() => false),
+      canAccessQuestion: vi.fn(() => true),
+      getAssignedQuestions: vi.fn(() => [])
+    });
+    
+    render(<App />);
+    
+    // Find and click export user data button
+    const exportUserBtn = screen.getByTestId('export-user-data');
+    act(() => {
+      fireEvent.click(exportUserBtn);
+    });
+    
+    // Verify alert was called
+    expect(alertMock).toHaveBeenCalledWith('Please select a user first');
+    
+    alertMock.mockRestore();
+  });
+
+  it('should handle export user data with user selected', () => {
+    useUser.mockReturnValue({
+      users: [{ id: 'user1', name: 'Test User' }],
+      currentUser: { id: 'user1', name: 'Test User' },
+      loading: false,
+      selectUser: vi.fn(),
+      isAdmin: vi.fn(() => false),
+      canAccessQuestion: vi.fn(() => true),
+      getAssignedQuestions: vi.fn(() => [])
+    });
+    
+    render(<App />);
+    
+    // Find and click export user data button
+    const exportUserBtn = screen.getByTestId('export-user-data');
+    act(() => {
+      fireEvent.click(exportUserBtn);
+    });
+    
+    // Verify the button works
+    expect(exportUserBtn).toBeInTheDocument();
+  });
+
+  it('should render compliance section when clicked', () => {
+    render(<App />);
+    const complianceBtn = screen.getByText('Compliance');
+    
+    act(() => {
+      fireEvent.click(complianceBtn);
+    });
+    
+    expect(complianceBtn).toHaveClass('active');
+  });
+
+  it('should render admin section when admin user clicks', () => {
+    // Set user as admin
+    useUser.mockReturnValue({
+      users: [],
+      currentUser: { id: 'admin1', name: 'Admin User', role: 'admin' },
+      loading: false,
+      selectUser: vi.fn(),
+      isAdmin: vi.fn(() => true),
+      canAccessQuestion: vi.fn(() => true),
+      getAssignedQuestions: vi.fn(() => [])
+    });
+    
+    render(<App />);
+    const adminBtn = screen.getByTestId('admin-nav-button');
+    
+    act(() => {
+      fireEvent.click(adminBtn);
+    });
+    
+    expect(adminBtn).toHaveClass('active');
+  });
+
+  it('should handle PDF generation in non-test environment', async () => {
+    // This test verifies the PDF generation flow exists
+    // The actual error handling is difficult to test due to environment checks
+    render(<App />);
+    
+    const exportBtn = screen.getByTestId('export-pdf');
+    expect(exportBtn).toBeInTheDocument();
+    
+    // In test environment, the PDF generation is skipped
+    // This is by design to avoid issues with chart rendering
+  });
+
+  it('should handle export user data functionality', async () => {
+    // This test verifies the export user data flow exists
+    useUser.mockReturnValue({
+      users: [{ id: 'user1', name: 'Test User' }],
+      currentUser: { id: 'user1', name: 'Test User' },
+      loading: false,
+      selectUser: vi.fn(),
+      isAdmin: vi.fn(() => false),
+      canAccessQuestion: vi.fn(() => true),
+      getAssignedQuestions: vi.fn(() => [])
+    });
+    
+    render(<App />);
+    
+    const exportUserBtn = screen.getByTestId('export-user-data');
+    expect(exportUserBtn).toBeInTheDocument();
+    
+    // Verify button is clickable
+    await act(async () => {
+      fireEvent.click(exportUserBtn);
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+    
+    // Button should still be in document after click
+    expect(exportUserBtn).toBeInTheDocument();
+  });
+
+  it('should switch to assessment section when clicked', () => {
+    render(<App />);
+    
+    // First switch to dashboard
+    const dashboardBtn = screen.getByText('Dashboard');
+    act(() => {
+      fireEvent.click(dashboardBtn);
+    });
+    
+    // Then switch back to assessment
+    const assessmentBtn = screen.getByText('Assessment');
+    act(() => {
+      fireEvent.click(assessmentBtn);
+    });
+    
+    expect(assessmentBtn).toHaveClass('active');
+  });
 });

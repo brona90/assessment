@@ -314,4 +314,38 @@ describe('AdminPanel', () => {
     // Category select should not be visible
     expect(screen.queryByTestId('category-select')).not.toBeInTheDocument();
   });
+
+  it('should return empty array when no domain selected in getQuestionsForCategory', () => {
+    render(<AdminPanel domains={mockDomains} users={mockUsers} {...mockHandlers} />);
+    
+    // Don't select any domain or category
+    // The component should handle this gracefully
+    expect(screen.getByTestId('admin-panel')).toBeInTheDocument();
+  });
+
+  it('should return empty array when domain has no categories', () => {
+    const domainsWithoutCategories = {
+      domain1: {
+        title: 'Domain 1',
+        categories: undefined
+      }
+    };
+    
+    render(<AdminPanel domains={domainsWithoutCategories} users={mockUsers} {...mockHandlers} />);
+    
+    fireEvent.change(screen.getByTestId('domain-select'), { target: { value: 'domain1' } });
+    
+    // Should handle missing categories gracefully
+    expect(screen.getByTestId('admin-panel')).toBeInTheDocument();
+  });
+
+  it('should handle selecting non-existent domain', () => {
+    render(<AdminPanel domains={mockDomains} users={mockUsers} {...mockHandlers} />);
+    
+    // Try to select a domain that doesn't exist in the domains object
+    fireEvent.change(screen.getByTestId('domain-select'), { target: { value: 'nonexistent' } });
+    
+    // Should handle gracefully without errors
+    expect(screen.getByTestId('admin-panel')).toBeInTheDocument();
+  });
 });

@@ -87,20 +87,34 @@ Given('I have answers for all questions', async () => {
     await global.page.waitForTimeout(1000);
   }
   
-  // Answer all visible questions with score 5
+  // Answer all visible questions with score 5 across all domains
   try {
     await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 10000 });
-    const questions = await global.page.locator('[data-testid^="question-"]').all();
     
-    console.log(`Found ${questions.length} questions to answer`);
+    // Get all domain tabs
+    const domainTabs = await global.page.locator('[role="tab"]').all();
+    console.log(`Found ${domainTabs.length} domain tabs`);
     
-    for (let i = 0; i < questions.length; i++) {
-      const question = questions[i];
-      if (await question.isVisible()) {
-        const options = await question.locator('[data-testid^="option-"]').all();
-        if (options.length > 4) {
-          await options[4].click(); // Click 5th option (value 5)
-          await global.page.waitForTimeout(200);
+    for (let tabIndex = 0; tabIndex < domainTabs.length; tabIndex++) {
+      // Click on the domain tab
+      const tab = domainTabs[tabIndex];
+      if (await tab.isVisible()) {
+        await tab.click();
+        await global.page.waitForTimeout(500);
+        
+        // Answer all questions in this domain
+        const questions = await global.page.locator('[data-testid^="question-"]').all();
+        console.log(`Found ${questions.length} questions in domain ${tabIndex + 1}`);
+        
+        for (let i = 0; i < questions.length; i++) {
+          const question = questions[i];
+          if (await question.isVisible()) {
+            const options = await question.locator('[data-testid^="option-"]').all();
+            if (options.length > 4) {
+              await options[4].click(); // Click 5th option (value 5)
+              await global.page.waitForTimeout(100);
+            }
+          }
         }
       }
     }
@@ -346,3 +360,21 @@ Then('progress should be reset to 0', async () => {
   const isVisible = await progressBar.isVisible().catch(() => false);
   expect(isVisible).toBe(true);
 });
+
+Given('I have scores calculated', async () => {
+  // Ensure we have some scores by answering a question
+  try {
+    await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 5000 });
+    const firstQuestion = await global.page.locator('[data-testid^="question-"]').first();
+    if (await firstQuestion.isVisible()) {
+      const options = await firstQuestion.locator('[data-testid^="option-"]').all();
+      if (options.length > 3) {
+        await options[3].click(); // Click 4th option (value 4)
+        await global.page.waitForTimeout(500);
+      }
+    }
+  } catch (error) {
+    console.log('Could not answer question for score calculation:', error.message);
+  }
+});
+

@@ -133,4 +133,15 @@ describe('useCompliance', () => {
 
     expect(result.current.error).toBeTruthy();
   });
+
+  it('should return 0 for non-existent framework score', async () => {
+    const { result } = renderHook(() => useCompliance());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const score = result.current.getFrameworkScore('nonexistent-framework');
+    expect(score).toBe(0);
+  });
 });
