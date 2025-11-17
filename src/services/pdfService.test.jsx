@@ -382,8 +382,62 @@ describe('PdfService', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should add charts when available', async () => {
-      // Mock canvas element
+    it('should add radar chart when available', async () => {
+      // Mock canvas element for radar chart
+      const mockCanvas = document.createElement('canvas');
+      mockCanvas.width = 400;
+      mockCanvas.height = 300;
+      
+      const querySelectorSpy = vi.spyOn(document, 'querySelector')
+        .mockReturnValueOnce(mockCanvas) // radar chart
+        .mockReturnValueOnce(null); // no bar chart
+      
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+      
+      querySelectorSpy.mockRestore();
+    });
+
+    it('should add bar chart when available', async () => {
+      // Mock canvas element for bar chart
+      const mockCanvas = document.createElement('canvas');
+      mockCanvas.width = 400;
+      mockCanvas.height = 300;
+      
+      const querySelectorSpy = vi.spyOn(document, 'querySelector')
+        .mockReturnValueOnce(null) // no radar chart
+        .mockReturnValueOnce(mockCanvas); // bar chart
+      
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+      
+      querySelectorSpy.mockRestore();
+    });
+
+    it('should add both charts when available', async () => {
+      // Mock canvas elements
       const mockCanvas = document.createElement('canvas');
       mockCanvas.width = 400;
       mockCanvas.height = 300;
@@ -391,6 +445,33 @@ describe('PdfService', () => {
       const querySelectorSpy = vi.spyOn(document, 'querySelector')
         .mockReturnValueOnce(mockCanvas) // radar chart
         .mockReturnValueOnce(mockCanvas); // bar chart
+      
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+      
+      querySelectorSpy.mockRestore();
+    });
+
+    it('should handle bar chart that requires new page', async () => {
+      // Mock tall canvas that would exceed page height
+      const mockCanvas = document.createElement('canvas');
+      mockCanvas.width = 400;
+      mockCanvas.height = 800; // Tall chart
+      
+      const querySelectorSpy = vi.spyOn(document, 'querySelector')
+        .mockReturnValueOnce(null) // no radar chart
+        .mockReturnValueOnce(mockCanvas); // tall bar chart
       
       const domains = {
         domain1: {
@@ -425,6 +506,127 @@ describe('PdfService', () => {
       
       // Test with empty frameworks to cover the branch
       const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+    });
+  });
+
+  describe('Image Evidence Advanced Scenarios', () => {
+    it('should handle image with caption', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ 
+                id: 'q1', 
+                text: 'Question 1' 
+              }] 
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const evidence = {
+        q1: {
+          images: [
+            { 
+              data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+              name: 'Test Image Caption'
+            }
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle tall images that exceed max height', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ 
+                id: 'q1', 
+                text: 'Question 1' 
+              }] 
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      // Create a tall image (1x100 pixels)
+      const tallImageBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABkCAYAAABHLFpgAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      const evidence = {
+        q1: {
+          images: [tallImageBase64]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle image counter display', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ 
+                id: 'q1', 
+                text: 'Question 1' 
+              }] 
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const evidence = {
+        q1: {
+          images: [
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle image that requires new page', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: Array.from({ length: 25 }, (_, i) => ({ 
+                id: `q${i}`, 
+                text: `Question ${i}` 
+              }))
+            }
+          }
+        }
+      };
+      const answers = Object.fromEntries(
+        Array.from({ length: 25 }, (_, i) => [`q${i}`, 4])
+      );
+      const evidence = {
+        q20: {
+          images: [
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
       expect(pdf).toBeDefined();
     });
   });
