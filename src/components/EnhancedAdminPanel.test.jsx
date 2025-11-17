@@ -1,3 +1,4 @@
+/* eslint-env node */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { EnhancedAdminPanel } from './EnhancedAdminPanel';
@@ -109,7 +110,9 @@ describe('EnhancedAdminPanel', () => {
     mockDeleteQuestion.mockReturnValue({ success: true });
     mockAssignQuestionsToUser.mockReturnValue({ success: true });
     mockClearAllData.mockResolvedValue({ success: true });
+    // eslint-disable-next-line no-undef
     global.confirm = vi.fn(() => true);
+    // eslint-disable-next-line no-undef
     global.alert = vi.fn();
   });
 
@@ -480,6 +483,7 @@ describe('EnhancedAdminPanel', () => {
     });
 
     it('should call clearAllData with double confirmation', async () => {
+      // eslint-disable-next-line no-undef
       global.confirm = vi.fn()
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true);
@@ -493,6 +497,7 @@ describe('EnhancedAdminPanel', () => {
     });
 
     it('should not clear if first confirmation is cancelled', async () => {
+      // eslint-disable-next-line no-undef
       global.confirm = vi.fn().mockReturnValueOnce(false);
 
       const clearButton = screen.getByText('Clear All Data');
@@ -504,6 +509,7 @@ describe('EnhancedAdminPanel', () => {
     });
 
     it('should not clear if second confirmation is cancelled', async () => {
+      // eslint-disable-next-line no-undef
       global.confirm = vi.fn()
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(false);
@@ -518,6 +524,7 @@ describe('EnhancedAdminPanel', () => {
 
     it('should handle clear errors', async () => {
       mockClearAllData.mockResolvedValue({ success: false, error: 'Clear failed' });
+      // eslint-disable-next-line no-undef
       global.confirm = vi.fn()
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true);
