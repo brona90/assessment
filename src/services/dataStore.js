@@ -42,8 +42,14 @@ class DataStore {
       // Store users
       this.data.users = usersData || [];
 
-      // Store frameworks
-      this.data.frameworks = complianceData.frameworks || [];
+      // Store frameworks - convert object to array if needed
+      if (complianceData.frameworks) {
+        this.data.frameworks = Array.isArray(complianceData.frameworks) 
+          ? complianceData.frameworks 
+          : Object.values(complianceData.frameworks);
+      } else {
+        this.data.frameworks = [];
+      }
 
       // Initialize all frameworks as selected by default
       this.data.selectedFrameworks = this.data.frameworks.map(f => f.id);
