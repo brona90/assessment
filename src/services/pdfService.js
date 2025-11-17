@@ -4,6 +4,12 @@ import html2canvas from 'html2canvas';
 // Helper function to load image and convert to base64
 const loadImageAsBase64 = (url) => {
   return new Promise((resolve, reject) => {
+    // If it's already a data URL, return it directly
+    if (url.startsWith('data:')) {
+      resolve(url);
+      return;
+    }
+    
     const img = new Image();
     img.crossOrigin = 'Anonymous'; // Handle CORS
     
@@ -14,24 +20,22 @@ const loadImageAsBase64 = (url) => {
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
-        const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        // Use higher quality for better image reproduction
+        const dataURL = canvas.toDataURL('image/jpeg', 0.95);
         resolve(dataURL);
       } catch (error) {
+        console.error('Error converting image to base64:', error);
         reject(error);
       }
     };
     
-    img.onerror = () => {
+    img.onerror = (error) => {
+      console.error('Error loading image:', error, url);
       reject(new Error('Failed to load image'));
     };
     
-    // Handle data URLs and blob URLs directly
-    if (url.startsWith('data:') || url.startsWith('blob:')) {
-      img.src = url;
-    } else {
-      // For regular URLs, try to load them
-      img.src = url;
-    }
+    // Handle blob URLs and regular URLs
+    img.src = url;
   });
 };
 
@@ -113,7 +117,7 @@ export const pdfService = {
               yPos += 6;
 
               // Add evidence if available
-              const questionEvidence = evidence[question.id];
+              const questionEvidence = evidence?.[question.id];
               if (questionEvidence) {
                    
                    // Add text evidence
@@ -136,14 +140,18 @@ export const pdfService = {
                      yPos += 3;
                    }
                    
-                   // Add image evidence
+                   // Add image evidence - ENHANCED VERSION
                    if (questionEvidence.images && questionEvidence.images.length > 0) {
                      pdf.setFontSize(9);
                      pdf.setTextColor(100, 100, 100);
-                     pdf.text('Image Evidence:', margin + 10, yPos);
+                     pdf.text(`Image Evidence (${questionEvidence.images.length} image${questionEvidence.images.length > 1 ? 's' : ''}):`, margin + 10, yPos);
                      yPos += 5;
                      
-                        for (const imageUrl of questionEvidence.images) {
+                        for (let i = 0; i < questionEvidence.images.length; i++) {
+                          const imageData = questionEvidence.images[i];
+                          // Handle both string URLs and image objects with data property
+                          const imageUrl = typeof imageData === 'string' ? imageData : imageData.data;
+                          
                           try {
                             if (yPos > pageHeight - 80) {
                               pdf.addPage();
@@ -153,15 +161,56 @@ export const pdfService = {
                             // Load and convert image to base64
                             const base64Image = await loadImageAsBase64(imageUrl);
                             
-                            const imgWidth = 80;
-                            const imgHeight = 60;
+                            // Calculate image dimensions to maintain aspect ratio
+                            const maxWidth = 80;
+                            const maxHeight = 60;
+                            
+                            // Get actual image dimensions using a promise with timeout
+                            const { width: imgWidth, height: imgHeight } = await Promise.race([
+                              new Promise((resolve) => {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const aspectRatio = img.width / img.height;
+                                  let width = maxWidth;
+                                  let height = maxWidth / aspectRatio;
+                                  
+                                  // If height exceeds max, scale by height instead
+                                  if (height > maxHeight) {
+                                    height = maxHeight;
+                                    width = maxHeight * aspectRatio;
+                                  }
+                                  
+                                  resolve({ width, height });
+                                };
+                                img.onerror = () => {
+                                  // If image fails to load, use default dimensions
+                                  resolve({ width: maxWidth, height: maxHeight });
+                                };
+                                img.src = base64Image;
+                              }),
+                              // Timeout after 100ms and use default dimensions
+                              new Promise((resolve) => setTimeout(() => resolve({ width: maxWidth, height: maxHeight }), 100))
+                            ]);
+                            
                             pdf.addImage(base64Image, 'JPEG', margin + 10, yPos, imgWidth, imgHeight);
-                            yPos += imgHeight + 5;
+                            
+                            // Add image caption if available
+                            if (imageData.name) {
+                              pdf.setFontSize(7);
+                              pdf.setTextColor(120, 120, 120);
+                              pdf.text(`Image ${i + 1}: ${imageData.name}`, margin + 10, yPos + imgHeight + 3);
+                              yPos += imgHeight + 8;
+                            } else {
+                              yPos += imgHeight + 5;
+                            }
+                            
+                            pdf.setFontSize(9);
+                            pdf.setTextColor(100, 100, 100);
                           } catch (error) {
                             console.error('Error adding image to PDF:', error, imageUrl);
                             pdf.setFontSize(8);
                             pdf.setTextColor(200, 0, 0);
-                            pdf.text('(Image could not be loaded)', margin + 10, yPos);
+                            pdf.text(`(Image ${i + 1} could not be loaded)`, margin + 10, yPos);
                             pdf.setFontSize(9);
                             pdf.setTextColor(100, 100, 100);
                             yPos += 5;

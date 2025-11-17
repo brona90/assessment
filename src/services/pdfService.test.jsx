@@ -112,6 +112,114 @@ describe('PdfService', () => {
       const pdf = await pdfService.generatePDF(domains, {}, {}, {});
       expect(pdf).toBeDefined();
     });
+
+    it('should handle evidence with text only', async () => {
+      const evidence = {
+        q1: { text: 'Test evidence text' }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle evidence with empty images array', async () => {
+      const evidence = {
+        q1: { text: 'Test evidence', images: [] }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle evidence with data URL images', async () => {
+      const evidence = {
+        q1: {
+          text: 'Test evidence',
+          images: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==']
+        }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, evidence, {});
+      expect(pdf).toBeDefined();
+    }, 10000);
+
+    it('should handle evidence with image objects', async () => {
+      const evidence = {
+        q1: {
+          text: 'Test evidence',
+          images: [{
+            data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            name: 'test-image.png'
+          }]
+        }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, evidence, {});
+      expect(pdf).toBeDefined();
+    }, 10000);
+
+    it('should handle evidence with multiple images', async () => {
+      const evidence = {
+        q1: {
+          text: 'Test evidence',
+          images: [
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            {
+              data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+              name: 'screenshot.png'
+            }
+          ]
+        }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, evidence, {});
+      expect(pdf).toBeDefined();
+    }, 10000);
+
+    it('should handle compliance frameworks', async () => {
+      const frameworks = {
+        iso27001: { name: 'ISO 27001', enabled: true, score: 85.5 }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle disabled compliance frameworks', async () => {
+      const frameworks = {
+        iso27001: { name: 'ISO 27001', enabled: false, score: 85.5 }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle compliance frameworks without scores', async () => {
+      const frameworks = {
+        iso27001: { name: 'ISO 27001', enabled: true }
+      };
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle null evidence', async () => {
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, null, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle undefined evidence', async () => {
+      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, undefined, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle multiple categories in domain', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1' }] },
+            cat2: { questions: [{ id: 'q2' }] }
+          }
+        }
+      };
+      const answers = { q1: 4, q2: 3 };
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+    });
   });
 
   describe('downloadPDF', () => {
