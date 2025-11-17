@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ComplianceDashboard } from './ComplianceDashboard';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
+import { EnhancedAdminPanel } from './EnhancedAdminPanel';
 import './FullScreenAdminView.css';
 
 export const FullScreenAdminView = ({
@@ -16,7 +17,7 @@ export const FullScreenAdminView = ({
   onExportData,
   onClearAllData
 }) => {
-  const [activeTab, setActiveTab] = useState('data-management');
+  const [activeTab, setActiveTab] = useState('domains');
   const [isImporting, setIsImporting] = useState(false);
 
   const handleFileChange = async (event) => {
@@ -70,6 +71,56 @@ export const FullScreenAdminView = ({
       {/* Unified Navigation Bar */}
       <nav className="admin-nav" role="tablist">
         <button
+          className={`admin-nav-tab ${activeTab === 'domains' ? 'active' : ''}`}
+          onClick={() => setActiveTab('domains')}
+          data-testid="domains-tab"
+          role="tab"
+          aria-selected={activeTab === 'domains'}
+          aria-controls="domains-content"
+        >
+          🏢 Domains
+        </button>
+        <button
+          className={`admin-nav-tab ${activeTab === 'frameworks' ? 'active' : ''}`}
+          onClick={() => setActiveTab('frameworks')}
+          data-testid="frameworks-tab"
+          role="tab"
+          aria-selected={activeTab === 'frameworks'}
+          aria-controls="frameworks-content"
+        >
+          📋 Frameworks
+        </button>
+        <button
+          className={`admin-nav-tab ${activeTab === 'users' ? 'active' : ''}`}
+          onClick={() => setActiveTab('users')}
+          data-testid="users-tab"
+          role="tab"
+          aria-selected={activeTab === 'users'}
+          aria-controls="users-content"
+        >
+          👥 Users
+        </button>
+        <button
+          className={`admin-nav-tab ${activeTab === 'questions' ? 'active' : ''}`}
+          onClick={() => setActiveTab('questions')}
+          data-testid="questions-tab"
+          role="tab"
+          aria-selected={activeTab === 'questions'}
+          aria-controls="questions-content"
+        >
+          ❓ Questions
+        </button>
+        <button
+          className={`admin-nav-tab ${activeTab === 'assignments' ? 'active' : ''}`}
+          onClick={() => setActiveTab('assignments')}
+          data-testid="assignments-tab"
+          role="tab"
+          aria-selected={activeTab === 'assignments'}
+          aria-controls="assignments-content"
+        >
+          📝 Assignments
+        </button>
+        <button
           className={`admin-nav-tab ${activeTab === 'data-management' ? 'active' : ''}`}
           onClick={() => setActiveTab('data-management')}
           data-testid="data-management-tab"
@@ -103,6 +154,19 @@ export const FullScreenAdminView = ({
 
       {/* Tab Content */}
       <main className="admin-content">
+        {/* Admin Panel Tabs (Domains, Frameworks, Users, Questions, Assignments) */}
+        {['domains', 'frameworks', 'users', 'questions', 'assignments'].includes(activeTab) && (
+          <div
+            className="tab-content"
+            data-testid={`${activeTab}-content`}
+            role="tabpanel"
+            id={`${activeTab}-content`}
+            aria-labelledby={`${activeTab}-tab`}
+          >
+            <EnhancedAdminPanel initialTab={activeTab} />
+          </div>
+        )}
+
         {/* Data Management Tab */}
         {activeTab === 'data-management' && (
           <div

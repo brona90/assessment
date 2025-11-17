@@ -80,7 +80,7 @@ describe('FullScreenAdminView', () => {
       expect(screen.getByTestId('compliance-tab')).toBeInTheDocument();
     });
 
-    it('should show Data Management tab as active by default', () => {
+    it('should show Domains tab as active by default', () => {
       render(
         <FullScreenAdminView
           domains={mockDomains}
@@ -95,8 +95,8 @@ describe('FullScreenAdminView', () => {
         />
       );
 
-      const dataManagementTab = screen.getByTestId('data-management-tab');
-      expect(dataManagementTab).toHaveClass('active');
+      const domainsTab = screen.getByTestId('domains-tab');
+      expect(domainsTab).toHaveClass('active');
     });
 
     it('should render export PDF button in header', () => {
@@ -220,8 +220,8 @@ describe('FullScreenAdminView', () => {
         />
       );
 
-      // Initially on Data Management
-      expect(screen.getByTestId('data-management-content')).toBeInTheDocument();
+      // Initially on Domains
+      expect(screen.getByTestId('domains-content')).toBeInTheDocument();
       expect(screen.queryByTestId('dashboard-content')).not.toBeInTheDocument();
       expect(screen.queryByTestId('compliance-content')).not.toBeInTheDocument();
     });
@@ -243,6 +243,9 @@ describe('FullScreenAdminView', () => {
         />
       );
 
+      // Click on Data Management tab
+      fireEvent.click(screen.getByTestId('data-management-tab'));
+
       expect(screen.getByTestId('file-input')).toBeInTheDocument();
       expect(screen.getByTestId('export-data-button')).toBeInTheDocument();
     });
@@ -262,6 +265,9 @@ describe('FullScreenAdminView', () => {
         />
       );
 
+      // Click on Data Management tab
+      fireEvent.click(screen.getByTestId('data-management-tab'));
+
       expect(screen.getByTestId('clear-all-data-button')).toBeInTheDocument();
       expect(screen.getByText(/Danger Zone/)).toBeInTheDocument();
     });
@@ -280,6 +286,9 @@ describe('FullScreenAdminView', () => {
           onClearAllData={mockOnClearAllData}
         />
       );
+
+      // Click on Data Management tab
+      fireEvent.click(screen.getByTestId('data-management-tab'));
 
       const file = new File(['{"test": "data"}'], 'test.json', { type: 'application/json' });
       const input = screen.getByTestId('file-input');
@@ -306,6 +315,9 @@ describe('FullScreenAdminView', () => {
         />
       );
 
+      // Click on Data Management tab
+      fireEvent.click(screen.getByTestId('data-management-tab'));
+
       const exportButton = screen.getByTestId('export-data-button');
       fireEvent.click(exportButton);
 
@@ -326,6 +338,9 @@ describe('FullScreenAdminView', () => {
           onClearAllData={mockOnClearAllData}
         />
       );
+
+      // Click on Data Management tab
+      fireEvent.click(screen.getByTestId('data-management-tab'));
 
       const clearButton = screen.getByTestId('clear-all-data-button');
       fireEvent.click(clearButton);

@@ -5,7 +5,7 @@ import { userExportService } from '../services/userExportService';
 import { storageService } from '../services/storageService';
 import './AdminPanel.css';
 
-export const EnhancedAdminPanel = () => {
+export const EnhancedAdminPanel = ({ initialTab = 'domains' }) => {
   const {
     initialized,
     loading,
@@ -39,7 +39,7 @@ export const EnhancedAdminPanel = () => {
     clearAllData
   } = useDataStore();
 
-  const [activeTab, setActiveTab] = useState('domains');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [domains, setDomains] = useState({});
   const [frameworks, setFrameworks] = useState([]);
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState([]);
@@ -993,6 +993,8 @@ export const EnhancedAdminPanel = () => {
   );
 };
 
-EnhancedAdminPanel.propTypes = {};
+EnhancedAdminPanel.propTypes = {
+  initialTab: PropTypes.string
+};
 
 export default EnhancedAdminPanel;
