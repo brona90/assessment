@@ -674,4 +674,61 @@ describe('useDataStore', () => {
       expect(response.error).toBe('Framework update failed');
     });
   });
+
+  describe('Domain Management', () => {
+    it('should update domain successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.updateDomain.mockReturnValue({ id: 'd1', title: 'Updated Domain' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateDomain('d1', { title: 'Updated Domain' });
+      expect(response.success).toBe(true);
+      expect(response.data.title).toBe('Updated Domain');
+    });
+
+    it('should handle update domain error', async () => {
+      dataStore.initialized = true;
+      dataStore.updateDomain.mockImplementation(() => {
+        throw new Error('Domain update failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateDomain('d1', { title: 'Updated' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Domain update failed');
+    });
+
+    it('should delete domain successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteDomain.mockReturnValue(true);
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteDomain('d1');
+      expect(response.success).toBe(true);
+    });
+
+    it('should handle delete domain error', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteDomain.mockImplementation(() => {
+        throw new Error('Domain delete failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteDomain('d1');
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Domain delete failed');
+    });
+  });
 });

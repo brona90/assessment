@@ -338,4 +338,14 @@ describe('AdminPanel', () => {
     // Should handle missing categories gracefully
     expect(screen.getByTestId('admin-panel')).toBeInTheDocument();
   });
+
+  it('should handle selecting non-existent domain', () => {
+    render(<AdminPanel domains={mockDomains} users={mockUsers} {...mockHandlers} />);
+    
+    // Try to select a domain that doesn't exist in the domains object
+    fireEvent.change(screen.getByTestId('domain-select'), { target: { value: 'nonexistent' } });
+    
+    // Should handle gracefully without errors
+    expect(screen.getByTestId('admin-panel')).toBeInTheDocument();
+  });
 });
