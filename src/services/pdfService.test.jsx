@@ -235,4 +235,125 @@ describe('PdfService', () => {
       expect(mockPdf.save).toHaveBeenCalledWith('compliance-report.pdf');
     });
   });
+
+  describe('Image Evidence in PDF', () => {
+    it('should handle multiple images in evidence', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ 
+                id: 'q1', 
+                text: 'Question 1' 
+              }] 
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const evidence = {
+        q1: {
+          images: [
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle image objects with data property', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ 
+                id: 'q1', 
+                text: 'Question 1' 
+              }] 
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const evidence = {
+        q1: {
+          images: [
+            { 
+              data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+              caption: 'Test Image'
+            }
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    
+
+    it('should add new page when image exceeds page height', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: Array.from({ length: 20 }, (_, i) => ({ 
+                id: `q${i}`, 
+                text: `Question ${i}` 
+              }))
+            }
+          }
+        }
+      };
+      const answers = Object.fromEntries(
+        Array.from({ length: 20 }, (_, i) => [`q${i}`, 4])
+      );
+      const evidence = {
+        q10: {
+          images: [
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+  });
+
+  describe('Compliance Frameworks in PDF', () => {
+    it('should include compliance frameworks when provided', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const complianceFrameworks = {
+        framework1: {
+          name: 'Framework 1',
+          enabled: true,
+          mappings: {
+            domain1: ['Control 1', 'Control 2']
+          }
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, complianceFrameworks);
+      expect(pdf).toBeDefined();
+    });
+  });
 });

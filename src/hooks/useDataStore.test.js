@@ -332,4 +332,62 @@ describe('useDataStore', () => {
       expect(dataStore.downloadData).toHaveBeenCalledWith('test.json');
     });
   });
+
+  describe('Question Assignments', () => {
+    it('should add question assignments successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.addQuestionAssignments.mockReturnValue({ userId: 'user1', questionIds: ['q1', 'q2'] });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addQuestionAssignments('user1', ['q1', 'q2']);
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual({ userId: 'user1', questionIds: ['q1', 'q2'] });
+    });
+
+    it('should handle add question assignments error', async () => {
+      dataStore.initialized = true;
+      dataStore.addQuestionAssignments.mockImplementation(() => {
+        throw new Error('Assignment failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addQuestionAssignments('user1', ['q1']);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Assignment failed');
+    });
+
+    it('should remove question assignments successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.removeQuestionAssignments.mockReturnValue({ userId: 'user1', questionIds: [] });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.removeQuestionAssignments('user1', ['q1']);
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual({ userId: 'user1', questionIds: [] });
+    });
+
+    it('should handle remove question assignments error', async () => {
+      dataStore.initialized = true;
+      dataStore.removeQuestionAssignments.mockImplementation(() => {
+        throw new Error('Removal failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.removeQuestionAssignments('user1', ['q1']);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Removal failed');
+    });
+  });
 });
