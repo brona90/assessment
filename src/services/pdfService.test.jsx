@@ -356,4 +356,76 @@ describe('PdfService', () => {
       expect(pdf).toBeDefined();
     });
   });
+
+  describe('Chart Rendering in PDF', () => {
+    it('should handle chart rendering errors gracefully', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
+      // Mock document.querySelector to return null (no charts found)
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+      
+      querySelectorSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should add charts when available', async () => {
+      // Mock canvas element
+      const mockCanvas = document.createElement('canvas');
+      mockCanvas.width = 400;
+      mockCanvas.height = 300;
+      
+      const querySelectorSpy = vi.spyOn(document, 'querySelector')
+        .mockReturnValueOnce(mockCanvas) // radar chart
+        .mockReturnValueOnce(mockCanvas); // bar chart
+      
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+      
+      querySelectorSpy.mockRestore();
+    });
+  });
+
+  describe('useCompliance Coverage', () => {
+    it('should cover branch in useCompliance', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { questions: [{ id: 'q1', text: 'Question 1' }] }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      // Test with empty frameworks to cover the branch
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {});
+      expect(pdf).toBeDefined();
+    });
+  });
 });

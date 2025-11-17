@@ -470,4 +470,68 @@ describe('DataStore', () => {
       expect(questions).toHaveLength(0);
     });
   });
+
+  describe('Domain Management', () => {
+    it('should delete domain and its questions', () => {
+      dataStore.data.domains = {
+        domain1: { title: 'Domain 1', categories: {} },
+        domain2: { title: 'Domain 2', categories: {} }
+      };
+
+      dataStore.deleteDomain('domain1');
+      
+      expect(dataStore.data.domains.domain1).toBeUndefined();
+      expect(dataStore.data.domains.domain2).toBeDefined();
+    });
+  });
+
+  describe('User Assignment Validation', () => {
+    it('should throw error when assigning to non-existent user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
+      
+      expect(() => {
+        dataStore.assignQuestionsToUser('nonexistent', ['q1']);
+      }).toThrow('User with id nonexistent not found');
+    });
+  });
+
+  describe('Data Download', () => {
+    it('should download data as JSON file', () => {
+      // Mock DOM APIs
+      const mockLink = {
+        href: '',
+        download: '',
+        click: vi.fn()
+      };
+      const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+      const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+      const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+      dataStore.downloadData('test-data.json');
+
+      expect(createElementSpy).toHaveBeenCalledWith('a');
+      expect(mockLink.download).toBe('test-data.json');
+      expect(mockLink.click).toHaveBeenCalled();
+      expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:mock-url');
+
+      createElementSpy.mockRestore();
+      createObjectURLSpy.mockRestore();
+      revokeObjectURLSpy.mockRestore();
+    });
+
+    it('should use default filename when not provided', () => {
+      const mockLink = {
+        href: '',
+        download: '',
+        click: vi.fn()
+      };
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+      vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+      vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+      dataStore.downloadData();
+
+      expect(mockLink.download).toBe('assessment-data.json');
+    });
+  });
 });

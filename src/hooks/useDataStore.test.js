@@ -390,4 +390,34 @@ describe('useDataStore', () => {
       expect(response.error).toBe('Removal failed');
     });
   });
+
+  describe('Question Management', () => {
+    it('should delete question successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteQuestion.mockReturnValue(true);
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteQuestion('q1');
+      expect(response.success).toBe(true);
+      expect(dataStore.deleteQuestion).toHaveBeenCalledWith('q1');
+    });
+
+    it('should handle delete question error', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteQuestion.mockImplementation(() => {
+        throw new Error('Delete failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteQuestion('q1');
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Delete failed');
+    });
+  });
 });
