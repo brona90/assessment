@@ -10,6 +10,7 @@ Given('I am on the assessment page', async () => {
     try {
       await global.page.goto(`http://localhost:${port}/assessment/`, { timeout: 5000 });
       connected = true;
+      console.log(`Connected to dev server on port ${port}`);
       break;
     } catch (error) {
       continue;
@@ -23,21 +24,24 @@ Given('I am on the assessment page', async () => {
   // Wait for page to load
   await global.page.waitForTimeout(2000);
   
-  // First select admin user to see all questions
+  // Check if user selection screen is visible and select a user
   try {
-    const userSelector = await global.page.locator('select[data-testid="user-select"]');
-    if (await userSelector.isVisible({ timeout: 2000 })) {
-      await userSelector.selectOption('admin');
-      await global.page.waitForTimeout(1000);
+    const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
+    if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
+      console.log('User selection screen detected, selecting a user...');
+      const userCard = await global.page.locator('[data-testid="user-card-user1"]');
+      if (await userCard.isVisible()) {
+        await userCard.click();
+        await global.page.waitForTimeout(2000);
+        console.log('User selected successfully');
+        
+        // Wait for user view to load
+        await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
+        await global.page.waitForTimeout(1000);
+      }
     }
   } catch (error) {
-    console.log('User selector not found, continuing without selection');
-  }
-  
-  const assessmentTab = await global.page.locator('button:has-text("Assessment")');
-  if (await assessmentTab.isVisible()) {
-    await assessmentTab.click();
-    await global.page.waitForTimeout(1000);
+    console.log('No user selection screen or already logged in');
   }
 });
 

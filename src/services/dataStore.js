@@ -56,10 +56,10 @@ class DataStore {
       // Initialize all frameworks as selected by default
       this.data.selectedFrameworks = this.data.frameworks.map(f => f.id);
 
-      // Initialize empty assignments
+      // Initialize assignments from user data
       this.data.assignments = {};
       this.data.users.forEach(user => {
-        this.data.assignments[user.id] = [];
+        this.data.assignments[user.id] = user.assignedQuestions || [];
       });
 
       this.initialized = true;
