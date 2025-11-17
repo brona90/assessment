@@ -170,4 +170,3 @@ Feature: Full-Screen Admin Interface
     Then I should be returned to the user selection screen
     And I should not see any admin content
     And I should be able to select a different user
-</file_path>
