@@ -11,7 +11,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "cucumber": "node node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 20",
+    "cucumber": "node node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 10",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
