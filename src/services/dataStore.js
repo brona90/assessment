@@ -14,7 +14,9 @@ class DataStore {
       frameworks: [],
       questions: [],
       assignments: {}, // { userId: [questionIds] }
-      selectedFrameworks: [] // Framework IDs selected by admin
+      selectedFrameworks: [], // Framework IDs selected by admin
+      answers: {}, // User answers to questions
+      evidence: {} // Evidence/proof attached to answers
     };
     this.initialized = false;
   }
@@ -469,6 +471,78 @@ class DataStore {
     return this.data.assignments[userId];
   }
 
+  // ==================== ANSWERS OPERATIONS ====================
+
+  /**
+   * Get all answers
+   */
+  getAnswers() {
+    return this.data.answers;
+  }
+
+  /**
+   * Set answers
+   */
+  setAnswers(answers) {
+    if (typeof answers !== 'object' || Array.isArray(answers)) {
+      throw new Error('Answers must be an object');
+    }
+    this.data.answers = answers;
+    return this.data.answers;
+  }
+
+  /**
+   * Update a single answer
+   */
+  updateAnswer(questionId, value) {
+    this.data.answers[questionId] = value;
+    return this.data.answers;
+  }
+
+  /**
+   * Clear all answers
+   */
+  clearAnswers() {
+    this.data.answers = {};
+    return this.data.answers;
+  }
+
+  // ==================== EVIDENCE OPERATIONS ====================
+
+  /**
+   * Get all evidence
+   */
+  getEvidence() {
+    return this.data.evidence;
+  }
+
+  /**
+   * Set evidence
+   */
+  setEvidence(evidence) {
+    if (typeof evidence !== 'object' || Array.isArray(evidence)) {
+      throw new Error('Evidence must be an object');
+    }
+    this.data.evidence = evidence;
+    return this.data.evidence;
+  }
+
+  /**
+   * Update evidence for a question
+   */
+  updateEvidence(questionId, evidenceData) {
+    this.data.evidence[questionId] = evidenceData;
+    return this.data.evidence;
+  }
+
+  /**
+   * Clear all evidence
+   */
+  clearEvidence() {
+    this.data.evidence = {};
+    return this.data.evidence;
+  }
+
   // ==================== EXPORT/IMPORT OPERATIONS ====================
 
   /**
@@ -525,12 +599,31 @@ class DataStore {
         validationErrors.push('Invalid selectedFrameworks: must be an array');
       }
 
+      // Validate answers (optional field, but must be object if present)
+      if (imported.answers !== undefined) {
+        if (typeof imported.answers !== 'object' || Array.isArray(imported.answers)) {
+          validationErrors.push('Invalid answers: must be an object');
+        }
+      }
+
+      // Validate evidence (optional field, but must be object if present)
+      if (imported.evidence !== undefined) {
+        if (typeof imported.evidence !== 'object' || Array.isArray(imported.evidence)) {
+          validationErrors.push('Invalid evidence: must be an object');
+        }
+      }
+
       // If there are validation errors, throw with detailed message
       if (validationErrors.length > 0) {
         throw new Error(`Invalid data structure: ${validationErrors.join(', ')}`);
       }
 
-      this.data = imported;
+      // Merge imported data with defaults for optional fields
+      this.data = {
+        ...imported,
+        answers: imported.answers || {},
+        evidence: imported.evidence || {}
+      };
       this.initialized = true;
       
       return true;
@@ -566,7 +659,9 @@ class DataStore {
       frameworks: [],
       questions: [],
       assignments: {},
-      selectedFrameworks: []
+      selectedFrameworks: [],
+      answers: {},
+      evidence: {}
     };
     this.initialized = false;
   }

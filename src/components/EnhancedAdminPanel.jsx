@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDataStore } from '../hooks/useDataStore';
 import { userExportService } from '../services/userExportService';
+import { storageService } from '../services/storageService';
 import './AdminPanel.css';
 
 export const EnhancedAdminPanel = () => {
@@ -32,7 +33,9 @@ export const EnhancedAdminPanel = () => {
     assignQuestionsToUser,
     // exportData,
     importData,
-    downloadData
+    downloadData,
+    setAnswers,
+    setEvidence
   } = useDataStore();
 
   const [activeTab, setActiveTab] = useState('domains');
@@ -388,9 +391,23 @@ export const EnhancedAdminPanel = () => {
   };
 
   // Export/Import operations
-  const handleExport = () => {
-    downloadData('assessment-data.json');
-    showMessage('success', 'Data exported successfully');
+  const handleExport = async () => {
+    try {
+      // Load answers and evidence from localStorage
+      const answers = await storageService.loadAssessment();
+      const evidence = await storageService.loadAllEvidence();
+      
+      // Update dataStore with current answers and evidence
+      setAnswers(answers);
+      setEvidence(evidence);
+      
+      // Export all data
+      downloadData('assessment-data.json');
+      showMessage('success', 'Data exported successfully (including answers and evidence)');
+    } catch (error) {
+      console.error('Export error:', error);
+      showMessage('error', `Export failed: ${error.message}`);
+    }
   };
 
   const handleImport = (event) => {
@@ -417,11 +434,26 @@ export const EnhancedAdminPanel = () => {
 
     const reader = new FileReader();
     
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const result = importData(e.target.result);
         if (result.success) {
-          showMessage('success', 'Data imported successfully');
+          // Parse the imported data to extract answers and evidence
+          const importedData = JSON.parse(e.target.result);
+          
+          // Save answers to localStorage if present
+          if (importedData.answers) {
+            await storageService.saveAssessment(importedData.answers);
+          }
+          
+          // Save evidence to IndexedDB if present
+          if (importedData.evidence) {
+            for (const [questionId, evidenceData] of Object.entries(importedData.evidence)) {
+              await storageService.saveEvidence(questionId, evidenceData);
+            }
+          }
+          
+          showMessage('success', 'Data imported successfully (including answers and evidence)');
           refreshData();
           // Reset input
           event.target.value = '';

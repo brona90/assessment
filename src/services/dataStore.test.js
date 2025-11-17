@@ -894,5 +894,161 @@ describe('DataStore', () => {
       expect(result).toBe(true);
       expect(dataStore.initialized).toBe(true);
     });
+
+    it('should accept valid data with optional answers field', () => {
+      const validData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: { q1: 4, q2: 3 }
+      };
+
+      const result = dataStore.importData(validData);
+      expect(result).toBe(true);
+      expect(dataStore.data.answers).toEqual({ q1: 4, q2: 3 });
+    });
+
+    it('should accept valid data with optional evidence field', () => {
+      const validData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        evidence: { q1: { text: 'Evidence text', images: [] } }
+      };
+
+      const result = dataStore.importData(validData);
+      expect(result).toBe(true);
+      expect(dataStore.data.evidence).toEqual({ q1: { text: 'Evidence text', images: [] } });
+    });
+
+    it('should provide error for invalid answers type', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid answers: must be an object');
+    });
+
+    it('should provide error for invalid evidence type', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        evidence: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid evidence: must be an object');
+    });
+
+    it('should default answers and evidence to empty objects if not provided', () => {
+      const validData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      const result = dataStore.importData(validData);
+      expect(result).toBe(true);
+      expect(dataStore.data.answers).toEqual({});
+      expect(dataStore.data.evidence).toEqual({});
+    });
+  });
+
+  describe('Answers Operations', () => {
+    beforeEach(() => {
+      dataStore.data.answers = {};
+    });
+
+    it('should get all answers', () => {
+      dataStore.data.answers = { q1: 4, q2: 3 };
+      const answers = dataStore.getAnswers();
+      expect(answers).toEqual({ q1: 4, q2: 3 });
+    });
+
+    it('should set answers', () => {
+      const newAnswers = { q1: 5, q2: 4 };
+      const result = dataStore.setAnswers(newAnswers);
+      expect(result).toEqual(newAnswers);
+      expect(dataStore.data.answers).toEqual(newAnswers);
+    });
+
+    it('should throw error when setting invalid answers type', () => {
+      expect(() => {
+        dataStore.setAnswers([]);
+      }).toThrow('Answers must be an object');
+    });
+
+    it('should update a single answer', () => {
+      dataStore.data.answers = { q1: 3 };
+      const result = dataStore.updateAnswer('q2', 4);
+      expect(result).toEqual({ q1: 3, q2: 4 });
+    });
+
+    it('should clear all answers', () => {
+      dataStore.data.answers = { q1: 4, q2: 3 };
+      const result = dataStore.clearAnswers();
+      expect(result).toEqual({});
+      expect(dataStore.data.answers).toEqual({});
+    });
+  });
+
+  describe('Evidence Operations', () => {
+    beforeEach(() => {
+      dataStore.data.evidence = {};
+    });
+
+    it('should get all evidence', () => {
+      dataStore.data.evidence = { q1: { text: 'Evidence' } };
+      const evidence = dataStore.getEvidence();
+      expect(evidence).toEqual({ q1: { text: 'Evidence' } });
+    });
+
+    it('should set evidence', () => {
+      const newEvidence = { q1: { text: 'New evidence' } };
+      const result = dataStore.setEvidence(newEvidence);
+      expect(result).toEqual(newEvidence);
+      expect(dataStore.data.evidence).toEqual(newEvidence);
+    });
+
+    it('should throw error when setting invalid evidence type', () => {
+      expect(() => {
+        dataStore.setEvidence([]);
+      }).toThrow('Evidence must be an object');
+    });
+
+    it('should update evidence for a question', () => {
+      dataStore.data.evidence = { q1: { text: 'Old' } };
+      const result = dataStore.updateEvidence('q2', { text: 'New' });
+      expect(result).toEqual({ q1: { text: 'Old' }, q2: { text: 'New' } });
+    });
+
+    it('should clear all evidence', () => {
+      dataStore.data.evidence = { q1: { text: 'Evidence' } };
+      const result = dataStore.clearEvidence();
+      expect(result).toEqual({});
+      expect(dataStore.data.evidence).toEqual({});
+    });
   });
 });
