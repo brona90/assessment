@@ -689,4 +689,210 @@ describe('DataStore', () => {
       }).toThrow('User with id nonexistent not found');
     });
   });
+
+  describe('Enhanced Import Validation', () => {
+    it('should provide detailed error for missing domains', () => {
+      const invalidData = {
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Missing required field: domains');
+    });
+
+    it('should provide detailed error for invalid domains type', () => {
+      const invalidData = {
+        domains: [],
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid domains: must be an object');
+    });
+
+    it('should provide detailed error for missing users', () => {
+      const invalidData = {
+        domains: {},
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Missing required field: users');
+    });
+
+    it('should provide detailed error for invalid users type', () => {
+      const invalidData = {
+        domains: {},
+        users: {},
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid users: must be an array');
+    });
+
+    it('should provide detailed error for missing frameworks', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Missing required field: frameworks');
+    });
+
+    it('should provide detailed error for invalid frameworks type', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: {},
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid frameworks: must be an array');
+    });
+
+    it('should provide detailed error for missing questions', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Missing required field: questions');
+    });
+
+    it('should provide detailed error for invalid questions type', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: {},
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid questions: must be an array');
+    });
+
+    it('should provide detailed error for missing assignments', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Missing required field: assignments');
+    });
+
+    it('should provide detailed error for invalid assignments type', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: [],
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid assignments: must be an object');
+    });
+
+    it('should provide detailed error for missing selectedFrameworks', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {}
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Missing required field: selectedFrameworks');
+    });
+
+    it('should provide detailed error for invalid selectedFrameworks type', () => {
+      const invalidData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: {}
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow('Invalid selectedFrameworks: must be an array');
+    });
+
+    it('should provide multiple validation errors', () => {
+      const invalidData = {
+        domains: [],
+        users: {},
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      expect(() => {
+        dataStore.importData(invalidData);
+      }).toThrow(/Invalid domains.*Invalid users/);
+    });
+
+    it('should accept valid data with all required fields', () => {
+      const validData = {
+        domains: { domain1: { title: 'Domain 1', categories: {} } },
+        users: [{ id: 'user1', name: 'User 1' }],
+        frameworks: [{ id: 'fw1', name: 'Framework 1' }],
+        questions: [{ id: 'q1', text: 'Question 1' }],
+        assignments: { user1: ['q1'] },
+        selectedFrameworks: ['fw1']
+      };
+
+      const result = dataStore.importData(validData);
+      expect(result).toBe(true);
+      expect(dataStore.initialized).toBe(true);
+    });
+  });
 });

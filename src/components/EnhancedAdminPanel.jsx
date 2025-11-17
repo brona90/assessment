@@ -397,16 +397,49 @@ export const EnhancedAdminPanel = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.name.endsWith('.json')) {
+      showMessage('error', 'Please select a JSON file');
+      event.target.value = '';
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      showMessage('error', 'File size exceeds 10MB limit');
+      event.target.value = '';
+      return;
+    }
+
+    // Show loading state
+    showMessage('info', 'Importing data...');
+
     const reader = new FileReader();
+    
     reader.onload = (e) => {
-      const result = importData(e.target.result);
-      if (result.success) {
-        showMessage('success', 'Data imported successfully');
-        refreshData();
-      } else {
-        showMessage('error', result.error);
+      try {
+        const result = importData(e.target.result);
+        if (result.success) {
+          showMessage('success', 'Data imported successfully');
+          refreshData();
+          // Reset input
+          event.target.value = '';
+        } else {
+          showMessage('error', `Import failed: ${result.error}`);
+          event.target.value = '';
+        }
+      } catch (error) {
+        showMessage('error', `Import failed: ${error.message}`);
+        event.target.value = '';
       }
     };
+
+    reader.onerror = () => {
+      showMessage('error', 'Failed to read file');
+      event.target.value = '';
+    };
+
     reader.readAsText(file);
   };
 

@@ -485,9 +485,49 @@ class DataStore {
     try {
       const imported = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
       
-      // Validate structure
-      if (!imported.domains || !imported.users || !imported.frameworks) {
-        throw new Error('Invalid data structure');
+      // Detailed validation with specific error messages
+      const validationErrors = [];
+
+      // Check required top-level properties
+      if (!imported.domains) {
+        validationErrors.push('Missing required field: domains');
+      } else if (typeof imported.domains !== 'object' || Array.isArray(imported.domains)) {
+        validationErrors.push('Invalid domains: must be an object');
+      }
+
+      if (!imported.users) {
+        validationErrors.push('Missing required field: users');
+      } else if (!Array.isArray(imported.users)) {
+        validationErrors.push('Invalid users: must be an array');
+      }
+
+      if (!imported.frameworks) {
+        validationErrors.push('Missing required field: frameworks');
+      } else if (!Array.isArray(imported.frameworks)) {
+        validationErrors.push('Invalid frameworks: must be an array');
+      }
+
+      if (!imported.questions) {
+        validationErrors.push('Missing required field: questions');
+      } else if (!Array.isArray(imported.questions)) {
+        validationErrors.push('Invalid questions: must be an array');
+      }
+
+      if (!imported.assignments) {
+        validationErrors.push('Missing required field: assignments');
+      } else if (typeof imported.assignments !== 'object' || Array.isArray(imported.assignments)) {
+        validationErrors.push('Invalid assignments: must be an object');
+      }
+
+      if (!imported.selectedFrameworks) {
+        validationErrors.push('Missing required field: selectedFrameworks');
+      } else if (!Array.isArray(imported.selectedFrameworks)) {
+        validationErrors.push('Invalid selectedFrameworks: must be an array');
+      }
+
+      // If there are validation errors, throw with detailed message
+      if (validationErrors.length > 0) {
+        throw new Error(`Invalid data structure: ${validationErrors.join(', ')}`);
       }
 
       this.data = imported;
