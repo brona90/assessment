@@ -543,6 +543,43 @@ class DataStore {
     return this.data.evidence;
   }
 
+  /**
+   * Clear all data (admin only)
+   * Resets all data to initial state and clears localStorage and IndexedDB
+   */
+  async clearAllData() {
+    try {
+      // Clear in-memory data
+      this.data = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: {},
+        evidence: {}
+      };
+
+      // Clear localStorage
+      localStorage.clear();
+
+      // Clear IndexedDB
+      if (window.indexedDB) {
+        const databases = await window.indexedDB.databases();
+        for (const db of databases) {
+          window.indexedDB.deleteDatabase(db.name);
+        }
+      }
+
+      this.initialized = false;
+      return { success: true };
+    } catch (error) {
+      console.error('Error clearing all data:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // ==================== EXPORT/IMPORT OPERATIONS ====================
 
   /**

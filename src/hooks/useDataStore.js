@@ -232,6 +232,20 @@ export const useDataStore = () => {
     dataStore.downloadData(filename);
   }, []);
 
+  const clearAllData = useCallback(async () => {
+    try {
+      const result = await dataStore.clearAllData();
+      if (result.success) {
+        setInitialized(false);
+        setLoading(false);
+        setError(null);
+      }
+      return result;
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
   // Answers operations
   const getAnswers = useCallback(() => {
     return dataStore.getAnswers();
@@ -342,6 +356,7 @@ export const useDataStore = () => {
     // Export/Import
     exportData,
     importData,
-    downloadData
+    downloadData,
+      clearAllData
   };
 };

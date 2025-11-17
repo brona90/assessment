@@ -97,14 +97,26 @@ function App() {
       // Get user's assigned questions
       const userQuestions = getQuestionsForUser(currentUser.id);
       
-      // Export user data
-      userExportService.downloadUserExport(
+      // Export user data with evidence validation
+      const result = userExportService.downloadUserExport(
         currentUser.id,
         currentUser.name,
         userQuestions,
         answers,
-        evidence
+        evidence,
+        true // Require evidence for all answered questions
       );
+
+      // Handle validation errors
+      if (!result.success) {
+        const validation = result.validation;
+        alert(
+          `❌ Export Failed\n\n` +
+          `${result.error}\n\n` +
+          `You have answered ${validation.totalAnswered} question(s), but ${validation.missingEvidence} of them are missing evidence.\n\n` +
+          `Please add evidence (photos/documents) to all answered questions before exporting.`
+        );
+      }
     } catch (error) {
       console.error('Error exporting user data:', error);
       alert('Failed to export user data. Please try again.');

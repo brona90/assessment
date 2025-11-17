@@ -35,7 +35,8 @@ export const EnhancedAdminPanel = () => {
     importData,
     downloadData,
     setAnswers,
-    setEvidence
+    setEvidence,
+    clearAllData
   } = useDataStore();
 
   const [activeTab, setActiveTab] = useState('domains');
@@ -473,6 +474,52 @@ export const EnhancedAdminPanel = () => {
     };
 
     reader.readAsText(file);
+  };
+
+  const handleClearAllData = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      '⚠️ WARNING: This will permanently delete ALL data including:\n\n' +
+      '• All domains, categories, and questions\n' +
+      '• All users and assignments\n' +
+      '• All frameworks and compliance data\n' +
+      '• All answers and evidence\n' +
+      '• All localStorage and IndexedDB data\n\n' +
+      'This action CANNOT be undone!\n\n' +
+      'Are you absolutely sure you want to continue?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    // Double confirmation
+    const doubleConfirmed = window.confirm(
+      '🚨 FINAL WARNING 🚨\n\n' +
+      'You are about to delete EVERYTHING.\n' +
+      'Click OK to proceed with deletion, or Cancel to abort.'
+    );
+
+    if (!doubleConfirmed) {
+      return;
+    }
+
+    try {
+      showMessage('info', 'Clearing all data...');
+      const result = await clearAllData();
+      
+      if (result.success) {
+        showMessage('success', 'All data cleared successfully. The page will reload.');
+        // Reload the page after a short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        showMessage('error', `Failed to clear data: ${result.error}`);
+      }
+    } catch (error) {
+      showMessage('error', `Failed to clear data: ${error.message}`);
+    }
   };
 
   // Multi-user import handlers
@@ -917,6 +964,28 @@ export const EnhancedAdminPanel = () => {
                 <li>Questions: {questions.length}</li>
               </ul>
             </div>
+
+              <div className="form-group" style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '2px solid #e5e7eb' }}>
+                <h4 style={{ color: '#ef4444', marginBottom: '1rem' }}>⚠️ Danger Zone</h4>
+                <p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+                  Permanently delete all data from the system. This action cannot be undone.
+                </p>
+                <button 
+                  onClick={handleClearAllData}
+                  style={{
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  Clear All Data
+                </button>
+              </div>
           </div>
         )}
       </div>

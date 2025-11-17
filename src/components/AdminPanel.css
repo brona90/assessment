@@ -27,6 +27,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .admin-header p {
