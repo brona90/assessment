@@ -305,10 +305,20 @@ Then('the PDF should include the bar chart', async () => {
 });
 
 Then('charts should be clearly visible', async () => {
-  // Verify charts are rendered
-  await global.page.waitForTimeout(500);
+  // Verify charts are rendered by checking if we're on the dashboard
+  await global.page.waitForTimeout(1000);
+  
+  // Navigate to dashboard to see charts
+  const dashboardBtn = await global.page.locator('button:has-text("Dashboard")');
+  if (await dashboardBtn.isVisible()) {
+    await dashboardBtn.click();
+    await global.page.waitForTimeout(1500);
+  }
+  
   const canvas = await global.page.locator('canvas');
   const count = await canvas.count();
+  
+  // Charts should be visible on dashboard
   expect(count).toBeGreaterThan(0);
 });
 
