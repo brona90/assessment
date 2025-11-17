@@ -805,28 +805,34 @@ describe('useDataStore', () => {
       expect(Array.isArray(selected)).toBe(true);
     });
 
-    it('should call setSelectedFrameworks', async () => {
+    it('should handle setSelectedFrameworks error', async () => {
       dataStore.initialized = true;
-      dataStore.setSelectedFrameworks.mockImplementation(() => {});
+      dataStore.setSelectedFrameworks.mockImplementation(() => {
+        throw new Error('Set selected frameworks failed');
+      });
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      result.current.setSelectedFrameworks(['fw1']);
-      expect(dataStore.setSelectedFrameworks).toHaveBeenCalledWith(['fw1']);
+      const response = result.current.setSelectedFrameworks(['fw1']);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Set selected frameworks failed');
     });
 
-    it('should call assignQuestionsToUser', async () => {
+    it('should handle assignQuestionsToUser error', async () => {
       dataStore.initialized = true;
-      dataStore.assignQuestionsToUser.mockImplementation(() => {});
+      dataStore.assignQuestionsToUser.mockImplementation(() => {
+        throw new Error('Assignment failed');
+      });
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      result.current.assignQuestionsToUser('user1', ['q1']);
-      expect(dataStore.assignQuestionsToUser).toHaveBeenCalledWith('user1', ['q1']);
+      const response = result.current.assignQuestionsToUser('user1', ['q1']);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Assignment failed');
     });
 
     it('should handle getUserAssignments when not initialized', () => {
@@ -838,16 +844,19 @@ describe('useDataStore', () => {
       expect(Array.isArray(assignments)).toBe(true);
     });
 
-    it('should call downloadData', async () => {
+    it('should handle downloadData error', async () => {
       dataStore.initialized = true;
-      dataStore.downloadData.mockImplementation(() => {});
+      dataStore.downloadData.mockImplementation(() => {
+        throw new Error('Download failed');
+      });
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      result.current.downloadData('test.json');
-      expect(dataStore.downloadData).toHaveBeenCalledWith('test.json');
+      const response = result.current.downloadData('test.json');
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Download failed');
     });
 
     it('should handle importData error', async () => {

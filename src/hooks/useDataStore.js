@@ -229,7 +229,12 @@ export const useDataStore = () => {
   }, []);
 
   const downloadData = useCallback((filename) => {
-    dataStore.downloadData(filename);
+    try {
+      dataStore.downloadData(filename);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   }, []);
 
   const clearAllData = useCallback(async () => {
