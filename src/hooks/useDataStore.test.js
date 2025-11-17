@@ -419,5 +419,259 @@ describe('useDataStore', () => {
       expect(response.success).toBe(false);
       expect(response.error).toBe('Delete failed');
     });
+
+    it('should update question successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.updateQuestion.mockReturnValue({ id: 'q1', text: 'Updated Question' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateQuestion('q1', { text: 'Updated Question' });
+      expect(response.success).toBe(true);
+      expect(response.data.text).toBe('Updated Question');
+    });
+
+    it('should handle update question error', async () => {
+      dataStore.initialized = true;
+      dataStore.updateQuestion.mockImplementation(() => {
+        throw new Error('Update failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateQuestion('q1', { text: 'Updated' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Update failed');
+    });
+
+    it('should add question successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.addQuestion.mockReturnValue({ id: 'q2', text: 'New Question' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addQuestion({ id: 'q2', text: 'New Question' });
+      expect(response.success).toBe(true);
+      expect(response.data.id).toBe('q2');
+    });
+
+    it('should handle add question error', async () => {
+      dataStore.initialized = true;
+      dataStore.addQuestion.mockImplementation(() => {
+        throw new Error('Add failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addQuestion({ id: 'q2', text: 'New Question' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Add failed');
+    });
+  });
+
+  describe('User Management', () => {
+    it('should add user successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.addUser.mockReturnValue({ id: 'user2', name: 'New User' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addUser({ id: 'user2', name: 'New User' });
+      expect(response.success).toBe(true);
+      expect(response.data.name).toBe('New User');
+    });
+
+    it('should handle add user error', async () => {
+      dataStore.initialized = true;
+      dataStore.addUser.mockImplementation(() => {
+        throw new Error('User add failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addUser({ id: 'user2', name: 'New User' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('User add failed');
+    });
+
+    it('should delete user successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteUser.mockReturnValue(true);
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteUser('user1');
+      expect(response.success).toBe(true);
+    });
+
+    it('should handle delete user error', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteUser.mockImplementation(() => {
+        throw new Error('User delete failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteUser('user1');
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('User delete failed');
+    });
+
+    it('should update user successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.updateUser.mockReturnValue({ id: 'user1', name: 'Updated User' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateUser('user1', { name: 'Updated User' });
+      expect(response.success).toBe(true);
+      expect(response.data.name).toBe('Updated User');
+    });
+
+    it('should handle update user error', async () => {
+      dataStore.initialized = true;
+      dataStore.updateUser.mockImplementation(() => {
+        throw new Error('User update failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateUser('user1', { name: 'Updated' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('User update failed');
+    });
+  });
+
+  describe('Framework Management', () => {
+    it('should delete framework successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteFramework.mockReturnValue(true);
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteFramework('f1');
+      expect(response.success).toBe(true);
+    });
+
+    it('should handle delete framework error', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteFramework.mockImplementation(() => {
+        throw new Error('Framework delete failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteFramework('f1');
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Framework delete failed');
+    });
+
+    it('should set selected frameworks successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.setSelectedFrameworks.mockReturnValue(['f1', 'f2']);
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.setSelectedFrameworks(['f1', 'f2']);
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual(['f1', 'f2']);
+    });
+
+    it('should handle set selected frameworks error', async () => {
+      dataStore.initialized = true;
+      dataStore.setSelectedFrameworks.mockImplementation(() => {
+        throw new Error('Set frameworks failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.setSelectedFrameworks(['f1']);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Set frameworks failed');
+    });
+
+    it('should add framework successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.addFramework.mockReturnValue({ id: 'f2', name: 'New Framework' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addFramework({ id: 'f2', name: 'New Framework' });
+      expect(response.success).toBe(true);
+      expect(response.data.name).toBe('New Framework');
+    });
+
+    it('should handle add framework error', async () => {
+      dataStore.initialized = true;
+      dataStore.addFramework.mockImplementation(() => {
+        throw new Error('Framework add failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.addFramework({ id: 'f2', name: 'New Framework' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Framework add failed');
+    });
+
+    it('should update framework successfully', async () => {
+      dataStore.initialized = true;
+      dataStore.updateFramework.mockReturnValue({ id: 'f1', name: 'Updated Framework' });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateFramework('f1', { name: 'Updated Framework' });
+      expect(response.success).toBe(true);
+      expect(response.data.name).toBe('Updated Framework');
+    });
+
+    it('should handle update framework error', async () => {
+      dataStore.initialized = true;
+      dataStore.updateFramework.mockImplementation(() => {
+        throw new Error('Framework update failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateFramework('f1', { name: 'Updated' });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Framework update failed');
+    });
   });
 });

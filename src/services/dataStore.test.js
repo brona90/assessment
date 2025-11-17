@@ -534,4 +534,157 @@ describe('DataStore', () => {
       expect(mockLink.download).toBe('assessment-data.json');
     });
   });
+
+  describe('Question Error Handling', () => {
+    it('should throw error when deleting non-existent question', () => {
+      dataStore.data.questions = [{ id: 'q1', text: 'Question 1' }];
+      
+      expect(() => {
+        dataStore.deleteQuestion('nonexistent');
+      }).toThrow('Question with id nonexistent not found');
+    });
+
+    it('should throw error when assigning non-existent question to user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
+      dataStore.data.questions = [{ id: 'q1', text: 'Question 1' }];
+      
+      expect(() => {
+        dataStore.assignQuestionsToUser('user1', ['nonexistent']);
+      }).toThrow('Question with id nonexistent not found');
+    });
+  });
+
+  describe('User Assignment Error Handling', () => {
+    it('should throw error when adding assignments to non-existent user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
+      
+      expect(() => {
+        dataStore.addQuestionAssignments('nonexistent', ['q1']);
+      }).toThrow('User with id nonexistent not found');
+    });
+
+    it('should throw error when removing assignments from non-existent user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
+      
+      expect(() => {
+        dataStore.removeQuestionAssignments('nonexistent', ['q1']);
+      }).toThrow('User with id nonexistent not found');
+    });
+  });
+
+  describe('Question Addition Edge Cases', () => {
+    it('should throw error when adding duplicate question', () => {
+      dataStore.data.questions = [{ id: 'q1', text: 'Question 1', domainId: 'd1', categoryId: 'c1' }];
+      
+      expect(() => {
+        dataStore.addQuestion({ id: 'q1', text: 'Duplicate', domainId: 'd1', categoryId: 'c1' });
+      }).toThrow('Question with id q1 already exists');
+    });
+
+    it('should create category if it does not exist when adding question', () => {
+      dataStore.data.domains = {
+        domain1: {
+          title: 'Domain 1',
+          categories: {}
+        }
+      };
+      dataStore.data.questions = [];
+      
+      const question = {
+        id: 'q1',
+        text: 'Question 1',
+        domainId: 'domain1',
+        categoryId: 'newCategory'
+      };
+      
+      dataStore.addQuestion(question);
+      
+      expect(dataStore.data.domains.domain1.categories.newCategory).toBeDefined();
+      expect(dataStore.data.domains.domain1.categories.newCategory.questions).toContain(question);
+    });
+
+    it('should initialize questions array if category exists but has no questions', () => {
+      dataStore.data.domains = {
+        domain1: {
+          title: 'Domain 1',
+          categories: {
+            cat1: { title: 'Category 1' }
+          }
+        }
+      };
+      dataStore.data.questions = [];
+      
+      const question = {
+        id: 'q1',
+        text: 'Question 1',
+        domainId: 'domain1',
+        categoryId: 'cat1'
+      };
+      
+      dataStore.addQuestion(question);
+      
+      expect(dataStore.data.domains.domain1.categories.cat1.questions).toBeDefined();
+      expect(dataStore.data.domains.domain1.categories.cat1.questions).toContain(question);
+    });
+
+    it('should throw error when updating non-existent question', () => {
+      dataStore.data.questions = [{ id: 'q1', text: 'Question 1' }];
+      
+      expect(() => {
+        dataStore.updateQuestion('nonexistent', { text: 'Updated' });
+      }).toThrow('Question with id nonexistent not found');
+    });
+  });
+
+  describe('Framework Management Error Handling', () => {
+    it('should throw error when deleting non-existent framework', () => {
+      dataStore.data.frameworks = [{ id: 'f1', name: 'Framework 1' }];
+      
+      expect(() => {
+        dataStore.deleteFramework('nonexistent');
+      }).toThrow('Framework with id nonexistent not found');
+    });
+
+    it('should throw error when adding duplicate framework', () => {
+      dataStore.data.frameworks = [{ id: 'f1', name: 'Framework 1' }];
+      
+      expect(() => {
+        dataStore.addFramework({ id: 'f1', name: 'Duplicate' });
+      }).toThrow('Framework with id f1 already exists');
+    });
+
+    it('should throw error when updating non-existent framework', () => {
+      dataStore.data.frameworks = [{ id: 'f1', name: 'Framework 1' }];
+      
+      expect(() => {
+        dataStore.updateFramework('nonexistent', { name: 'Updated' });
+      }).toThrow('Framework with id nonexistent not found');
+    });
+  });
+
+  describe('User Management Error Handling', () => {
+    it('should throw error when adding duplicate user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1', email: 'user1@test.com' }];
+      
+      expect(() => {
+        dataStore.addUser({ id: 'user1', name: 'Duplicate', email: 'dup@test.com' });
+      }).toThrow('User with id user1 already exists');
+    });
+
+    it('should throw error when updating non-existent user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
+      
+      expect(() => {
+        dataStore.updateUser('nonexistent', { name: 'Updated' });
+      }).toThrow('User with id nonexistent not found');
+    });
+
+    it('should throw error when deleting non-existent user', () => {
+      dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
+      
+      expect(() => {
+        dataStore.deleteUser('nonexistent');
+      }).toThrow('User with id nonexistent not found');
+    });
+  });
 });
