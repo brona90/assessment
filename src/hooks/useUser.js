@@ -12,8 +12,8 @@ export const useUser = () => {
       const loadedUsers = await userService.loadUsers();
       setUsers(loadedUsers);
       
-      const storedUser = userService.getCurrentUser();
-      setCurrentUser(storedUser);
+      // Always start with no user selected - user must choose from selection screen
+      setCurrentUser(null);
       
       setLoading(false);
     };
