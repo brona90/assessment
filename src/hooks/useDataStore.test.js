@@ -33,7 +33,12 @@ vi.mock('../services/dataStore', () => ({
     removeQuestionAssignments: vi.fn(),
     exportData: vi.fn(),
     importData: vi.fn(),
-    downloadData: vi.fn()
+    downloadData: vi.fn(),
+      setAnswers: vi.fn(),
+      setEvidence: vi.fn(),
+      updateEvidence: vi.fn(),
+      clearEvidence: vi.fn(),
+      clearAllData: vi.fn(),
   }
 }));
 
@@ -732,3 +737,146 @@ describe('useDataStore', () => {
     });
   });
 });
+  describe('Framework Error Handling', () => {
+    it('should handle deleteFramework error', async () => {
+      dataStore.initialized = true;
+      dataStore.deleteFramework.mockImplementation(() => {
+        throw new Error('Framework delete failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.deleteFramework('fw1');
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Framework delete failed');
+    });
+  });
+
+  describe('Evidence Error Handling', () => {
+    it('should handle updateEvidence error', async () => {
+      dataStore.initialized = true;
+      dataStore.updateEvidence.mockImplementation(() => {
+        throw new Error('Evidence update failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateEvidence('q1', { images: [] });
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Evidence update failed');
+    });
+
+    it('should handle clearEvidence error', async () => {
+      dataStore.initialized = true;
+      dataStore.clearEvidence.mockImplementation(() => {
+        throw new Error('Evidence clear failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.clearEvidence();
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Evidence clear failed');
+    });
+  });
+
+  describe('Additional Error Scenarios', () => {
+    it('should handle getFrameworks when not initialized', () => {
+      dataStore.initialized = false;
+      dataStore.getFrameworks.mockReturnValue([]);
+      const { result } = renderHook(() => useDataStore());
+      
+      const frameworks = result.current.getFrameworks();
+      expect(Array.isArray(frameworks)).toBe(true);
+    });
+
+    it('should handle getSelectedFrameworks when not initialized', () => {
+      dataStore.initialized = false;
+      dataStore.getSelectedFrameworks.mockReturnValue([]);
+      const { result } = renderHook(() => useDataStore());
+      
+      const selected = result.current.getSelectedFrameworks();
+      expect(Array.isArray(selected)).toBe(true);
+    });
+
+    it('should call setSelectedFrameworks', async () => {
+      dataStore.initialized = true;
+      dataStore.setSelectedFrameworks.mockImplementation(() => {});
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      result.current.setSelectedFrameworks(['fw1']);
+      expect(dataStore.setSelectedFrameworks).toHaveBeenCalledWith(['fw1']);
+    });
+
+    it('should call assignQuestionsToUser', async () => {
+      dataStore.initialized = true;
+      dataStore.assignQuestionsToUser.mockImplementation(() => {});
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      result.current.assignQuestionsToUser('user1', ['q1']);
+      expect(dataStore.assignQuestionsToUser).toHaveBeenCalledWith('user1', ['q1']);
+    });
+
+    it('should handle getUserAssignments when not initialized', () => {
+      dataStore.initialized = false;
+      dataStore.getUserAssignments.mockReturnValue([]);
+      const { result } = renderHook(() => useDataStore());
+      
+      const assignments = result.current.getUserAssignments('user1');
+      expect(Array.isArray(assignments)).toBe(true);
+    });
+
+    it('should call downloadData', async () => {
+      dataStore.initialized = true;
+      dataStore.downloadData.mockImplementation(() => {});
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      result.current.downloadData('test.json');
+      expect(dataStore.downloadData).toHaveBeenCalledWith('test.json');
+    });
+
+    it('should handle importData error', async () => {
+      dataStore.initialized = true;
+      dataStore.importData.mockImplementation(() => {
+        throw new Error('Import failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.importData({});
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Import failed');
+    });
+
+    it('should handle clearAllData error', async () => {
+      dataStore.initialized = true;
+      dataStore.clearAllData.mockImplementation(() => {
+        throw new Error('Clear failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = await result.current.clearAllData();
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Clear failed');
+    });
+  });

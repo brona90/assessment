@@ -30,11 +30,12 @@ vi.mock('./components/UserSelectionScreen', () => ({
     </div>
   )
 }));
-vi.mock('./components/AdminView', () => ({
-  AdminView: ({ onExportPDF }) => (
-    <div data-testid="admin-view">
+vi.mock('./components/FullScreenAdminView', () => ({
+  FullScreenAdminView: ({ onExportPDF, onLogout }) => (
+    <div data-testid="full-screen-admin-view">
       <h1>Admin View</h1>
-      <button onClick={onExportPDF} data-testid="export-pdf-btn">Export PDF</button>
+      <button onClick={onExportPDF} data-testid="export-pdf-button">Export PDF</button>
+      <button onClick={onLogout} data-testid="logout-button">Logout</button>
     </div>
   )
 }));
@@ -198,18 +199,19 @@ describe('App', () => {
 
     it('should render admin view when admin user is selected', () => {
       render(<App />);
-      expect(screen.getByTestId('admin-view')).toBeInTheDocument();
+      expect(screen.getByTestId('full-screen-admin-view')).toBeInTheDocument();
       expect(screen.getByText('Admin View')).toBeInTheDocument();
     });
 
     it('should not render user view when admin is logged in', () => {
       render(<App />);
+      expect(screen.getByTestId('full-screen-admin-view')).toBeInTheDocument();
       expect(screen.queryByTestId('user-view')).not.toBeInTheDocument();
     });
 
     it('should handle PDF export when export button is clicked', async () => {
       render(<App />);
-      const exportBtn = screen.getByTestId('export-pdf-btn');
+      const exportBtn = screen.getByTestId('export-pdf-button');
       
       await act(async () => {
         fireEvent.click(exportBtn);
@@ -232,7 +234,7 @@ describe('App', () => {
       pdfService.generatePDF.mockRejectedValue(new Error('PDF generation failed'));
 
       render(<App />);
-      const exportBtn = screen.getByTestId('export-pdf-btn');
+      const exportBtn = screen.getByTestId('export-pdf-button');
       
       await act(async () => {
         fireEvent.click(exportBtn);

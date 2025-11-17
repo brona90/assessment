@@ -3,7 +3,7 @@ import { useAssessment } from './hooks/useAssessment';
 import { useUser } from './hooks/useUser';
 import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
-import { AdminView } from './components/AdminView';
+import { FullScreenAdminView } from './components/FullScreenAdminView';
 import { UserView } from './components/UserView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
@@ -35,7 +35,13 @@ function App() {
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const [userQuestions, setUserQuestions] = useState([]);
   const { frameworks } = useCompliance(answers);
-  const { getQuestionsForUser, initialized } = useDataStore();
+  const { 
+    getQuestionsForUser, 
+    initialized,
+    importData,
+    exportData,
+    clearAllData
+  } = useDataStore();
 
   // Hydrate user questions when user changes or data is updated
   useEffect(() => {
@@ -82,6 +88,33 @@ function App() {
   const handleLogout = () => {
     selectUser(null);
     setUserQuestions([]);
+  };
+
+  const handleImportData = async (file) => {
+    try {
+      await importData(file);
+    } catch (error) {
+      console.error('Error importing data:', error);
+      alert(`Failed to import data: ${error.message}`);
+    }
+  };
+
+  const handleExportData = () => {
+    try {
+      exportData();
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('Failed to export data. Please try again.');
+    }
+  };
+
+  const handleClearAllData = () => {
+    try {
+      clearAllData();
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      alert('Failed to clear data. Please try again.');
+    }
   };
 
   const handleExportUserData = () => {
@@ -154,12 +187,16 @@ function App() {
   return (
     <>
       {isAdmin() ? (
-        <AdminView
+        <FullScreenAdminView
           domains={domains}
           answers={answers}
           evidence={evidence}
           frameworks={frameworks}
           onExportPDF={handleExportPDF}
+            onLogout={handleLogout}
+            onImportData={handleImportData}
+            onExportData={handleExportData}
+            onClearAllData={handleClearAllData}
         />
       ) : (
         <UserView
