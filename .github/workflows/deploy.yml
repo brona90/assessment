@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main # Trigger on pushes to the main branch
-      - 'fix/*'
 
 jobs:
   build-and-deploy:
@@ -16,7 +15,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Or your preferred Node.js version
+          node-version: '22' # Or your preferred Node.js version
 
       - name: Install dependencies
         run: npm ci
@@ -27,8 +26,8 @@ jobs:
       - name: Print working Dir
         run: pwd
 
-      - name: tree directory contents
-        run: tree .
+      - name: tree dist build directory contents
+        run: tree dist
       
       # Use JamesIves/github-pages-deploy-action@v4
       - name: Deploy to GitHub Pages
