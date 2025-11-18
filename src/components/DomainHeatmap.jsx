@@ -57,24 +57,38 @@ export const DomainHeatmap = ({ domains, answers }) => {
       return;
     }
 
-    // Set canvas size based on data
-    const cellWidth = 120;
-    const cellHeight = 40;
-    const labelWidth = 150;
-    const headerHeight = 100;
-    const padding = 10;
-    
     // Get unique domains and categories
     const uniqueDomains = [...new Set(heatmapData.map(d => d.domain))];
     const uniqueCategories = [...new Set(heatmapData.map(d => d.category))];
     
+    // Calculate responsive cell sizes
+    const labelWidth = 150;
+    const headerHeight = 100;
+    const padding = 10;
+    
+    // Get container width (or use a reasonable default)
+    const containerWidth = canvas.parentElement?.clientWidth || 1000;
+    const availableWidth = containerWidth - labelWidth - (padding * 2);
+    
+    // Calculate cell dimensions to fit container
+    const maxCellWidth = 120;
+    const minCellWidth = 60;
+    const calculatedCellWidth = Math.max(minCellWidth, Math.min(maxCellWidth, availableWidth / uniqueDomains.length));
+    
+    const maxCellHeight = 50;
+    const minCellHeight = 35;
+    const calculatedCellHeight = Math.max(minCellHeight, Math.min(maxCellHeight, 600 / uniqueCategories.length));
+    
+    const cellWidth = calculatedCellWidth;
+    const cellHeight = calculatedCellHeight;
+    
     canvas.width = labelWidth + (uniqueDomains.length * cellWidth) + padding * 2;
     canvas.height = headerHeight + (uniqueCategories.length * cellHeight) + padding * 2;
-    
+
     // Clear canvas
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Color scale function (0-5 scale)
     const getColor = (score) => {
       if (score === null) return '#e0e0e0'; // No data
