@@ -5,7 +5,7 @@ import { userExportService } from '../services/userExportService';
 import { storageService } from '../services/storageService';
 import './AdminPanel.css';
 
-export const EnhancedAdminPanel = ({ initialTab = 'domains' }) => {
+export const EnhancedAdminPanel = ({ initialTab = 'domains', showTabs = true }) => {
   const {
     initialized,
     loading,
@@ -591,44 +591,46 @@ export const EnhancedAdminPanel = ({ initialTab = 'domains' }) => {
         </div>
       )}
 
-      <div className="admin-tabs">
-        <button
-          className={activeTab === 'domains' ? 'active' : ''}
-          onClick={() => setActiveTab('domains')}
-        >
-          Domains
-        </button>
-        <button
-          className={activeTab === 'frameworks' ? 'active' : ''}
-          onClick={() => setActiveTab('frameworks')}
-        >
-          Frameworks
-        </button>
-        <button
-          className={activeTab === 'users' ? 'active' : ''}
-          onClick={() => setActiveTab('users')}
-        >
-          Users
-        </button>
-        <button
-          className={activeTab === 'questions' ? 'active' : ''}
-          onClick={() => setActiveTab('questions')}
-        >
-          Questions
-        </button>
-        <button
-          className={activeTab === 'assignments' ? 'active' : ''}
-          onClick={() => setActiveTab('assignments')}
-        >
-          Assignments
-        </button>
-        <button
-          className={activeTab === 'data' ? 'active' : ''}
-          onClick={() => setActiveTab('data')}
-        >
-          Data Management
-        </button>
-      </div>
+      {showTabs && (
+        <div className="admin-tabs">
+          <button
+            className={activeTab === 'domains' ? 'active' : ''}
+            onClick={() => setActiveTab('domains')}
+          >
+            Domains
+          </button>
+          <button
+            className={activeTab === 'frameworks' ? 'active' : ''}
+            onClick={() => setActiveTab('frameworks')}
+          >
+            Frameworks
+          </button>
+          <button
+            className={activeTab === 'users' ? 'active' : ''}
+            onClick={() => setActiveTab('users')}
+          >
+            Users
+          </button>
+          <button
+            className={activeTab === 'questions' ? 'active' : ''}
+            onClick={() => setActiveTab('questions')}
+          >
+            Questions
+          </button>
+          <button
+            className={activeTab === 'assignments' ? 'active' : ''}
+            onClick={() => setActiveTab('assignments')}
+          >
+            Assignments
+          </button>
+          <button
+            className={activeTab === 'data' ? 'active' : ''}
+            onClick={() => setActiveTab('data')}
+          >
+            Data Management
+          </button>
+        </div>
+      )}
 
       <div className="admin-content">
         {activeTab === 'domains' && (
@@ -994,7 +996,8 @@ export const EnhancedAdminPanel = ({ initialTab = 'domains' }) => {
 };
 
 EnhancedAdminPanel.propTypes = {
-  initialTab: PropTypes.string
+  initialTab: PropTypes.string,
+  showTabs: PropTypes.bool
 };
 
 export default EnhancedAdminPanel;
