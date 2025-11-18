@@ -2,10 +2,13 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
 Given('I am on the results section', async () => {
-  const resultsTab = await global.page.locator('button:has-text("Results")');
-  if (await resultsTab.isVisible()) {
-    await resultsTab.click();
+  // Click the "View Results" button to navigate to results view
+  const viewResultsBtn = await global.page.locator('[data-testid="view-results-btn"]');
+  if (await viewResultsBtn.isVisible()) {
+    await viewResultsBtn.click();
     await global.page.waitForTimeout(1000);
+    // Wait for results view to load
+    await global.page.waitForSelector('[data-testid="results-view"]', { timeout: 5000 });
   }
 });
 

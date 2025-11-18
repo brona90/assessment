@@ -87,11 +87,13 @@ Given('my scores are calculated', async () => {
 });
 
 When('I navigate to the results section', async () => {
-  // The results/dashboard section is accessed via the "Dashboard" button
-  const dashboardTab = await global.page.locator('button:has-text("Dashboard")');
-  if (await dashboardTab.isVisible()) {
-    await dashboardTab.click();
-    await global.page.waitForTimeout(2000);
+  // Click the "View Results" button to navigate to results view
+  const viewResultsBtn = await global.page.locator('[data-testid="view-results-btn"]');
+  if (await viewResultsBtn.isVisible()) {
+    await viewResultsBtn.click();
+    await global.page.waitForTimeout(1000);
+    // Wait for results view to load
+    await global.page.waitForSelector('[data-testid="results-view"]', { timeout: 5000 });
   }
 });
 
@@ -252,16 +254,20 @@ When('I complete some questions', async () => {
 });
 
 When('I switch to the results section', async () => {
-  const resultsTab = await global.page.locator('button:has-text("Results")');
-  if (await resultsTab.isVisible()) {
-    await resultsTab.click();
+  const viewResultsBtn = await global.page.locator('[data-testid="view-results-btn"]');
+  if (await viewResultsBtn.isVisible()) {
+    await viewResultsBtn.click();
+    await global.page.waitForTimeout(1000);
+    await global.page.waitForSelector('[data-testid="results-view"]', { timeout: 5000 });
   }
 });
 
 When('I switch back to assessment', async () => {
-  const assessmentTab = await global.page.locator('button:has-text("Assessment")');
-  if (await assessmentTab.isVisible()) {
-    await assessmentTab.click();
+  const backToAssessmentBtn = await global.page.locator('[data-testid="back-to-assessment-btn"]');
+  if (await backToAssessmentBtn.isVisible()) {
+    await backToAssessmentBtn.click();
+    await global.page.waitForTimeout(1000);
+    await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
   }
 });
 
@@ -404,11 +410,15 @@ Then('domain scores should be displayed', async () => {
 });
 
 Then('I should see current scores', async () => {
-  // Just verify we're on the dashboard with charts
+  // Verify we're on the results view with scores
   await global.page.waitForTimeout(1000);
-  const dashboard = await global.page.locator('text=/Dashboard|Assessment Dashboard/i');
-  const isVisible = await dashboard.isVisible().catch(() => false);
+  const resultsView = await global.page.locator('[data-testid="results-view"]');
+  const isVisible = await resultsView.isVisible().catch(() => false);
   expect(isVisible).toBe(true);
+  
+  // Verify score display is present
+  const scoreDisplay = await global.page.locator('.score-value, .overall-score-card');
+  expect(await scoreDisplay.count()).toBeGreaterThan(0);
 });
 
 Then('my answers should be preserved', async () => {
