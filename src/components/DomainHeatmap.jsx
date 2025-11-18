@@ -33,15 +33,18 @@ export const DomainHeatmap = ({ domains, answers }) => {
             }
           });
           
-          const avgScore = answeredCount > 0 ? totalScore / answeredCount : null;
-          
-          heatmapData.push({
-            domain: domain.title,
-            category: category.title,
-            score: avgScore,
-            answered: answeredCount,
-            total: questions.length
-          });
+          // Only include categories with at least one answer
+          if (answeredCount > 0) {
+            const avgScore = totalScore / answeredCount;
+            
+            heatmapData.push({
+              domain: domain.title,
+              category: category.title,
+              score: avgScore,
+              answered: answeredCount,
+              total: questions.length
+            });
+          }
         }
       });
     });
@@ -91,8 +94,6 @@ export const DomainHeatmap = ({ domains, answers }) => {
 
     // Color scale function (0-5 scale)
     const getColor = (score) => {
-      if (score === null) return '#e0e0e0'; // No data
-      
       // Color gradient from red (0) to yellow (2.5) to green (5)
       if (score <= 2.5) {
         // Red to Yellow
@@ -162,30 +163,23 @@ export const DomainHeatmap = ({ domains, answers }) => {
           ctx.strokeRect(x, y, cellWidth - 2, cellHeight - 2);
           
           // Draw score text
-          if (dataPoint.score !== null) {
-            ctx.fillStyle = '#000';
-            ctx.textAlign = 'center';
-            ctx.font = 'bold 14px sans-serif';
-            ctx.fillText(
-              dataPoint.score.toFixed(1),
-              x + cellWidth / 2,
-              y + cellHeight / 2 - 2
-            );
-            
-            // Draw completion text
-            ctx.font = '10px sans-serif';
-            ctx.fillStyle = '#333';
-            ctx.fillText(
-              `${dataPoint.answered}/${dataPoint.total}`,
-              x + cellWidth / 2,
-              y + cellHeight / 2 + 12
-            );
-          } else {
-            ctx.fillStyle = '#999';
-            ctx.textAlign = 'center';
-            ctx.font = '11px sans-serif';
-            ctx.fillText('N/A', x + cellWidth / 2, y + cellHeight / 2 + 4);
-          }
+          ctx.fillStyle = '#000';
+          ctx.textAlign = 'center';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.fillText(
+            dataPoint.score.toFixed(1),
+            x + cellWidth / 2,
+            y + cellHeight / 2 - 2
+          );
+          
+          // Draw completion text
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = '#333';
+          ctx.fillText(
+            `${dataPoint.answered}/${dataPoint.total}`,
+            x + cellWidth / 2,
+            y + cellHeight / 2 + 12
+          );
         }
       });
     });

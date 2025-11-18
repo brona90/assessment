@@ -266,13 +266,15 @@ export const pdfService = {
   async addChartsToPage(pdf) {
     try {
       // Try to capture charts from the DOM if they exist
+      const heatmapContainer = document.querySelector('[data-testid="domain-heatmap"]');
       const radarChartContainer = document.querySelector('[data-testid="radar-chart"]');
       const barChartContainer = document.querySelector('[data-testid="bar-chart"]');
       
+      const heatmapCanvas = heatmapContainer?.querySelector('canvas');
       const radarChart = radarChartContainer?.querySelector('canvas');
       const barChart = barChartContainer?.querySelector('canvas');
 
-      if (radarChart || barChart) {
+      if (heatmapCanvas || radarChart || barChart) {
         pdf.addPage();
         let yPos = 20;
         
@@ -281,7 +283,46 @@ export const pdfService = {
         pdf.text('Visual Analysis', 20, yPos);
         yPos += 15;
 
+        // Add heatmap first if available
+        if (heatmapCanvas) {
+          pdf.setFontSize(14);
+          pdf.setTextColor(0, 0, 0);
+          pdf.text('Assessment Heatmap', 20, yPos);
+          yPos += 8;
+
+          const heatmapCanvasElement = await html2canvas(heatmapCanvas, {
+            scale: 2,
+            backgroundColor: '#ffffff'
+          });
+          
+          const heatmapImgData = heatmapCanvasElement.toDataURL('image/png');
+          const aspectRatio = heatmapCanvasElement.width / heatmapCanvasElement.height;
+          const imgWidth = 170;
+          const imgHeight = imgWidth / aspectRatio;
+          
+          // Check if we need a new page for the heatmap
+          if (yPos + imgHeight > 270) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          
+          pdf.addImage(heatmapImgData, 'PNG', 20, yPos, imgWidth, imgHeight);
+          yPos += imgHeight + 15;
+        }
+
+        // Add radar chart
         if (radarChart) {
+          // Check if we need a new page
+          if (yPos > 200) {
+            pdf.addPage();
+            yPos = 20;
+          }
+
+          pdf.setFontSize(14);
+          pdf.setTextColor(0, 0, 0);
+          pdf.text('Domain Radar Chart', 20, yPos);
+          yPos += 8;
+
           const radarCanvas = await html2canvas(radarChart, {
             scale: 2,
             backgroundColor: '#ffffff'
@@ -293,10 +334,22 @@ export const pdfService = {
           const imgHeight = imgWidth / aspectRatio;
           
           pdf.addImage(radarImgData, 'PNG', 20, yPos, imgWidth, imgHeight);
-          yPos += imgHeight + 10;
+          yPos += imgHeight + 15;
         }
 
-        if (barChart && yPos < 200) {
+        // Add bar chart
+        if (barChart) {
+          // Check if we need a new page
+          if (yPos > 200) {
+            pdf.addPage();
+            yPos = 20;
+          }
+
+          pdf.setFontSize(14);
+          pdf.setTextColor(0, 0, 0);
+          pdf.text('Domain Bar Chart', 20, yPos);
+          yPos += 8;
+
           const barCanvas = await html2canvas(barChart, {
             scale: 2,
             backgroundColor: '#ffffff'
@@ -306,11 +359,6 @@ export const pdfService = {
           const aspectRatio = barCanvas.width / barCanvas.height;
           const imgWidth = 170;
           const imgHeight = imgWidth / aspectRatio;
-          
-          if (yPos + imgHeight > 270) {
-            pdf.addPage();
-            yPos = 20;
-          }
           
           pdf.addImage(barImgData, 'PNG', 20, yPos, imgWidth, imgHeight);
         }
