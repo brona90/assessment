@@ -30,16 +30,16 @@ Given('I have completed an assessment', async () => {
   try {
     const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
     if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
-      console.log('User selection screen detected, selecting admin for assessment...');
-      // Select admin user to see dashboard with charts
-      const adminCard = await global.page.locator('[data-testid="user-card-admin"]');
-      if (await adminCard.isVisible()) {
-        await adminCard.click();
+      console.log('User selection screen detected, selecting a user...');
+      // Select the first non-admin user (user1)
+      const userCard = await global.page.locator('[data-testid="user-card-user1"]');
+      if (await userCard.isVisible()) {
+        await userCard.click();
         await global.page.waitForTimeout(2000);
-        console.log('Admin selected successfully');
+        console.log('User selected successfully');
         
-        // Wait for admin view to load
-        await global.page.waitForSelector('[data-testid="full-screen-admin-view"]', { timeout: 5000 });
+        // Wait for user view to load
+        await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
         await global.page.waitForTimeout(1000);
       }
     }
@@ -99,14 +99,14 @@ Given('I have answers for all questions', async () => {
   try {
     const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
     if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
-      console.log('User selection screen detected, selecting admin...');
-      const adminCard = await global.page.locator('[data-testid="user-card-admin"]');
-      if (await adminCard.isVisible()) {
-        await adminCard.click();
+      console.log('User selection screen detected, selecting a user...');
+      const userCard = await global.page.locator('[data-testid="user-card-user1"]');
+      if (await userCard.isVisible()) {
+        await userCard.click();
         await global.page.waitForTimeout(2000);
         
-        // Wait for admin view to load
-        await global.page.waitForSelector('[data-testid="full-screen-admin-view"]', { timeout: 5000 });
+        // Wait for user view to load
+        await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
         await global.page.waitForTimeout(1000);
       }
     }
