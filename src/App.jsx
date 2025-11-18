@@ -35,7 +35,16 @@ function App() {
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const [userQuestions, setUserQuestions] = useState([]);
-  const [currentView, setCurrentView] = useState('assessment'); // 'assessment' or 'results'
+  
+  // Initialize view from URL hash
+  const getViewFromHash = () => {
+    const hash = window.location.hash.slice(1); // Remove '#'
+    if (hash === 'results') return 'results';
+    if (hash === 'admin') return 'admin';
+    return 'assessment';
+  };
+  
+  const [currentView, setCurrentView] = useState(getViewFromHash());
   const { frameworks } = useCompliance(answers);
   const { 
     getQuestionsForUser, 
@@ -58,6 +67,25 @@ function App() {
     
     loadUserQuestions();
   }, [currentUser, initialized, getQuestionsForUser]);
+
+  // Sync view with URL hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newView = getViewFromHash();
+      setCurrentView(newView);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Update URL hash when view changes
+  useEffect(() => {
+    const hash = currentView === 'assessment' ? '' : currentView;
+    if (window.location.hash.slice(1) !== hash) {
+      window.location.hash = hash;
+    }
+  }, [currentView]);
 
   const handleOpenEvidence = (questionId) => {
     setCurrentQuestionId(questionId);

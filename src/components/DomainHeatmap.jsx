@@ -66,8 +66,8 @@ export const DomainHeatmap = ({ domains, answers }) => {
     
     // Calculate responsive cell sizes
     const labelWidth = 200; // Increased for domain names on left
-    const headerHeight = 120; // Increased for rotated category names
-    const padding = 10;
+    const headerHeight = 150; // Increased for rotated category names to prevent cutoff
+    const padding = 15; // Increased padding for better spacing
     
     // Get container width (or use a reasonable default)
     const containerWidth = canvas.parentElement?.clientWidth || 1000;
@@ -114,18 +114,34 @@ export const DomainHeatmap = ({ domains, answers }) => {
     
     // Draw column headers (categories on X-axis)
     ctx.save();
-    ctx.font = 'bold 11px sans-serif';
+    ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'left';
+    
+    // Calculate max text length that fits
+    const maxTextWidth = cellWidth * 2; // Allow text to extend beyond cell
+    
     uniqueCategories.forEach((category, i) => {
       const x = labelWidth + (i * cellWidth) + padding;
-      const y = headerHeight - 10; // Position near bottom of header area
+      const y = headerHeight - 15; // Position with more space from top
       
       ctx.save();
       ctx.translate(x + cellWidth / 2, y);
       ctx.rotate(-Math.PI / 4);
       ctx.fillStyle = '#333';
-      // Truncate long category names
-      const displayText = category.length > 30 ? category.substring(0, 27) + '...' : category;
+      
+      // Smart truncation based on actual text width
+      let displayText = category;
+      let textWidth = ctx.measureText(displayText).width;
+      
+      if (textWidth > maxTextWidth) {
+        // Truncate to fit
+        while (textWidth > maxTextWidth && displayText.length > 3) {
+          displayText = displayText.substring(0, displayText.length - 1);
+          textWidth = ctx.measureText(displayText + '...').width;
+        }
+        displayText = displayText + '...';
+      }
+      
       ctx.fillText(displayText, 0, 0);
       ctx.restore();
     });
@@ -136,11 +152,23 @@ export const DomainHeatmap = ({ domains, answers }) => {
     uniqueDomains.forEach((domain, rowIndex) => {
       const y = headerHeight + (rowIndex * cellHeight) + padding;
       
-      // Draw domain label
+      // Draw domain label with smart truncation
       ctx.fillStyle = '#333';
       ctx.textAlign = 'right';
       ctx.font = 'bold 11px sans-serif';
-      const displayDomain = domain.length > 28 ? domain.substring(0, 25) + '...' : domain;
+      
+      const maxLabelWidth = labelWidth - 10;
+      let displayDomain = domain;
+      let textWidth = ctx.measureText(displayDomain).width;
+      
+      if (textWidth > maxLabelWidth) {
+        while (textWidth > maxLabelWidth && displayDomain.length > 3) {
+          displayDomain = displayDomain.substring(0, displayDomain.length - 1);
+          textWidth = ctx.measureText(displayDomain + '...').width;
+        }
+        displayDomain = displayDomain + '...';
+      }
+      
       ctx.fillText(
         displayDomain,
         labelWidth - 5,

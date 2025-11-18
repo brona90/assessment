@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
+import { DomainHeatmap } from './DomainHeatmap';
 import './ResultsView.css';
 
 export const ResultsView = ({ 
@@ -12,7 +13,7 @@ export const ResultsView = ({
   onBackToAssessment,
   onLogout
 }) => {
-  const [activeChart, setActiveChart] = useState('radar');
+  const [activeChart, setActiveChart] = useState('heatmap');
 
   // Calculate domain scores
   const domainScores = Object.keys(domains).reduce((acc, domainId) => {
@@ -132,6 +133,13 @@ export const ResultsView = ({
         <div className="chart-section">
           <div className="chart-tabs">
             <button
+              className={`chart-tab ${activeChart === 'heatmap' ? 'active' : ''}`}
+              onClick={() => setActiveChart('heatmap')}
+              data-testid="heatmap-chart-tab"
+            >
+              🔥 Heatmap
+            </button>
+            <button
               className={`chart-tab ${activeChart === 'radar' ? 'active' : ''}`}
               onClick={() => setActiveChart('radar')}
               data-testid="radar-chart-tab"
@@ -148,7 +156,9 @@ export const ResultsView = ({
           </div>
 
           <div className="chart-display">
-            {activeChart === 'radar' ? (
+            {activeChart === 'heatmap' ? (
+              <DomainHeatmap domains={domains} answers={answers} />
+            ) : activeChart === 'radar' ? (
               <DomainRadarChart domains={domains} answers={answers} />
             ) : (
               <DomainBarChart domains={domains} answers={answers} />
@@ -190,5 +200,3 @@ ResultsView.propTypes = {
   onBackToAssessment: PropTypes.func.isRequired,
   onLogout: PropTypes.func.isRequired
 };
-
-export default ResultsView;
