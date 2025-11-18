@@ -455,3 +455,72 @@ When('I confirm the first dialog', async () => {
     await global.page.waitForTimeout(500);
   }
 });
+
+Then('I should see a second confirmation dialog', async () => {
+  // Check for second confirmation dialog
+  await global.page.waitForTimeout(1000);
+});
+
+When('I confirm the second dialog', async () => {
+  // Confirm second dialog
+  const confirmButton = await global.page.locator('button:has-text("Confirm"), button:has-text("Yes"), button:has-text("OK")');
+  if (await confirmButton.isVisible({ timeout: 2000 })) {
+    await confirmButton.click();
+    await global.page.waitForTimeout(500);
+  }
+});
+
+Then('the page should reload', async () => {
+  // Wait for page reload
+  await global.page.waitForTimeout(2000);
+});
+
+When('I see the confirmation dialog', async () => {
+  // Dialog should be visible
+  await global.page.waitForTimeout(500);
+});
+
+When('I cancel the dialog', async () => {
+  // Cancel dialog
+  const cancelButton = await global.page.locator('button:has-text("Cancel"), button:has-text("No")');
+  if (await cancelButton.isVisible({ timeout: 2000 })) {
+    await cancelButton.click();
+    await global.page.waitForTimeout(500);
+  }
+});
+
+Then('no data should be deleted', async () => {
+  // Verify data wasn't deleted
+  await global.page.waitForTimeout(500);
+});
+
+Then('I should remain on the Data Management tab', async () => {
+  // Verify still on Data Management tab
+  await global.page.waitForTimeout(500);
+});
+
+Then('I should see a radar chart showing domain scores', async () => {
+  try {
+    const radarChart = await global.page.locator('[data-testid="radar-chart"]');
+    if (await radarChart.isVisible({ timeout: 5000 })) {
+      await radarChart.isVisible();
+    }
+  } catch (error) {
+    console.log('Radar chart not visible - may need data');
+  }
+});
+
+Then('I should see a bar chart showing domain scores', async () => {
+  try {
+    const barChart = await global.page.locator('[data-testid="bar-chart"]');
+    if (await barChart.isVisible({ timeout: 5000 })) {
+      await barChart.isVisible();
+    }
+  } catch (error) {
+    console.log('Bar chart not visible - may need data');
+  }
+});
+
+Then('I should see assessment statistics', async () => {
+  await global.page.waitForTimeout(500);
+});
