@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ComplianceDashboard } from './ComplianceDashboard';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
+import { DomainHeatmap } from './DomainHeatmap';
 import { useDataStore } from '../hooks/useDataStore';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
@@ -1046,6 +1047,10 @@ export const FullScreenAdminView = ({
           >
             <div className="dashboard-section">
               <h2>Assessment Overview</h2>
+               
+               {/* Heatmap */}
+               <DomainHeatmap domains={domains} answers={answers} />
+               
               <div className="charts-grid">
                 <div className="chart-container">
                   <h3>Domain Scores (Radar)</h3>

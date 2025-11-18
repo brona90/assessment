@@ -11,6 +11,10 @@ vi.mock('./DomainBarChart', () => ({
   DomainBarChart: () => <div data-testid="domain-bar-chart">Bar Chart</div>
 }));
 
+vi.mock('./DomainHeatmap', () => ({
+  DomainHeatmap: () => <div data-testid="domain-heatmap">Heatmap</div>
+}));
+
 vi.mock('./ComplianceDashboard', () => ({
   ComplianceDashboard: () => <div data-testid="compliance-dashboard">Compliance Dashboard</div>
 }));
