@@ -42,7 +42,12 @@ export const UserView = ({
   }, {});
 
   const domains = Object.values(groupedQuestions);
-  const [activeTab, setActiveTab] = useState(domains[0]?.id || null);
+  const [activeTab, setActiveTab] = useState(() => domains[0]?.id || null);
+  
+  // Update activeTab when domains change and activeTab is null
+  if (domains.length > 0 && !activeTab) {
+    setActiveTab(domains[0].id);
+  }
 
   const activeDomain = groupedQuestions[activeTab];
 
