@@ -60,33 +60,33 @@ export const DomainHeatmap = ({ domains, answers }) => {
       return;
     }
 
-    // Get unique domains and categories
-    const uniqueDomains = [...new Set(heatmapData.map(d => d.domain))];
+    // Get unique domains and categories (SWAPPED: categories on X-axis, domains on Y-axis)
     const uniqueCategories = [...new Set(heatmapData.map(d => d.category))];
+    const uniqueDomains = [...new Set(heatmapData.map(d => d.domain))];
     
     // Calculate responsive cell sizes
-    const labelWidth = 150;
-    const headerHeight = 100;
+    const labelWidth = 200; // Increased for domain names on left
+    const headerHeight = 120; // Increased for rotated category names
     const padding = 10;
     
     // Get container width (or use a reasonable default)
     const containerWidth = canvas.parentElement?.clientWidth || 1000;
     const availableWidth = containerWidth - labelWidth - (padding * 2);
     
-    // Calculate cell dimensions to fit container
-    const maxCellWidth = 120;
-    const minCellWidth = 60;
-    const calculatedCellWidth = Math.max(minCellWidth, Math.min(maxCellWidth, availableWidth / uniqueDomains.length));
+    // Calculate cell dimensions to fit container (categories on X-axis now)
+    const maxCellWidth = 100;
+    const minCellWidth = 50;
+    const calculatedCellWidth = Math.max(minCellWidth, Math.min(maxCellWidth, availableWidth / uniqueCategories.length));
     
-    const maxCellHeight = 50;
-    const minCellHeight = 35;
-    const calculatedCellHeight = Math.max(minCellHeight, Math.min(maxCellHeight, 600 / uniqueCategories.length));
+    const maxCellHeight = 45;
+    const minCellHeight = 30;
+    const calculatedCellHeight = Math.max(minCellHeight, Math.min(maxCellHeight, 500 / uniqueDomains.length));
     
     const cellWidth = calculatedCellWidth;
     const cellHeight = calculatedCellHeight;
     
-    canvas.width = labelWidth + (uniqueDomains.length * cellWidth) + padding * 2;
-    canvas.height = headerHeight + (uniqueCategories.length * cellHeight) + padding * 2;
+    canvas.width = labelWidth + (uniqueCategories.length * cellWidth) + padding * 2;
+    canvas.height = headerHeight + (uniqueDomains.length * cellHeight) + padding * 2;
 
     // Clear canvas
     ctx.fillStyle = '#ffffff';
@@ -112,11 +112,11 @@ export const DomainHeatmap = ({ domains, answers }) => {
       }
     };
     
-    // Draw column headers (domains)
+    // Draw column headers (categories on X-axis)
     ctx.save();
-    ctx.font = 'bold 12px sans-serif';
+    ctx.font = 'bold 11px sans-serif';
     ctx.textAlign = 'left';
-    uniqueDomains.forEach((domain, i) => {
+    uniqueCategories.forEach((category, i) => {
       const x = labelWidth + (i * cellWidth) + padding;
       const y = padding + 20;
       
@@ -124,27 +124,32 @@ export const DomainHeatmap = ({ domains, answers }) => {
       ctx.translate(x + cellWidth / 2, y);
       ctx.rotate(-Math.PI / 4);
       ctx.fillStyle = '#333';
-      ctx.fillText(domain, 0, 0);
+      // Truncate long category names
+      const displayText = category.length > 25 ? category.substring(0, 22) + '...' : category;
+      ctx.fillText(displayText, 0, 0);
       ctx.restore();
     });
     ctx.restore();
     
-    // Draw row headers (categories) and cells
+    // Draw row headers (domains on Y-axis) and cells
     ctx.font = '11px sans-serif';
-    uniqueCategories.forEach((category, rowIndex) => {
+    uniqueDomains.forEach((domain, rowIndex) => {
       const y = headerHeight + (rowIndex * cellHeight) + padding;
       
-      // Draw category label
+      // Draw domain label
       ctx.fillStyle = '#333';
       ctx.textAlign = 'right';
+      ctx.font = 'bold 11px sans-serif';
+      const displayDomain = domain.length > 28 ? domain.substring(0, 25) + '...' : domain;
       ctx.fillText(
-        category.length > 20 ? category.substring(0, 17) + '...' : category,
+        displayDomain,
         labelWidth - 5,
         y + cellHeight / 2 + 4
       );
       
-      // Draw cells for this category
-      uniqueDomains.forEach((domain, colIndex) => {
+      // Draw cells for this domain
+      ctx.font = '11px sans-serif';
+      uniqueCategories.forEach((category, colIndex) => {
         const x = labelWidth + (colIndex * cellWidth) + padding;
         
         // Find data for this domain-category combination
@@ -165,7 +170,7 @@ export const DomainHeatmap = ({ domains, answers }) => {
           // Draw score text
           ctx.fillStyle = '#000';
           ctx.textAlign = 'center';
-          ctx.font = 'bold 14px sans-serif';
+          ctx.font = 'bold 13px sans-serif';
           ctx.fillText(
             dataPoint.score.toFixed(1),
             x + cellWidth / 2,
@@ -173,12 +178,12 @@ export const DomainHeatmap = ({ domains, answers }) => {
           );
           
           // Draw completion text
-          ctx.font = '10px sans-serif';
+          ctx.font = '9px sans-serif';
           ctx.fillStyle = '#333';
           ctx.fillText(
             `${dataPoint.answered}/${dataPoint.total}`,
             x + cellWidth / 2,
-            y + cellHeight / 2 + 12
+            y + cellHeight / 2 + 11
           );
         }
       });
