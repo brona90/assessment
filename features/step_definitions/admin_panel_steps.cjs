@@ -2,9 +2,25 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
 Given('I am logged in as an admin user', async () => {
-  // The default user in the system should be admin
-  // Verify we're on the page
-  await global.page.waitForTimeout(500);
+  // Select admin user if user selection screen is visible
+  try {
+    const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
+    if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
+      console.log('User selection screen detected, selecting admin...');
+      const adminCard = await global.page.locator('[data-testid="user-card-admin"]');
+      if (await adminCard.isVisible()) {
+        await adminCard.click();
+        await global.page.waitForTimeout(2000);
+        console.log('Admin selected successfully');
+        
+        // Wait for admin view to load
+        await global.page.waitForSelector('[data-testid="full-screen-admin-view"]', { timeout: 5000 });
+        await global.page.waitForTimeout(1000);
+      }
+    }
+  } catch (error) {
+    console.log('No user selection screen or already logged in as admin');
+  }
 });
 
 When('I click on the Admin navigation button', async () => {
