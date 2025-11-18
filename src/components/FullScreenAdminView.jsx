@@ -5,6 +5,7 @@ import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
 import { useDataStore } from '../hooks/useDataStore';
+import { useRouter } from '../hooks/useRouter';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -19,7 +20,14 @@ export const FullScreenAdminView = ({
   onExportData,
   onClearAllData
 }) => {
-  const [activeTab, setActiveTab] = useState('domains');
+  // Use router for tab navigation
+  const { currentSubRoute, navigate } = useRouter();
+  const activeTab = currentSubRoute || 'domains';
+  
+  const setActiveTab = (tab) => {
+    navigate('admin', tab);
+  };
+  
   const [isImporting, setIsImporting] = useState(false);
 
   // Get dataStore hooks

@@ -3,35 +3,57 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * Custom hook for managing browser history and navigation
  * Supports back/forward buttons and page reload
+ * Handles both main routes (assessment, results) and admin sub-routes
  */
 export const useRouter = () => {
   // Parse the current route from URL hash
   const parseRoute = () => {
     const hash = window.location.hash.slice(1); // Remove '#'
-    if (hash === 'results') return 'results';
-    if (hash === 'admin') return 'admin';
-    return 'assessment';
+    
+    // Check for admin sub-routes (e.g., admin/domains, admin/frameworks)
+    if (hash.startsWith('admin/')) {
+      const parts = hash.split('/');
+      return {
+        main: 'admin',
+        sub: parts[1] || 'domains' // Default to domains if no sub-route
+      };
+    }
+    
+    // Handle main routes
+    if (hash === 'results') return { main: 'results', sub: null };
+    if (hash === 'admin') return { main: 'admin', sub: 'domains' };
+    return { main: 'assessment', sub: null };
   };
 
-  const [currentRoute, setCurrentRoute] = useState(parseRoute());
+  const [route, setRoute] = useState(parseRoute());
 
   // Navigate to a new route
-  const navigate = useCallback((route) => {
-    const hash = route === 'assessment' ? '' : route;
+  const navigate = useCallback((mainRoute, subRoute = null) => {
+    let hash;
     
-    // Update the URL hash, which will trigger the popstate event
+    if (mainRoute === 'admin' && subRoute) {
+      hash = `admin/${subRoute}`;
+    } else if (mainRoute === 'admin') {
+      hash = 'admin/domains';
+    } else if (mainRoute === 'assessment') {
+      hash = '';
+    } else {
+      hash = mainRoute;
+    }
+    
+    // Update the URL hash, which will trigger the hashchange event
     if (window.location.hash.slice(1) !== hash) {
       window.location.hash = hash;
     }
     
-    setCurrentRoute(route);
+    setRoute({ main: mainRoute, sub: subRoute });
   }, []);
 
   // Handle browser back/forward buttons
   useEffect(() => {
     const handlePopState = () => {
       const newRoute = parseRoute();
-      setCurrentRoute(newRoute);
+      setRoute(newRoute);
     };
 
     // Listen for hash changes (back/forward buttons)
@@ -42,19 +64,25 @@ export const useRouter = () => {
 
     // Initial route setup
     const initialRoute = parseRoute();
-    if (initialRoute !== currentRoute) {
-      setCurrentRoute(initialRoute);
+    if (initialRoute.main !== route.main || initialRoute.sub !== route.sub) {
+      setRoute(initialRoute);
     }
 
     return () => {
       window.removeEventListener('hashchange', handlePopState);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [currentRoute]);
+  }, [route]);
 
   return {
-    currentRoute,
+    currentRoute: route.main,
+    currentSubRoute: route.sub,
     navigate,
-    isRoute: (route) => currentRoute === route,
+    isRoute: (mainRoute, subRoute = null) => {
+      if (subRoute) {
+        return route.main === mainRoute && route.sub === subRoute;
+      }
+      return route.main === mainRoute;
+    },
   };
 };
