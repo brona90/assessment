@@ -674,16 +674,22 @@ class DataStore {
    * Download data as a JSON file
    */
   downloadData(filename = 'assessment-data.json') {
-    const dataStr = this.exportData();
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    
-    URL.revokeObjectURL(url);
+    try {
+      const dataStr = this.exportData();
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (error) {
+      console.error('Error downloading data:', error);
+      throw error;
+    }
   }
 
   /**

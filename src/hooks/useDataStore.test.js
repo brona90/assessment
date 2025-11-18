@@ -288,14 +288,15 @@ describe('useDataStore', () => {
   describe('export/import operations', () => {
     it('should export data', async () => {
       dataStore.initialized = true;
-      dataStore.exportData.mockReturnValue('{"data": "test"}');
+      dataStore.downloadData.mockReturnValue(true);
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
       const exported = result.current.exportData();
-      expect(exported).toBe('{"data": "test"}');
+      expect(exported).toEqual({ success: true });
+      expect(dataStore.downloadData).toHaveBeenCalled();
     });
 
     it('should import data', async () => {

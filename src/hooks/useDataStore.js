@@ -216,7 +216,13 @@ export const useDataStore = () => {
 
   // Export/Import operations
   const exportData = useCallback(() => {
-    return dataStore.exportData();
+    try {
+      dataStore.downloadData();
+      return { success: true };
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      return { success: false, error: error.message };
+    }
   }, []);
 
   const importData = useCallback((jsonData) => {

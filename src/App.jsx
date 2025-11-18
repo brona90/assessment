@@ -131,7 +131,20 @@ function App() {
 
   const handleImportData = async (file) => {
     try {
-      await importData(file);
+      // Read the file content
+      const text = await file.text();
+      const jsonData = JSON.parse(text);
+      
+      // Import the data
+      const result = importData(jsonData);
+      
+      if (result.success) {
+        alert('Data imported successfully!');
+        // Reload the page to reflect changes
+        window.location.reload();
+      } else {
+        throw new Error(result.error || 'Import failed');
+      }
     } catch (error) {
       console.error('Error importing data:', error);
       alert(`Failed to import data: ${error.message}`);
@@ -140,7 +153,13 @@ function App() {
 
   const handleExportData = () => {
     try {
-      exportData();
+      const result = exportData();
+      if (result.success) {
+        // Download will be triggered automatically
+        // No need for alert as the download provides feedback
+      } else {
+        throw new Error(result.error || 'Export failed');
+      }
     } catch (error) {
       console.error('Error exporting data:', error);
       alert('Failed to export data. Please try again.');
