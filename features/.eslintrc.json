@@ -1,0 +1,12 @@
+{
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "globals": {
+    "global": "readonly"
+  },
+  "rules": {
+    "no-undef": "off"
+  }
+}
