@@ -40,6 +40,11 @@ export const EnhancedAdminPanel = ({ initialTab = 'domains', showTabs = true }) 
   } = useDataStore();
 
   const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sync activeTab with initialTab prop when it changes
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
   const [domains, setDomains] = useState({});
   const [frameworks, setFrameworks] = useState([]);
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState([]);
