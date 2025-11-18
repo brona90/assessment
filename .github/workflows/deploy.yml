@@ -21,7 +21,13 @@ jobs:
         run: npm ci
 
       - name: Build React app
-        run: npm run build
+        run: npm run build 
+
+      - name: Print working Dir
+        run: pwd
+
+      - name: tree directory contents
+        run: tree .
       
       # Use JamesIves/github-pages-deploy-action@v4
       - name: Deploy to GitHub Pages
