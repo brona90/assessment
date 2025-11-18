@@ -390,3 +390,13 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Hide nested admin tabs when rendered inside FullScreenAdminView */
+.hide-nested-tabs .admin-tabs {
+  display: none !important;
+}
+
+/* Adjust padding for content without tabs */
+.hide-nested-tabs .admin-content {
+  padding-top: 0;
+}

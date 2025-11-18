@@ -163,7 +163,9 @@ export const FullScreenAdminView = ({
             id={`${activeTab}-content`}
             aria-labelledby={`${activeTab}-tab`}
           >
-            <EnhancedAdminPanel initialTab={activeTab} showTabs={false} />
+            <div className="hide-nested-tabs">
+                <EnhancedAdminPanel initialTab={activeTab} showTabs={false} />
+              </div>
           </div>
         )}
 
