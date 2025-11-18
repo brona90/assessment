@@ -583,16 +583,38 @@ class DataStore {
   // ==================== EXPORT/IMPORT OPERATIONS ====================
 
   /**
-   * Export all data as JSON
+   * Export all data as JSON (including answers and evidence from storage)
    */
-  exportData() {
-    return JSON.stringify(this.data, null, 2);
+  async exportData() {
+    try {
+      // Import storageService dynamically to avoid circular dependencies
+      const { storageService } = await import('./storageService');
+      
+      // Load answers and evidence from storage
+      const [answers, evidence] = await Promise.all([
+        storageService.loadAssessment(),
+        storageService.loadAllEvidence()
+      ]);
+      
+      // Create export data with current config + runtime data
+      const exportData = {
+        ...this.data,
+        answers: answers || {},
+        evidence: evidence || {}
+      };
+      
+      return JSON.stringify(exportData, null, 2);
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      // Fallback to exporting just the config data
+      return JSON.stringify(this.data, null, 2);
+    }
   }
 
   /**
    * Import data from JSON
    */
-  importData(jsonData) {
+  async importData(jsonData) {
     try {
       const imported = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
       
@@ -663,6 +685,20 @@ class DataStore {
       };
       this.initialized = true;
       
+      // Save answers and evidence to storage
+      const { storageService } = await import('./storageService');
+      
+      if (imported.answers && Object.keys(imported.answers).length > 0) {
+        await storageService.saveAssessment(imported.answers);
+      }
+      
+      if (imported.evidence && Object.keys(imported.evidence).length > 0) {
+        // Save each evidence item individually
+        for (const [questionId, evidenceData] of Object.entries(imported.evidence)) {
+          await storageService.saveEvidence(questionId, evidenceData);
+        }
+      }
+      
       return true;
     } catch (error) {
       console.error('Error importing data:', error);
@@ -673,9 +709,9 @@ class DataStore {
   /**
    * Download data as a JSON file
    */
-  downloadData(filename = 'assessment-data.json') {
+  async downloadData(filename = 'assessment-data.json') {
     try {
-      const dataStr = this.exportData();
+      const dataStr = await this.exportData();
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
       

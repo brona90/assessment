@@ -151,9 +151,9 @@ function App() {
     }
   };
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
     try {
-      const result = exportData();
+      const result = await exportData();
       if (result.success) {
         // Download will be triggered automatically
         // No need for alert as the download provides feedback

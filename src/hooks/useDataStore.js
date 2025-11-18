@@ -215,9 +215,9 @@ export const useDataStore = () => {
   }, []);
 
   // Export/Import operations
-  const exportData = useCallback(() => {
+  const exportData = useCallback(async () => {
     try {
-      dataStore.downloadData();
+      await dataStore.downloadData();
       return { success: true };
     } catch (error) {
       console.error('Error exporting data:', error);
@@ -225,9 +225,9 @@ export const useDataStore = () => {
     }
   }, []);
 
-  const importData = useCallback((jsonData) => {
+  const importData = useCallback(async (jsonData) => {
     try {
-      dataStore.importData(jsonData);
+      await dataStore.importData(jsonData);
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };

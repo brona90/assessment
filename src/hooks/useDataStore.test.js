@@ -294,7 +294,7 @@ describe('useDataStore', () => {
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const exported = result.current.exportData();
+      const exported = await result.current.exportData();
       expect(exported).toEqual({ success: true });
       expect(dataStore.downloadData).toHaveBeenCalled();
     });
@@ -307,7 +307,7 @@ describe('useDataStore', () => {
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = result.current.importData('{"data": "test"}');
+      const response = await result.current.importData('{"data": "test"}');
       expect(response.success).toBe(true);
     });
 
@@ -321,7 +321,7 @@ describe('useDataStore', () => {
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = result.current.importData('invalid');
+      const response = await result.current.importData('invalid');
       expect(response.success).toBe(false);
       expect(response.error).toBe('Invalid data');
     });
@@ -870,7 +870,7 @@ describe('useDataStore', () => {
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = result.current.importData({});
+      const response = await result.current.importData({});
       expect(response.success).toBe(false);
       expect(response.error).toBe('Import failed');
     });
