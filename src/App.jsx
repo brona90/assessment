@@ -136,7 +136,7 @@ function App() {
       const jsonData = JSON.parse(text);
       
       // Import the data
-      const result = importData(jsonData);
+      const result = await importData(jsonData);
       
       if (result.success) {
         alert('Data imported successfully!');
