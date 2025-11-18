@@ -38,6 +38,7 @@ outputs/
 
 # Generated files
 *.pdf
+*.png
 
 # Conversation summaries and documentation
 summarized_conversations/
@@ -45,3 +46,9 @@ summarized_conversations/
 FIXES_SUMMARY.md
 CUCUMBER_TEST_SUMMARY.md
 !IMPLEMENTATION_SUMMARY.md
+
+# Nix
+result
+result-*
+.direnv
+.envrc.cache

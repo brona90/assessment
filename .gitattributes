@@ -1,0 +1,6 @@
+# Nix files
+*.nix linguist-language=Nix
+
+# Lock files
+flake.lock linguist-generated=true
+package-lock.json linguist-generated=true
