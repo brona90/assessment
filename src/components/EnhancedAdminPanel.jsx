@@ -591,7 +591,7 @@ export const EnhancedAdminPanel = ({ initialTab = 'domains', showTabs = true }) 
         </div>
       )}
 
-      {showTabs && (
+      {showTabs === true && (
         <div className="admin-tabs">
           <button
             className={activeTab === 'domains' ? 'active' : ''}
