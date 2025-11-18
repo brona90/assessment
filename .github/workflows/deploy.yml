@@ -18,15 +18,14 @@ jobs:
           node-version: '20' # Or your preferred Node.js version
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build React app
         run: npm run build
-
+      
+      # Use JamesIves/github-pages-deploy-action@v4
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4 # Use a reliable GitHub Pages action
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist # Directory containing your built React app
-          # Optional: specify a custom branch for deployment, e.g., 'gh-pages'
-          # publish_branch: gh-pages
+          branch: gh-pages # The branch the action deploys to (it will create this if it doesn't exist)
+          folder: dist     # The folder containing your built assets (Vite's default is 'dist')
