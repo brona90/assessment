@@ -94,22 +94,33 @@ export const FullScreenAdminView = ({
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [userAssignments, setUserAssignments] = useState({});
 
-  // Load data on mount and when activeTab changes to assignments
+  // Load data on mount
   useEffect(() => {
     setManagedDomains(getDomains());
     setManagedFrameworks(getFrameworks());
     setSelectedFrameworkIds(getSelectedFrameworks());
     setManagedUsers(getUsers());
     setManagedQuestions(getQuestions());
-    
-    // Load assignments for all users
-    const users = getUsers();
-    const assignments = {};
-    users.forEach(user => {
-      assignments[user.id] = getUserAssignments(user.id);
-    });
-    setUserAssignments(assignments);
-  }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions, getUserAssignments, activeTab]);
+  }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions]);
+
+  // Load assignments when activeTab changes to assignments or when users/questions change
+  useEffect(() => {
+    if (activeTab === 'assignments') {
+      const users = getUsers();
+      const questions = getQuestions();
+      const assignments = {};
+      
+      users.forEach(user => {
+        const questionIds = getUserAssignments(user.id);
+        // Convert question IDs to question objects
+        assignments[user.id] = questionIds
+          .map(qId => questions.find(q => q.id === qId))
+          .filter(q => q !== undefined);
+      });
+      
+      setUserAssignments(assignments);
+    }
+  }, [activeTab, getUserAssignments, getUsers, getQuestions]);
 
   // Domain handlers
   const handleAddDomain = async () => {
@@ -332,10 +343,17 @@ export const FullScreenAdminView = ({
       
       // Refresh assignments for all users
       const users = getUsers();
+      const questions = getQuestions();
       const assignments = {};
+      
       users.forEach(user => {
-        assignments[user.id] = getUserAssignments(user.id);
+        const questionIds = getUserAssignments(user.id);
+        // Convert question IDs to question objects
+        assignments[user.id] = questionIds
+          .map(qId => questions.find(q => q.id === qId))
+          .filter(q => q !== undefined);
       });
+      
       setUserAssignments(assignments);
       
       setSelectedUserId('');
@@ -832,7 +850,17 @@ export const FullScreenAdminView = ({
               <div className="form-group">
                 <select
                   value={selectedUserId}
-                  onChange={(e) => setSelectedUserId(e.target.value)}
+                  onChange={(e) => {
+                    const userId = e.target.value;
+                    setSelectedUserId(userId);
+                    // Pre-populate with current assignments
+                    if (userId) {
+                      const currentAssignments = getUserAssignments(userId);
+                      setSelectedQuestions(currentAssignments);
+                    } else {
+                      setSelectedQuestions([]);
+                    }
+                  }}
                 >
                   <option value="">Select User</option>
                   {managedUsers.map(user => (
@@ -840,8 +868,32 @@ export const FullScreenAdminView = ({
                   ))}
                 </select>
 
+                {selectedUserId && (
+                  <div className="current-assignments-info">
+                    <p>
+                      <strong>Current assignments:</strong> {userAssignments[selectedUserId]?.length || 0} questions
+                      {userAssignments[selectedUserId]?.length > 0 && ' (pre-selected below)'}
+                    </p>
+                  </div>
+                )}
+
                 <div className="question-selection">
                   <h4>Select Questions:</h4>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <button 
+                      type="button"
+                      onClick={() => setSelectedQuestions(managedQuestions.map(q => q.id))}
+                      style={{ marginRight: '0.5rem' }}
+                    >
+                      Select All
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setSelectedQuestions([])}
+                    >
+                      Clear All
+                    </button>
+                  </div>
                   {managedQuestions.map(question => (
                     <label key={question.id} className="question-checkbox">
                       <input
