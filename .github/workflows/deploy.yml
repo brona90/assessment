@@ -3,39 +3,6 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-<<<<<<< Updated upstream
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      
-      - name: Build and Deploy
-        run: npm run deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-=======
       - main # Trigger on pushes to the main branch
 
 jobs:
@@ -63,4 +30,3 @@ jobs:
           publish_dir: ./dist # Directory containing your built React app
           # Optional: specify a custom branch for deployment, e.g., 'gh-pages'
           # publish_branch: gh-pages
->>>>>>> Stashed changes
