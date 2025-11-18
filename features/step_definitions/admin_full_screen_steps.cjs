@@ -91,12 +91,7 @@ Given('I am on the {string} tab', async (tabName) => {
   }
 });
 
-When('I click on the {string} tab', async (tabName) => {
-  const tabSelector = `[data-testid="${tabName.toLowerCase().replace(/\s+/g, '-')}-tab"]`;
-  const tab = await global.page.locator(tabSelector);
-  await tab.click();
-  await global.page.waitForTimeout(500);
-});
+// Removed duplicate - already defined in user_selection_steps.cjs
 
 Then('I should see the data management interface', async () => {
   // Data management content should be visible
@@ -199,13 +194,7 @@ Then('the file should contain all application data', async () => {
   await global.page.waitForTimeout(100);
 });
 
-When('I click the {string} button', async (buttonText) => {
-  const button = await global.page.locator(`button:has-text("${buttonText}")`);
-  if (await button.isVisible()) {
-    await button.click();
-    await global.page.waitForTimeout(500);
-  }
-});
+// Removed duplicate - already defined in user_selection_steps.cjs
 
 Then('I should see a confirmation dialog', async () => {
   // Check for confirmation dialog
@@ -313,10 +302,7 @@ Then('my changes should be preserved', async () => {
   await global.page.waitForTimeout(100);
 });
 
-When('I resize the browser window', async () => {
-  await global.page.setViewportSize({ width: 800, height: 600 });
-  await global.page.waitForTimeout(500);
-});
+// Removed duplicate - already defined in visualization_steps.cjs
 
 Then('the layout should adapt responsively', async () => {
   // Check responsive layout
@@ -339,10 +325,7 @@ Then('I should see loading states', async () => {
   await global.page.waitForTimeout(100);
 });
 
-Then('I should see progress indicators', async () => {
-  // Check for progress indicators
-  await global.page.waitForTimeout(100);
-});
+// Removed duplicate - already defined in assessment_steps.cjs
 
 When('an operation fails', async () => {
   // Simulate operation failure
