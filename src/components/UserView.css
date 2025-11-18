@@ -238,3 +238,40 @@
     font-size: 1.125rem;
   }
 }
+/* Domain Tabs */
+.domain-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto;
+}
+
+.domain-tab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.domain-tab:hover {
+  color: #7c3aed;
+  background-color: #f3f4f6;
+}
+
+.domain-tab.active {
+  color: #7c3aed;
+  border-bottom-color: #7c3aed;
+  font-weight: 600;
+}
+
+.domain-tab[aria-selected="true"] {
+  color: #7c3aed;
+  border-bottom-color: #7c3aed;
+}

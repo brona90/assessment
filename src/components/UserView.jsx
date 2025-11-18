@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
@@ -22,6 +23,7 @@ export const UserView = ({
     
     if (!acc[domainId]) {
       acc[domainId] = {
+        id: domainId,
         title: question.domainTitle || domainId,
         categories: {}
       };
@@ -38,6 +40,11 @@ export const UserView = ({
     
     return acc;
   }, {});
+
+  const domains = Object.values(groupedQuestions);
+  const [activeTab, setActiveTab] = useState(domains[0]?.id || null);
+
+  const activeDomain = groupedQuestions[activeTab];
 
   return (
     <div className="user-view" data-testid="user-view">
@@ -85,31 +92,52 @@ export const UserView = ({
             </div>
           </div>
         ) : (
-          <div className="questions-container">
-            {Object.entries(groupedQuestions).map(([domainId, domain]) => (
-              <div key={domainId} className="domain-section">
-                <h3 className="domain-title">{domain.title}</h3>
-                {Object.entries(domain.categories).map(([categoryId, category]) => (
-                  <div key={categoryId} className="category-section">
-                    <h4 className="category-title">{category.title}</h4>
-                    <div className="questions-list">
-                      {category.questions.map(question => (
-                        <QuestionCard
-                          key={question.id}
-                          question={question}
-                          answer={answers[question.id]}
-                          onAnswerChange={(value) => onAnswerChange(question.id, value)}
-                          onClearAnswer={() => onClearAnswer(question.id)}
-                          onAddEvidence={() => onAddEvidence(question.id)}
-                          hasEvidence={!!evidence[question.id]}
-                        />
-                      ))}
-                    </div>
-                  </div>
+          <>
+            {/* Domain Tabs */}
+            {domains.length > 1 && (
+              <div className="domain-tabs" role="tablist">
+                {domains.map((domain) => (
+                  <button
+                    key={domain.id}
+                    role="tab"
+                    aria-selected={activeTab === domain.id}
+                    className={`domain-tab ${activeTab === domain.id ? 'active' : ''}`}
+                    onClick={() => setActiveTab(domain.id)}
+                    data-testid={`domain-tab-${domain.id}`}
+                  >
+                    {domain.title}
+                  </button>
                 ))}
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Questions Container */}
+            <div className="questions-container">
+              {activeDomain && (
+                <div key={activeTab} className="domain-section">
+                  {domains.length === 1 && <h3 className="domain-title">{activeDomain.title}</h3>}
+                  {Object.entries(activeDomain.categories).map(([categoryId, category]) => (
+                    <div key={categoryId} className="category-section">
+                      <h4 className="category-title">{category.title}</h4>
+                      <div className="questions-list">
+                        {category.questions.map(question => (
+                          <QuestionCard
+                            key={question.id}
+                            question={question}
+                            answer={answers[question.id]}
+                            onAnswerChange={(value) => onAnswerChange(question.id, value)}
+                            onClearAnswer={() => onClearAnswer(question.id)}
+                            onAddEvidence={() => onAddEvidence(question.id)}
+                            hasEvidence={!!evidence[question.id]}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </main>
     </div>
