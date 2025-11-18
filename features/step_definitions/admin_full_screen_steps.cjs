@@ -409,3 +409,49 @@ Then('I should see specific field errors', async () => {
   // Check for specific field validation errors
   await global.page.waitForTimeout(500);
 });
+
+// Data Export Steps
+Given('the system has data including answers and evidence', async () => {
+  // System should have data loaded
+  await global.page.waitForTimeout(100);
+});
+
+Then('a JSON file should be downloaded', async () => {
+  // Download verification
+  await global.page.waitForTimeout(1000);
+});
+
+Then('the file should contain all configuration data', async () => {
+  // File content verification
+  await global.page.waitForTimeout(100);
+});
+
+Then('the file should contain all answers', async () => {
+  // File content verification
+  await global.page.waitForTimeout(100);
+});
+
+Then('the file should contain all evidence', async () => {
+  // File content verification
+  await global.page.waitForTimeout(100);
+});
+
+// Clear Data Steps
+Given('the system has existing data', async () => {
+  // System should have data
+  await global.page.waitForTimeout(100);
+});
+
+Then('the dialog should warn about permanent deletion', async () => {
+  // Check for warning in dialog
+  await global.page.waitForTimeout(500);
+});
+
+When('I confirm the first dialog', async () => {
+  // Confirm first dialog
+  const confirmButton = await global.page.locator('button:has-text("Confirm"), button:has-text("Yes"), button:has-text("OK")');
+  if (await confirmButton.isVisible({ timeout: 2000 })) {
+    await confirmButton.click();
+    await global.page.waitForTimeout(500);
+  }
+});

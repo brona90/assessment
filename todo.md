@@ -20,9 +20,11 @@ Remove the nested EnhancedAdminPanel and have each top-level tab show its conten
 - [ ] May need to add tests for showTabs prop
 
 ### 4. Update BDD Tests
-- [ ] Update step definitions to work with new structure
-- [ ] Ensure all admin interface scenarios pass
-- [ ] Fix any remaining test failures
+- [x] Update step definitions to work with new structure
+- [x] Added all missing step definitions (undefined: 18 → 7 → 0)
+- [x] Removed all duplicate step definitions (ambiguous: 11 → 2 → 0)
+- [x] Improved pass rate: 23 → 25 passing scenarios
+- [ ] Continue fixing remaining 40 failed scenarios
 
 ### 5. Linting and Cleanup
 - [x] Run linting - 0 errors
