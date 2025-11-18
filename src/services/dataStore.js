@@ -617,6 +617,11 @@ class DataStore {
     try {
       const imported = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
       
+      // Check if this is a user export (different format)
+      if (imported.exportVersion && imported.user && imported.questions) {
+        return await this.importUserExport(imported);
+      }
+      
       // Detailed validation with specific error messages
       const validationErrors = [];
 
@@ -700,6 +705,53 @@ class DataStore {
     } catch (error) {
       console.error('Error importing data:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Import user export data and merge with existing data
+   */
+  async importUserExport(userExport) {
+    try {
+      // Extract answers and evidence from user export
+      const userAnswers = {};
+      const userEvidence = {};
+      
+      userExport.questions.forEach(q => {
+        if (q.answer !== null && q.answer !== undefined) {
+          userAnswers[q.id] = q.answer;
+        }
+        if (q.evidence) {
+          userEvidence[q.id] = q.evidence;
+        }
+      });
+      
+      // Merge with existing data
+      this.data.answers = {
+        ...this.data.answers,
+        ...userAnswers
+      };
+      
+      this.data.evidence = {
+        ...this.data.evidence,
+        ...userEvidence
+      };
+      
+      // Save to storage
+      if (Object.keys(userAnswers).length > 0) {
+        await storageService.saveAssessment(this.data.answers);
+      }
+      
+      if (Object.keys(userEvidence).length > 0) {
+        for (const [questionId, evidenceData] of Object.entries(userEvidence)) {
+          await storageService.saveEvidence(questionId, evidenceData);
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error importing user export:', error);
+      throw new Error('Failed to import user export: ' + error.message);
     }
   }
 
