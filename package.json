@@ -1,5 +1,6 @@
 {
-  "name": "react-app",
+  "name": "assessment",
+  "homepage": "https://brona90.github.io/assessment",
   "private": true,
   "version": "0.0.0",
   "type": "module",
