@@ -40,10 +40,11 @@ vi.mock('./components/FullScreenAdminView', () => ({
   )
 }));
 vi.mock('./components/UserView', () => ({
-  UserView: ({ user, questions, progress, onAnswerChange, onClearAnswer, onAddEvidence, onExportUserData, onLogout }) => (
+  UserView: ({ user, questions, progress, onAnswerChange, onClearAnswer, onAddEvidence, onExportUserData, onSwitchToResults, onLogout }) => (
     <div data-testid="user-view">
       <h1>User View: {user.name}</h1>
       <div data-testid="progress-bar">Progress: {progress.percentage}%</div>
+        <button onClick={onSwitchToResults} data-testid="view-results-btn">View Results</button>
       <button onClick={onLogout} data-testid="logout-btn">Logout</button>
       <button onClick={onExportUserData} data-testid="export-user-data-btn">Export Data</button>
       {questions.map(q => (
@@ -54,6 +55,15 @@ vi.mock('./components/UserView', () => ({
           <button onClick={() => onAddEvidence(q.id)} data-testid={`evidence-${q.id}`}>Add Evidence</button>
         </div>
       ))}
+    </div>
+  )
+}));
+vi.mock('./components/ResultsView', () => ({
+  default: ({ user, onBackToAssessment, onLogout }) => (
+    <div data-testid="results-view">
+      <h1>Results View: {user.name}</h1>
+      <button onClick={onBackToAssessment} data-testid="back-to-assessment-btn">Back to Assessment</button>
+      <button onClick={onLogout} data-testid="logout-btn">Logout</button>
     </div>
   )
 }));

@@ -5,6 +5,7 @@ import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
 import { FullScreenAdminView } from './components/FullScreenAdminView';
 import { UserView } from './components/UserView';
+import ResultsView from './components/ResultsView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 import { userExportService } from './services/userExportService';
@@ -34,6 +35,7 @@ function App() {
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const [userQuestions, setUserQuestions] = useState([]);
+  const [currentView, setCurrentView] = useState('assessment'); // 'assessment' or 'results'
   const { frameworks } = useCompliance(answers);
   const { 
     getQuestionsForUser, 
@@ -88,6 +90,15 @@ function App() {
   const handleLogout = () => {
     selectUser(null);
     setUserQuestions([]);
+    setCurrentView('assessment'); // Reset view on logout
+  };
+
+  const handleSwitchToResults = () => {
+    setCurrentView('results');
+  };
+
+  const handleBackToAssessment = () => {
+    setCurrentView('assessment');
   };
 
   const handleImportData = async (file) => {
@@ -181,48 +192,61 @@ function App() {
     );
   }
 
-  const progress = getProgress();
-
-  // Render role-based view
-  return (
-    <>
-      {isAdmin() ? (
-        <FullScreenAdminView
-          domains={domains}
-          answers={answers}
-          evidence={evidence}
-          frameworks={frameworks}
-          onExportPDF={handleExportPDF}
-            onLogout={handleLogout}
-            onImportData={handleImportData}
-            onExportData={handleExportData}
-            onClearAllData={handleClearAllData}
-        />
-      ) : (
-        <UserView
-          user={currentUser}
-          questions={userQuestions}
-          answers={answers}
-          evidence={evidence}
-          progress={progress}
-          onAnswerChange={saveAnswer}
-          onClearAnswer={clearAnswer}
-          onAddEvidence={handleOpenEvidence}
-          onExportUserData={handleExportUserData}
-          onLogout={handleLogout}
-        />
-      )}
-
-      {evidenceModalOpen && (
-        <EvidenceModal
-          questionId={currentQuestionId}
-          existingEvidence={evidence[currentQuestionId]}
-          onSave={handleSaveEvidence}
-          onClose={handleCloseEvidence}
-        />
-      )}
-    </>
-  );
-}
-
+const progress = getProgress();
+  
+    // Render role-based view
+    return (
+      <>
+        {isAdmin() ? (
+          <FullScreenAdminView
+            domains={domains}
+            answers={answers}
+            evidence={evidence}
+            frameworks={frameworks}
+            onExportPDF={handleExportPDF}
+              onLogout={handleLogout}
+              onImportData={handleImportData}
+              onExportData={handleExportData}
+              onClearAllData={handleClearAllData}
+          />
+        ) : (
+          <>
+            {currentView === 'assessment' ? (
+              <UserView
+                user={currentUser}
+                questions={userQuestions}
+                answers={answers}
+                evidence={evidence}
+                progress={progress}
+                onAnswerChange={saveAnswer}
+                onClearAnswer={clearAnswer}
+                onAddEvidence={handleOpenEvidence}
+                onExportUserData={handleExportUserData}
+                onSwitchToResults={handleSwitchToResults}
+                onLogout={handleLogout}
+              />
+            ) : (
+              <ResultsView
+                user={currentUser}
+                domains={domains}
+                answers={answers}
+                progress={progress}
+                onBackToAssessment={handleBackToAssessment}
+                onLogout={handleLogout}
+              />
+            )}
+          </>
+        )}
+  
+        {evidenceModalOpen && (
+          <EvidenceModal
+            questionId={currentQuestionId}
+            existingEvidence={evidence[currentQuestionId]}
+            onSave={handleSaveEvidence}
+            onClose={handleCloseEvidence}
+          />
+        )}
+      </>
+    );
+  }
 export default App;

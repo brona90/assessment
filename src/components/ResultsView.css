@@ -1,0 +1,270 @@
+.results-view {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.results-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.results-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Score Summary */
+.score-summary {
+  margin-bottom: 2rem;
+}
+
+.overall-score-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.overall-score-card h3 {
+  color: #667eea;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.score-display {
+  margin: 1.5rem 0;
+}
+
+.score-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-max {
+  font-size: 2rem;
+  color: #999;
+  margin-left: 0.5rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.progress-percentage {
+  font-weight: bold;
+  color: #667eea;
+}
+
+/* Domain Scores */
+.domain-scores {
+  margin-bottom: 2rem;
+}
+
+.domain-scores h3 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.domain-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.domain-score-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.domain-score-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.domain-score-card h4 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.domain-score {
+  margin-bottom: 1rem;
+}
+
+.domain-score .score {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.domain-score .max {
+  font-size: 1.2rem;
+  color: #999;
+  margin-left: 0.25rem;
+}
+
+.domain-progress {
+  margin-top: 1rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Chart Section */
+.chart-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.chart-tab {
+  padding: 1rem 2rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #666;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chart-tab:hover {
+  color: #667eea;
+}
+
+.chart-tab.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  font-weight: bold;
+}
+
+.chart-display {
+  min-height: 400px;
+}
+
+/* Recommendations */
+.recommendations {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.recommendations h3 {
+  color: #667eea;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.recommendations p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.continue-btn {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.back-btn {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .results-main {
+    padding: 1rem;
+  }
+
+  .domain-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .score-value {
+    font-size: 3rem;
+  }
+
+  .chart-tabs {
+    flex-direction: column;
+  }
+
+  .chart-tab {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+
+  .chart-tab.active {
+    border-left-color: #667eea;
+    border-bottom-color: transparent;
+  }
+}

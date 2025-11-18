@@ -14,6 +14,7 @@ export const UserView = ({
   onClearAnswer,
   onAddEvidence,
   onExportUserData,
+  onSwitchToResults,
   onLogout
 }) => {
   // Group questions by domain and category
@@ -63,6 +64,13 @@ export const UserView = ({
             </div>
           </div>
           <div className="user-actions">
+             <button 
+               className="results-btn" 
+               onClick={onSwitchToResults}
+               data-testid="view-results-btn"
+             >
+               📊 View Results
+             </button>
             <button 
               className="export-btn" 
               onClick={onExportUserData}
@@ -166,6 +174,7 @@ UserView.propTypes = {
   onClearAnswer: PropTypes.func.isRequired,
   onAddEvidence: PropTypes.func.isRequired,
   onExportUserData: PropTypes.func.isRequired,
+  onSwitchToResults: PropTypes.func.isRequired,
   onLogout: PropTypes.func.isRequired
 };
 
