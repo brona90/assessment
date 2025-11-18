@@ -5,7 +5,7 @@ import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
 import { FullScreenAdminView } from './components/FullScreenAdminView';
 import { UserView } from './components/UserView';
-import ResultsView from './components/ResultsView';
+import { ResultsView } from './components/ResultsView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 import { userExportService } from './services/userExportService';
