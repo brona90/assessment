@@ -118,14 +118,14 @@ export const DomainHeatmap = ({ domains, answers }) => {
     ctx.textAlign = 'left';
     uniqueCategories.forEach((category, i) => {
       const x = labelWidth + (i * cellWidth) + padding;
-      const y = padding + 20;
+      const y = headerHeight - 10; // Position near bottom of header area
       
       ctx.save();
       ctx.translate(x + cellWidth / 2, y);
       ctx.rotate(-Math.PI / 4);
       ctx.fillStyle = '#333';
       // Truncate long category names
-      const displayText = category.length > 25 ? category.substring(0, 22) + '...' : category;
+      const displayText = category.length > 30 ? category.substring(0, 27) + '...' : category;
       ctx.fillText(displayText, 0, 0);
       ctx.restore();
     });

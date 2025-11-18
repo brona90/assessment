@@ -229,18 +229,21 @@ export const pdfService = {
       yPos += 5;
     }
 
-    // Add compliance frameworks if available
+    // Add compliance frameworks if available and enabled
     if (complianceFrameworks && Object.keys(complianceFrameworks).length > 0) {
-      pdf.addPage();
-      yPos = margin;
+      // Check if any frameworks are actually enabled
+      const enabledFrameworks = Object.entries(complianceFrameworks).filter(([, framework]) => framework.enabled);
       
-      pdf.setFontSize(18);
-      pdf.setTextColor(99, 102, 241);
-      pdf.text('Compliance Frameworks', margin, yPos);
-      yPos += 15;
+      if (enabledFrameworks.length > 0) {
+        pdf.addPage();
+        yPos = margin;
+        
+        pdf.setFontSize(18);
+        pdf.setTextColor(99, 102, 241);
+        pdf.text('Compliance Frameworks', margin, yPos);
+        yPos += 15;
 
-      Object.entries(complianceFrameworks).forEach(([key, framework]) => {
-        if (framework.enabled) {
+        enabledFrameworks.forEach(([key, framework]) => {
           if (yPos > pageHeight - 30) {
             pdf.addPage();
             yPos = margin;
@@ -256,8 +259,8 @@ export const pdfService = {
             pdf.text(`Compliance Score: ${framework.score.toFixed(2)}%`, margin + 5, yPos);
             yPos += 10;
           }
-        }
-      });
+        });
+      }
     }
 
     return pdf;
