@@ -6,6 +6,8 @@
  * Designed for GitHub Pages deployment without a backend.
  */
 
+import { storageService } from './storageService';
+
 class DataStore {
   constructor() {
     this.data = {
@@ -587,9 +589,6 @@ class DataStore {
    */
   async exportData() {
     try {
-      // Import storageService dynamically to avoid circular dependencies
-      const { storageService } = await import('./storageService');
-      
       // Load answers and evidence from storage
       const [answers, evidence] = await Promise.all([
         storageService.loadAssessment(),
@@ -686,8 +685,6 @@ class DataStore {
       this.initialized = true;
       
       // Save answers and evidence to storage
-      const { storageService } = await import('./storageService');
-      
       if (imported.answers && Object.keys(imported.answers).length > 0) {
         await storageService.saveAssessment(imported.answers);
       }
