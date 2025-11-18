@@ -185,11 +185,7 @@ Then('I should see the compliance dashboard', async function () {
   expect(isVisible).to.be.true;
 });
 
-Then('I should see the admin panel', async function () {
-  const adminPanel = global.page.locator('[data-testid="admin-panel-section"]');
-  const isVisible = await adminPanel.isVisible();
-  expect(isVisible).to.be.true;
-});
+// Removed duplicate - already defined in admin_panel_steps.cjs with correct testid
 
 // Logout steps
 When('I click the {string} button', async function (buttonText) {
