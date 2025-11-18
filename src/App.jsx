@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAssessment } from './hooks/useAssessment';
 import { useUser } from './hooks/useUser';
+import { useRouter } from './hooks/useRouter';
 import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
 import { FullScreenAdminView } from './components/FullScreenAdminView';
@@ -36,15 +37,8 @@ function App() {
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
   const [userQuestions, setUserQuestions] = useState([]);
   
-  // Initialize view from URL hash
-  const getViewFromHash = () => {
-    const hash = window.location.hash.slice(1); // Remove '#'
-    if (hash === 'results') return 'results';
-    if (hash === 'admin') return 'admin';
-    return 'assessment';
-  };
-  
-  const [currentView, setCurrentView] = useState(getViewFromHash());
+  // Use the router hook for navigation
+  const { currentRoute, navigate } = useRouter();
   const { frameworks } = useCompliance(answers);
   const { 
     getQuestionsForUser, 
@@ -68,24 +62,7 @@ function App() {
     loadUserQuestions();
   }, [currentUser, initialized, getQuestionsForUser]);
 
-  // Sync view with URL hash
-  useEffect(() => {
-    const handleHashChange = () => {
-      const newView = getViewFromHash();
-      setCurrentView(newView);
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  // Update URL hash when view changes
-  useEffect(() => {
-    const hash = currentView === 'assessment' ? '' : currentView;
-    if (window.location.hash.slice(1) !== hash) {
-      window.location.hash = hash;
-    }
-  }, [currentView]);
+  
 
   const handleOpenEvidence = (questionId) => {
     setCurrentQuestionId(questionId);
@@ -118,15 +95,15 @@ function App() {
   const handleLogout = () => {
     selectUser(null);
     setUserQuestions([]);
-    setCurrentView('assessment'); // Reset view on logout
+    navigate('assessment'); // Reset view on logout
   };
 
   const handleSwitchToResults = () => {
-    setCurrentView('results');
+    navigate('results');
   };
 
   const handleBackToAssessment = () => {
-    setCurrentView('assessment');
+    navigate('assessment');
   };
 
   const handleImportData = async (file) => {
@@ -258,7 +235,7 @@ const progress = getProgress();
           />
         ) : (
           <>
-            {currentView === 'assessment' ? (
+            {currentRoute === 'assessment' ? (
               <UserView
                 user={currentUser}
                 questions={userQuestions}
