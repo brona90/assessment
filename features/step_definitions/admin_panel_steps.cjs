@@ -6,12 +6,10 @@ Given('I am logged in as an admin user', async () => {
   try {
     const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
     if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
-      console.log('User selection screen detected, selecting admin...');
       const adminCard = await global.page.locator('[data-testid="user-card-admin"]');
       if (await adminCard.isVisible()) {
         await adminCard.click();
         await global.page.waitForTimeout(2000);
-        console.log('Admin selected successfully');
         
         // Wait for admin view to load
         await global.page.waitForSelector('[data-testid="full-screen-admin-view"]', { timeout: 5000 });
@@ -19,7 +17,6 @@ Given('I am logged in as an admin user', async () => {
       }
     }
   } catch (error) {
-    console.log('No user selection screen or already logged in as admin');
   }
 });
 
@@ -30,7 +27,6 @@ When('I click on the Admin navigation button', async () => {
     await global.page.waitForTimeout(500);
   } else {
     // Admin button might not be visible if not admin or not implemented
-    console.log('Admin button not found - feature may not be fully integrated');
   }
 });
 
@@ -40,7 +36,6 @@ Then('I should see the admin panel', async () => {
     await expect(adminPanel).toBeVisible();
   } else {
     // Admin panel not visible - feature may not be fully integrated
-    console.log('Admin panel not visible - feature may not be fully integrated');
   }
 });
 

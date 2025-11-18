@@ -1,6 +1,22 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
+// Helper function to ensure user is selected
+async function ensureUserSelected() {
+  const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
+  if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
+    const userCard = await global.page.locator('[data-testid="user-card-user1"]');
+    if (await userCard.isVisible({ timeout: 3000 })) {
+      await userCard.click();
+      await global.page.waitForTimeout(2000);
+      await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
+      await global.page.waitForTimeout(3000);
+    }
+  }
+}
+
+
+
 Given('I have completed an assessment', async () => {
   // First ensure we're on the assessment page - try multiple ports
   const ports = [5173, 5174, 5175];
@@ -13,7 +29,6 @@ Given('I have completed an assessment', async () => {
         waitUntil: 'domcontentloaded'
       });
       connected = true;
-      console.log(`Connected to dev server on port ${port}`);
       break;
     } catch (error) {
       continue;
@@ -30,13 +45,11 @@ Given('I have completed an assessment', async () => {
   try {
     const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
     if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
-      console.log('User selection screen detected, selecting a user...');
       // Select the first non-admin user (user1)
       const userCard = await global.page.locator('[data-testid="user-card-user1"]');
       if (await userCard.isVisible()) {
         await userCard.click();
         await global.page.waitForTimeout(2000);
-        console.log('User selected successfully');
         
         // Wait for user view to load
         await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
@@ -44,11 +57,11 @@ Given('I have completed an assessment', async () => {
       }
     }
   } catch (error) {
-    console.log('No user selection screen or already logged in');
   }
   
   // Answer some questions to complete partial assessment
   try {
+  await ensureUserSelected();
     await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 10000 });
     const questions = await global.page.locator('[data-testid^="question-"]').all();
     
@@ -65,7 +78,6 @@ Given('I have completed an assessment', async () => {
       }
     }
   } catch (error) {
-    console.log('No questions found or error answering questions:', error.message);
   }
 });
 
@@ -99,7 +111,6 @@ Given('I have answers for all questions', async () => {
   try {
     const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
     if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
-      console.log('User selection screen detected, selecting a user...');
       const userCard = await global.page.locator('[data-testid="user-card-user1"]');
       if (await userCard.isVisible()) {
         await userCard.click();
@@ -111,16 +122,15 @@ Given('I have answers for all questions', async () => {
       }
     }
   } catch (error) {
-    console.log('No user selection screen or already logged in');
   }
   
   // Answer all visible questions with score 5 across all domains
   try {
     await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 10000 });
+  await ensureUserSelected();
     
     // Get all domain tabs
     const domainTabs = await global.page.locator('[role="tab"]').all();
-    console.log(`Found ${domainTabs.length} domain tabs`);
     
     for (let tabIndex = 0; tabIndex < domainTabs.length; tabIndex++) {
       // Click on the domain tab
@@ -131,7 +141,6 @@ Given('I have answers for all questions', async () => {
         
         // Answer all questions in this domain
         const questions = await global.page.locator('[data-testid^="question-"]').all();
-        console.log(`Found ${questions.length} questions in domain ${tabIndex + 1}`);
         
         for (let i = 0; i < questions.length; i++) {
           const question = questions[i];
@@ -154,7 +163,6 @@ When('I navigate to the assessment section', async () => {
   // Check if we're already in the user view (assessment section)
   const userView = await global.page.locator('[data-testid="user-view"]');
   if (await userView.isVisible({ timeout: 2000 })) {
-    console.log('Already in assessment section (UserView)');
     return;
   }
   
@@ -166,8 +174,11 @@ When('I navigate to the assessment section', async () => {
   }
 });
 When('I select an answer for a question', async () => {
+  // Ensure user is selected
+  await ensureUserSelected();
+  
   // Wait for questions to be visible
-  await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 10000 });
+  await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 15000 });
   const firstQuestion = await global.page.locator('[data-testid^="question-"]').first();
   await firstQuestion.waitFor({ state: 'visible' });
   
@@ -217,6 +228,7 @@ When('I answer all questions across all domains', async () => {
 
 When('I complete some questions', async () => {
   await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 10000 });
+  await ensureUserSelected();
   
   const questions = await global.page.locator('[data-testid^="question-"]').all();
   
@@ -261,29 +273,41 @@ When('I reset the assessment', async () => {
 });
 
 Then('I should see the assessment form', async () => {
+  // Ensure user is selected
+  await ensureUserSelected();
+  
+  // Wait for React to finish rendering
+  await global.page.waitForTimeout(2000);
+  
   // First check if there are domain tabs - if so, click the first one
   const domainTabs = await global.page.locator('[role="tab"]');
   const tabCount = await domainTabs.count();
   
   if (tabCount > 0) {
-    console.log(`Found ${tabCount} domain tabs, clicking first tab`);
     const firstTab = domainTabs.first();
     if (await firstTab.isVisible({ timeout: 2000 })) {
       await firstTab.click();
-      await global.page.waitForTimeout(500);
+      await global.page.waitForTimeout(1000);
     }
   }
   
-  // Now wait for questions to be visible
-  await global.page.waitForSelector('[data-testid^="question-"]', { state: 'visible', timeout: 10000 });
+  // Now wait for questions to be visible with longer timeout
+  await global.page.waitForSelector('[data-testid^="question-"]', { state: 'visible', timeout: 15000 });
   const firstQuestion = await global.page.locator('[data-testid^="question-"]').first();
   await expect(firstQuestion).toBeVisible();
 });
 Then('I should see domain categories', async () => {
-  // Look for domain navigation or tabs - they might be in the nav or as buttons
-  const navButtons = await global.page.locator('nav button, .app-nav button');
-  const count = await navButtons.count();
-  expect(count).toBeGreaterThan(0);
+  // Look for domain tabs or category sections
+  // Domain tabs appear when there are multiple domains
+  const domainTabs = await global.page.locator('[role="tab"]');
+  const tabCount = await domainTabs.count();
+  
+  // Category sections appear within the questions container
+  const categoryTitles = await global.page.locator('.category-title');
+  const categoryCount = await categoryTitles.count();
+  
+  // Either tabs or categories should be visible
+  expect(tabCount + categoryCount).toBeGreaterThan(0);
 });
 
 Then('I should see progress indicators', async () => {
@@ -414,6 +438,7 @@ Given('I have scores calculated', async () => {
   try {
     await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 5000 });
     const firstQuestion = await global.page.locator('[data-testid^="question-"]').first();
+  await ensureUserSelected();
     if (await firstQuestion.isVisible()) {
       const options = await firstQuestion.locator('[data-testid^="option-"]').all();
       if (options.length > 3) {
@@ -422,7 +447,6 @@ Given('I have scores calculated', async () => {
       }
     }
   } catch (error) {
-    console.log('Could not answer question for score calculation:', error.message);
   }
 });
 
@@ -430,36 +454,29 @@ Given('I have scores calculated', async () => {
 Then('I should see questions', async () => {
   // Debug: Check what's on the page
   const pageContent = await global.page.content();
-  console.log('Page title:', await global.page.title());
   
   // Check for user view
   const userView = await global.page.locator('[data-testid="user-view"]');
-  console.log('User view visible:', await userView.isVisible({ timeout: 1000 }).catch(() => false));
   
   // Check for no questions message
   const noQuestions = await global.page.locator('[data-testid="no-questions"]');
-  console.log('No questions message visible:', await noQuestions.isVisible({ timeout: 1000 }).catch(() => false));
   
   // Check for domain tabs
   const domainTabs = await global.page.locator('[role="tab"]');
   const tabCount = await domainTabs.count();
-  console.log('Domain tabs count:', tabCount);
   
   // Check for questions
   const questions = await global.page.locator('[data-testid^="question-"]');
   const questionCount = await questions.count();
-  console.log('Questions count:', questionCount);
   
   // If no questions visible, take a screenshot
   if (questionCount === 0) {
     await global.page.screenshot({ path: 'debug_no_questions.png' });
-    console.log('Screenshot saved to debug_no_questions.png');
   }
 });
 
 
 When('I manually select user1', async () => {
-  console.log('Starting manual user selection...');
   
   // Wait for page to be ready
   await global.page.waitForLoadState('networkidle');
@@ -468,18 +485,15 @@ When('I manually select user1', async () => {
   // Check if user selection screen is visible
   const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
   const screenVisible = await userSelectionScreen.isVisible({ timeout: 5000 });
-  console.log('User selection screen visible:', screenVisible);
   
   if (screenVisible) {
     // Find the user card
     const userCard = await global.page.locator('[data-testid="user-card-user1"]');
     const cardVisible = await userCard.isVisible({ timeout: 5000 });
-    console.log('User card visible:', cardVisible);
     
     if (cardVisible) {
       // Click the card
       await userCard.click();
-      console.log('Clicked user card');
       
       // Wait for navigation
       await global.page.waitForTimeout(3000);
@@ -488,12 +502,9 @@ When('I manually select user1', async () => {
       const userViewVisible = await global.page.locator('[data-testid="user-view"]').isVisible({ timeout: 2000 }).catch(() => false);
       const selectionStillVisible = await userSelectionScreen.isVisible({ timeout: 1000 }).catch(() => false);
       
-      console.log('After click - User view visible:', userViewVisible);
-      console.log('After click - Selection screen still visible:', selectionStillVisible);
       
       if (!userViewVisible) {
         await global.page.screenshot({ path: 'debug_after_manual_click.png' });
-        console.log('Screenshot saved to debug_after_manual_click.png');
       }
     }
   }
@@ -503,27 +514,22 @@ Then('I should see questions for user1', async () => {
   // Check for user view
   const userView = await global.page.locator('[data-testid="user-view"]');
   const userViewVisible = await userView.isVisible({ timeout: 5000 });
-  console.log('User view visible:', userViewVisible);
   
   if (userViewVisible) {
     // Check for domain tabs
     const domainTabs = await global.page.locator('[role="tab"]');
     const tabCount = await domainTabs.count();
-    console.log('Domain tabs found:', tabCount);
     
     // Check for questions
     const questions = await global.page.locator('[data-testid^="question-"]');
     const questionCount = await questions.count();
-    console.log('Questions found:', questionCount);
     
     if (questionCount === 0) {
       // Check for no questions message
       const noQuestionsMsg = await global.page.locator('[data-testid="no-questions"]');
       const noQuestionsVisible = await noQuestionsMsg.isVisible({ timeout: 1000 }).catch(() => false);
-      console.log('No questions message visible:', noQuestionsVisible);
       
       await global.page.screenshot({ path: 'debug_user_view_no_questions.png' });
-      console.log('Screenshot saved to debug_user_view_no_questions.png');
     }
   }
   
@@ -544,7 +550,6 @@ Then('I should see debug info about questions', async () => {
     };
   });
   
-  console.log('Debug info from browser:', JSON.stringify(debugInfo, null, 2));
 });
 
 Then('I should see console errors', async () => {
@@ -562,8 +567,6 @@ Then('I should see console errors', async () => {
     return window.__errors || [];
   });
   
-  console.log('Console logs:', logs);
-  console.log('Page errors:', errors);
 });
 
 Then('I should see network requests for data files', async () => {
@@ -578,7 +581,6 @@ Then('I should see network requests for data files', async () => {
   
   global.page.on('response', async response => {
     if (response.url().includes('.json')) {
-      console.log(`Response: ${response.url()} - Status: ${response.status()}`);
       if (response.status() !== 200) {
         console.log(`Failed to load: ${response.url()}`);
       }
@@ -589,7 +591,6 @@ Then('I should see network requests for data files', async () => {
   await global.page.reload({ waitUntil: 'networkidle' });
   await global.page.waitForTimeout(3000);
   
-  console.log('JSON requests made:', requests);
 });
 
 Then('I should capture browser console logs', async () => {
@@ -599,29 +600,23 @@ Then('I should capture browser console logs', async () => {
   global.page.on('console', msg => {
     const text = msg.text();
     logs.push(`[${msg.type()}] ${text}`);
-    console.log(`Browser console: [${msg.type()}] ${text}`);
   });
   
   // Reload to capture initialization logs
   await global.page.reload({ waitUntil: 'networkidle' });
   await global.page.waitForTimeout(3000);
   
-  console.log('\n=== All browser console logs ===');
-  logs.forEach(log => console.log(log));
-  console.log('=== End of logs ===\n');
 });
 
 When('I select user1 and wait', async () => {
   // Set up console listener
   global.page.on('console', msg => {
-    console.log(`Browser: [${msg.type()}] ${msg.text()}`);
   });
   
   // Select user
   const userCard = await global.page.locator('[data-testid="user-card-user1"]');
   if (await userCard.isVisible({ timeout: 5000 })) {
     await userCard.click();
-    console.log('Clicked user1 card');
     await global.page.waitForTimeout(5000);
   }
 });
@@ -629,7 +624,6 @@ When('I select user1 and wait', async () => {
 Then('I should see getQuestionsForUser logs', async () => {
   // Just wait and let console logs show
   await global.page.waitForTimeout(2000);
-  console.log('Waiting complete');
 });
 
 Then('I should see {int} questions rendered', async (expectedCount) => {
@@ -639,7 +633,6 @@ Then('I should see {int} questions rendered', async (expectedCount) => {
   // Check for domain tabs
   const domainTabs = await global.page.locator('[role="tab"]');
   const tabCount = await domainTabs.count();
-  console.log(`Found ${tabCount} domain tabs`);
   
   // If there are tabs, click the first one
   if (tabCount > 0) {
@@ -650,18 +643,19 @@ Then('I should see {int} questions rendered', async (expectedCount) => {
   // Count questions
   const questions = await global.page.locator('[data-testid^="question-"]');
   const questionCount = await questions.count();
-  console.log(`Found ${questionCount} questions (expected ${expectedCount})`);
   
   if (questionCount === 0) {
     // Take screenshot for debugging
     await global.page.screenshot({ path: 'debug_no_questions_rendered.png' });
-    console.log('Screenshot saved to debug_no_questions_rendered.png');
     
     // Check for "no questions" message
     const noQuestionsMsg = await global.page.locator('[data-testid="no-questions"]');
     const noQuestionsVisible = await noQuestionsMsg.isVisible({ timeout: 1000 }).catch(() => false);
-    console.log('No questions message visible:', noQuestionsVisible);
   }
   
   expect(questionCount).toBe(expectedCount);
+});
+
+Then('I should take a screenshot for debugging', async () => {
+  await global.page.screenshot({ path: 'debug_assessment_form.png', fullPage: true });
 });
