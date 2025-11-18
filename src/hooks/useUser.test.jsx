@@ -31,7 +31,7 @@ describe('useUser', () => {
     expect(result.current.users).toEqual(mockUsers);
   });
 
-  it('should load current user from storage', async () => {
+  it('should always start with no user selected', async () => {
     const mockUser = { id: 'user1', name: 'User 1' };
     userService.loadUsers.mockResolvedValue([]);
     userService.getCurrentUser.mockReturnValue(mockUser);
@@ -42,7 +42,8 @@ describe('useUser', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.currentUser).toEqual(mockUser);
+    // Should always start with null, forcing user to select from UserSelectionScreen
+    expect(result.current.currentUser).toBeNull();
   });
 
   it('should select user', async () => {

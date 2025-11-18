@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDataStore } from '../hooks/useDataStore';
 import { userExportService } from '../services/userExportService';
+import { storageService } from '../services/storageService';
 import './AdminPanel.css';
 
-export const EnhancedAdminPanel = () => {
+export const EnhancedAdminPanel = ({ initialTab = 'domains', showTabs = true }) => {
   const {
     initialized,
     loading,
@@ -32,10 +33,18 @@ export const EnhancedAdminPanel = () => {
     assignQuestionsToUser,
     // exportData,
     importData,
-    downloadData
+    downloadData,
+    setAnswers,
+    setEvidence,
+    clearAllData
   } = useDataStore();
 
-  const [activeTab, setActiveTab] = useState('domains');
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Sync activeTab with initialTab prop when it changes
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
   const [domains, setDomains] = useState({});
   const [frameworks, setFrameworks] = useState([]);
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState([]);
@@ -388,26 +397,134 @@ export const EnhancedAdminPanel = () => {
   };
 
   // Export/Import operations
-  const handleExport = () => {
-    downloadData('assessment-data.json');
-    showMessage('success', 'Data exported successfully');
+  const handleExport = async () => {
+    try {
+      // Load answers and evidence from localStorage
+      const answers = await storageService.loadAssessment();
+      const evidence = await storageService.loadAllEvidence();
+      
+      // Update dataStore with current answers and evidence
+      setAnswers(answers);
+      setEvidence(evidence);
+      
+      // Export all data
+      downloadData('assessment-data.json');
+      showMessage('success', 'Data exported successfully (including answers and evidence)');
+    } catch (error) {
+      console.error('Export error:', error);
+      showMessage('error', `Export failed: ${error.message}`);
+    }
   };
 
   const handleImport = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validate file type
+    if (!file.name.endsWith('.json')) {
+      showMessage('error', 'Please select a JSON file');
+      event.target.value = '';
+      return;
+    }
+
+    // Validate file size (max 100MB)
+    const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+    if (file.size > maxSize) {
+      showMessage('error', 'File size exceeds 100MB limit');
+      event.target.value = '';
+      return;
+    }
+
+    // Show loading state
+    showMessage('info', 'Importing data...');
+
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = importData(e.target.result);
-      if (result.success) {
-        showMessage('success', 'Data imported successfully');
-        refreshData();
-      } else {
-        showMessage('error', result.error);
+    
+    reader.onload = async (e) => {
+      try {
+        const result = importData(e.target.result);
+        if (result.success) {
+          // Parse the imported data to extract answers and evidence
+          const importedData = JSON.parse(e.target.result);
+          
+          // Save answers to localStorage if present
+          if (importedData.answers) {
+            await storageService.saveAssessment(importedData.answers);
+          }
+          
+          // Save evidence to IndexedDB if present
+          if (importedData.evidence) {
+            for (const [questionId, evidenceData] of Object.entries(importedData.evidence)) {
+              await storageService.saveEvidence(questionId, evidenceData);
+            }
+          }
+          
+          showMessage('success', 'Data imported successfully (including answers and evidence)');
+          refreshData();
+          // Reset input
+          event.target.value = '';
+        } else {
+          showMessage('error', `Import failed: ${result.error}`);
+          event.target.value = '';
+        }
+      } catch (error) {
+        showMessage('error', `Import failed: ${error.message}`);
+        event.target.value = '';
       }
     };
+
+    reader.onerror = () => {
+      showMessage('error', 'Failed to read file');
+      event.target.value = '';
+    };
+
     reader.readAsText(file);
+  };
+
+  const handleClearAllData = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      '⚠️ WARNING: This will permanently delete ALL data including:\n\n' +
+      '• All domains, categories, and questions\n' +
+      '• All users and assignments\n' +
+      '• All frameworks and compliance data\n' +
+      '• All answers and evidence\n' +
+      '• All localStorage and IndexedDB data\n\n' +
+      'This action CANNOT be undone!\n\n' +
+      'Are you absolutely sure you want to continue?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    // Double confirmation
+    const doubleConfirmed = window.confirm(
+      '🚨 FINAL WARNING 🚨\n\n' +
+      'You are about to delete EVERYTHING.\n' +
+      'Click OK to proceed with deletion, or Cancel to abort.'
+    );
+
+    if (!doubleConfirmed) {
+      return;
+    }
+
+    try {
+      showMessage('info', 'Clearing all data...');
+      const result = await clearAllData();
+      
+      if (result.success) {
+        showMessage('success', 'All data cleared successfully. The page will reload.');
+        // Reload the page after a short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        showMessage('error', `Failed to clear data: ${result.error}`);
+      }
+    } catch (error) {
+      showMessage('error', `Failed to clear data: ${error.message}`);
+    }
   };
 
   // Multi-user import handlers
@@ -479,44 +596,46 @@ export const EnhancedAdminPanel = () => {
         </div>
       )}
 
-      <div className="admin-tabs">
-        <button
-          className={activeTab === 'domains' ? 'active' : ''}
-          onClick={() => setActiveTab('domains')}
-        >
-          Domains
-        </button>
-        <button
-          className={activeTab === 'frameworks' ? 'active' : ''}
-          onClick={() => setActiveTab('frameworks')}
-        >
-          Frameworks
-        </button>
-        <button
-          className={activeTab === 'users' ? 'active' : ''}
-          onClick={() => setActiveTab('users')}
-        >
-          Users
-        </button>
-        <button
-          className={activeTab === 'questions' ? 'active' : ''}
-          onClick={() => setActiveTab('questions')}
-        >
-          Questions
-        </button>
-        <button
-          className={activeTab === 'assignments' ? 'active' : ''}
-          onClick={() => setActiveTab('assignments')}
-        >
-          Assignments
-        </button>
-        <button
-          className={activeTab === 'data' ? 'active' : ''}
-          onClick={() => setActiveTab('data')}
-        >
-          Data Management
-        </button>
-      </div>
+      {showTabs === true && (
+        <div className="admin-tabs">
+          <button
+            className={activeTab === 'domains' ? 'active' : ''}
+            onClick={() => setActiveTab('domains')}
+          >
+            Domains
+          </button>
+          <button
+            className={activeTab === 'frameworks' ? 'active' : ''}
+            onClick={() => setActiveTab('frameworks')}
+          >
+            Frameworks
+          </button>
+          <button
+            className={activeTab === 'users' ? 'active' : ''}
+            onClick={() => setActiveTab('users')}
+          >
+            Users
+          </button>
+          <button
+            className={activeTab === 'questions' ? 'active' : ''}
+            onClick={() => setActiveTab('questions')}
+          >
+            Questions
+          </button>
+          <button
+            className={activeTab === 'assignments' ? 'active' : ''}
+            onClick={() => setActiveTab('assignments')}
+          >
+            Assignments
+          </button>
+          <button
+            className={activeTab === 'data' ? 'active' : ''}
+            onClick={() => setActiveTab('data')}
+          >
+            Data Management
+          </button>
+        </div>
+      )}
 
       <div className="admin-content">
         {activeTab === 'domains' && (
@@ -852,6 +971,28 @@ export const EnhancedAdminPanel = () => {
                 <li>Questions: {questions.length}</li>
               </ul>
             </div>
+
+              <div className="form-group" style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '2px solid #e5e7eb' }}>
+                <h4 style={{ color: '#ef4444', marginBottom: '1rem' }}>⚠️ Danger Zone</h4>
+                <p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+                  Permanently delete all data from the system. This action cannot be undone.
+                </p>
+                <button 
+                  onClick={handleClearAllData}
+                  style={{
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  Clear All Data
+                </button>
+              </div>
           </div>
         )}
       </div>
@@ -859,6 +1000,9 @@ export const EnhancedAdminPanel = () => {
   );
 };
 
-EnhancedAdminPanel.propTypes = {};
+EnhancedAdminPanel.propTypes = {
+  initialTab: PropTypes.string,
+  showTabs: PropTypes.bool
+};
 
 export default EnhancedAdminPanel;

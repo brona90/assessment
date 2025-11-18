@@ -215,13 +215,19 @@ export const useDataStore = () => {
   }, []);
 
   // Export/Import operations
-  const exportData = useCallback(() => {
-    return dataStore.exportData();
+  const exportData = useCallback(async () => {
+    try {
+      await dataStore.downloadData();
+      return { success: true };
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      return { success: false, error: error.message };
+    }
   }, []);
 
-  const importData = useCallback((jsonData) => {
+  const importData = useCallback(async (jsonData) => {
     try {
-      dataStore.importData(jsonData);
+      await dataStore.importData(jsonData);
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -229,7 +235,90 @@ export const useDataStore = () => {
   }, []);
 
   const downloadData = useCallback((filename) => {
-    dataStore.downloadData(filename);
+    try {
+      dataStore.downloadData(filename);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  const clearAllData = useCallback(async () => {
+    try {
+      const result = await dataStore.clearAllData();
+      if (result.success) {
+        setInitialized(false);
+        setLoading(false);
+        setError(null);
+      }
+      return result;
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Answers operations
+  const getAnswers = useCallback(() => {
+    return dataStore.getAnswers();
+  }, []);
+
+  const setAnswers = useCallback((answers) => {
+    try {
+      const result = dataStore.setAnswers(answers);
+      return { success: true, data: result };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  const updateAnswer = useCallback((questionId, value) => {
+    try {
+      const result = dataStore.updateAnswer(questionId, value);
+      return { success: true, data: result };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  const clearAnswers = useCallback(() => {
+    try {
+      const result = dataStore.clearAnswers();
+      return { success: true, data: result };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  // Evidence operations
+  const getEvidence = useCallback(() => {
+    return dataStore.getEvidence();
+  }, []);
+
+  const setEvidence = useCallback((evidence) => {
+    try {
+      const result = dataStore.setEvidence(evidence);
+      return { success: true, data: result };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  const updateEvidence = useCallback((questionId, evidenceData) => {
+    try {
+      const result = dataStore.updateEvidence(questionId, evidenceData);
+      return { success: true, data: result };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  const clearEvidence = useCallback(() => {
+    try {
+      const result = dataStore.clearEvidence();
+      return { success: true, data: result };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   }, []);
 
   return {
@@ -265,9 +354,20 @@ export const useDataStore = () => {
     assignQuestionsToUser,
     addQuestionAssignments,
     removeQuestionAssignments,
+    // Answers operations
+    getAnswers,
+    setAnswers,
+    updateAnswer,
+    clearAnswers,
+    // Evidence operations
+    getEvidence,
+    setEvidence,
+    updateEvidence,
+    clearEvidence,
     // Export/Import
     exportData,
     importData,
-    downloadData
+    downloadData,
+      clearAllData
   };
 };

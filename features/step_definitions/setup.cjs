@@ -47,6 +47,26 @@ Given('I am on the technology assessment page', async () => {
   if (!connected) {
     throw new Error(`Could not connect to dev server on any port. Last error: ${lastError?.message}`);
   }
+  
+  // Check if user selection screen is visible and select a user
+  try {
+    const userSelectionScreen = await global.page.locator('[data-testid="user-selection-screen"]');
+    if (await userSelectionScreen.isVisible({ timeout: 2000 })) {
+      console.log('User selection screen detected, selecting a user...');
+      const userCard = await global.page.locator('[data-testid="user-card-user1"]');
+      if (await userCard.isVisible()) {
+        await userCard.click();
+        await global.page.waitForTimeout(2000);
+        console.log('User selected successfully');
+        
+        // Wait for user view to load
+        await global.page.waitForSelector('[data-testid="user-view"]', { timeout: 5000 });
+        await global.page.waitForTimeout(1000);
+      }
+    }
+  } catch (error) {
+    console.log('No user selection screen or already logged in');
+  }
 });
 
 Given('the assessment data is loaded', async () => {

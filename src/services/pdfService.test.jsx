@@ -631,3 +631,195 @@ describe('PdfService', () => {
     });
   });
 });
+  describe('Error Handling and Edge Cases', () => {
+    it('should handle empty domains', async () => {
+      const pdf = await pdfService.generatePDF({}, {}, {}, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle null evidence', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ id: 'q1', text: 'Question 1' }]
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, null, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle empty answers object', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ id: 'q1', text: 'Question 1' }]
+            }
+          }
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, {}, {}, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle chart rendering with null charts', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ id: 'q1', text: 'Question 1' }]
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, {}, null, null);
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle compliance with empty frameworks', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ id: 'q1', text: 'Question 1' }]
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const compliance = {
+        frameworks: []
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, {}, compliance);
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle malformed image data', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ id: 'q1', text: 'Question 1' }]
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const evidence = {
+        q1: {
+          images: ['data:image/png;base64,invalid']
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle image with name property', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [{ id: 'q1', text: 'Question 1' }]
+            }
+          }
+        }
+      };
+      const answers = { q1: 4 };
+      const evidence = {
+        q1: {
+          images: [{
+            data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            name: 'Test Image.png'
+          }]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle multiple questions with mixed evidence', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: [
+                { id: 'q1', text: 'Question 1' },
+                { id: 'q2', text: 'Question 2' },
+                { id: 'q3', text: 'Question 3' }
+              ]
+            }
+          }
+        }
+      };
+      const answers = { q1: 4, q2: 3, q3: 5 };
+      const evidence = {
+        q1: {
+          images: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==']
+        },
+        q3: {
+          images: [
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+          ]
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, answers, evidence, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle domain with no categories', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {}
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, {}, {}, {});
+      expect(pdf).toBeDefined();
+    });
+
+    it('should handle category with no questions', async () => {
+      const domains = {
+        domain1: {
+          title: 'Domain 1',
+          weight: 1,
+          categories: {
+            cat1: { 
+              questions: []
+            }
+          }
+        }
+      };
+      
+      const pdf = await pdfService.generatePDF(domains, {}, {}, {});
+      expect(pdf).toBeDefined();
+    });
+  });

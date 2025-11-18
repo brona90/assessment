@@ -6,6 +6,8 @@
  * Designed for GitHub Pages deployment without a backend.
  */
 
+import { storageService } from './storageService';
+
 class DataStore {
   constructor() {
     this.data = {
@@ -14,7 +16,9 @@ class DataStore {
       frameworks: [],
       questions: [],
       assignments: {}, // { userId: [questionIds] }
-      selectedFrameworks: [] // Framework IDs selected by admin
+      selectedFrameworks: [], // Framework IDs selected by admin
+      answers: {}, // User answers to questions
+      evidence: {} // Evidence/proof attached to answers
     };
     this.initialized = false;
   }
@@ -54,10 +58,10 @@ class DataStore {
       // Initialize all frameworks as selected by default
       this.data.selectedFrameworks = this.data.frameworks.map(f => f.id);
 
-      // Initialize empty assignments
+      // Initialize assignments from user data
       this.data.assignments = {};
       this.data.users.forEach(user => {
-        this.data.assignments[user.id] = [];
+        this.data.assignments[user.id] = user.assignedQuestions || [];
       });
 
       this.initialized = true;
@@ -469,29 +473,233 @@ class DataStore {
     return this.data.assignments[userId];
   }
 
+  // ==================== ANSWERS OPERATIONS ====================
+
+  /**
+   * Get all answers
+   */
+  getAnswers() {
+    return this.data.answers;
+  }
+
+  /**
+   * Set answers
+   */
+  setAnswers(answers) {
+    if (typeof answers !== 'object' || Array.isArray(answers)) {
+      throw new Error('Answers must be an object');
+    }
+    this.data.answers = answers;
+    return this.data.answers;
+  }
+
+  /**
+   * Update a single answer
+   */
+  updateAnswer(questionId, value) {
+    this.data.answers[questionId] = value;
+    return this.data.answers;
+  }
+
+  /**
+   * Clear all answers
+   */
+  clearAnswers() {
+    this.data.answers = {};
+    return this.data.answers;
+  }
+
+  // ==================== EVIDENCE OPERATIONS ====================
+
+  /**
+   * Get all evidence
+   */
+  getEvidence() {
+    return this.data.evidence;
+  }
+
+  /**
+   * Set evidence
+   */
+  setEvidence(evidence) {
+    if (typeof evidence !== 'object' || Array.isArray(evidence)) {
+      throw new Error('Evidence must be an object');
+    }
+    this.data.evidence = evidence;
+    return this.data.evidence;
+  }
+
+  /**
+   * Update evidence for a question
+   */
+  updateEvidence(questionId, evidenceData) {
+    this.data.evidence[questionId] = evidenceData;
+    return this.data.evidence;
+  }
+
+  /**
+   * Clear all evidence
+   */
+  clearEvidence() {
+    this.data.evidence = {};
+    return this.data.evidence;
+  }
+
+  /**
+   * Clear all data (admin only)
+   * Resets all data to initial state and clears localStorage and IndexedDB
+   */
+  async clearAllData() {
+    try {
+      // Clear in-memory data
+      this.data = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: {},
+        evidence: {}
+      };
+
+      // Clear localStorage
+      localStorage.clear();
+
+      // Clear IndexedDB
+      if (window.indexedDB) {
+        const databases = await window.indexedDB.databases();
+        for (const db of databases) {
+          window.indexedDB.deleteDatabase(db.name);
+        }
+      }
+
+      this.initialized = false;
+      return { success: true };
+    } catch (error) {
+      console.error('Error clearing all data:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // ==================== EXPORT/IMPORT OPERATIONS ====================
 
   /**
-   * Export all data as JSON
+   * Export all data as JSON (including answers and evidence from storage)
    */
-  exportData() {
-    return JSON.stringify(this.data, null, 2);
+  async exportData() {
+    try {
+      // Load answers and evidence from storage
+      const [answers, evidence] = await Promise.all([
+        storageService.loadAssessment(),
+        storageService.loadAllEvidence()
+      ]);
+      
+      // Create export data with current config + runtime data
+      const exportData = {
+        ...this.data,
+        answers: answers || {},
+        evidence: evidence || {}
+      };
+      
+      return JSON.stringify(exportData, null, 2);
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      // Fallback to exporting just the config data
+      return JSON.stringify(this.data, null, 2);
+    }
   }
 
   /**
    * Import data from JSON
    */
-  importData(jsonData) {
+  async importData(jsonData) {
     try {
       const imported = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
       
-      // Validate structure
-      if (!imported.domains || !imported.users || !imported.frameworks) {
-        throw new Error('Invalid data structure');
+      // Check if this is a user export (different format)
+      if (imported.exportVersion && imported.user && imported.questions) {
+        return await this.importUserExport(imported);
+      }
+      
+      // Detailed validation with specific error messages
+      const validationErrors = [];
+
+      // Check required top-level properties
+      if (!imported.domains) {
+        validationErrors.push('Missing required field: domains');
+      } else if (typeof imported.domains !== 'object' || Array.isArray(imported.domains)) {
+        validationErrors.push('Invalid domains: must be an object');
       }
 
-      this.data = imported;
+      if (!imported.users) {
+        validationErrors.push('Missing required field: users');
+      } else if (!Array.isArray(imported.users)) {
+        validationErrors.push('Invalid users: must be an array');
+      }
+
+      if (!imported.frameworks) {
+        validationErrors.push('Missing required field: frameworks');
+      } else if (!Array.isArray(imported.frameworks)) {
+        validationErrors.push('Invalid frameworks: must be an array');
+      }
+
+      if (!imported.questions) {
+        validationErrors.push('Missing required field: questions');
+      } else if (!Array.isArray(imported.questions)) {
+        validationErrors.push('Invalid questions: must be an array');
+      }
+
+      if (!imported.assignments) {
+        validationErrors.push('Missing required field: assignments');
+      } else if (typeof imported.assignments !== 'object' || Array.isArray(imported.assignments)) {
+        validationErrors.push('Invalid assignments: must be an object');
+      }
+
+      if (!imported.selectedFrameworks) {
+        validationErrors.push('Missing required field: selectedFrameworks');
+      } else if (!Array.isArray(imported.selectedFrameworks)) {
+        validationErrors.push('Invalid selectedFrameworks: must be an array');
+      }
+
+      // Validate answers (optional field, but must be object if present)
+      if (imported.answers !== undefined) {
+        if (typeof imported.answers !== 'object' || Array.isArray(imported.answers)) {
+          validationErrors.push('Invalid answers: must be an object');
+        }
+      }
+
+      // Validate evidence (optional field, but must be object if present)
+      if (imported.evidence !== undefined) {
+        if (typeof imported.evidence !== 'object' || Array.isArray(imported.evidence)) {
+          validationErrors.push('Invalid evidence: must be an object');
+        }
+      }
+
+      // If there are validation errors, throw with detailed message
+      if (validationErrors.length > 0) {
+        throw new Error(`Invalid data structure: ${validationErrors.join(', ')}`);
+      }
+
+      // Merge imported data with defaults for optional fields
+      this.data = {
+        ...imported,
+        answers: imported.answers || {},
+        evidence: imported.evidence || {}
+      };
       this.initialized = true;
+      
+      // Save answers and evidence to storage
+      if (imported.answers && Object.keys(imported.answers).length > 0) {
+        await storageService.saveAssessment(imported.answers);
+      }
+      
+      if (imported.evidence && Object.keys(imported.evidence).length > 0) {
+        // Save each evidence item individually
+        for (const [questionId, evidenceData] of Object.entries(imported.evidence)) {
+          await storageService.saveEvidence(questionId, evidenceData);
+        }
+      }
       
       return true;
     } catch (error) {
@@ -501,19 +709,72 @@ class DataStore {
   }
 
   /**
+   * Import user export data and merge with existing data
+   */
+  async importUserExport(userExport) {
+    try {
+      // Extract answers and evidence from user export
+      const userAnswers = {};
+      const userEvidence = {};
+      
+      userExport.questions.forEach(q => {
+        if (q.answer !== null && q.answer !== undefined) {
+          userAnswers[q.id] = q.answer;
+        }
+        if (q.evidence) {
+          userEvidence[q.id] = q.evidence;
+        }
+      });
+      
+      // Merge with existing data
+      this.data.answers = {
+        ...this.data.answers,
+        ...userAnswers
+      };
+      
+      this.data.evidence = {
+        ...this.data.evidence,
+        ...userEvidence
+      };
+      
+      // Save to storage
+      if (Object.keys(userAnswers).length > 0) {
+        await storageService.saveAssessment(this.data.answers);
+      }
+      
+      if (Object.keys(userEvidence).length > 0) {
+        for (const [questionId, evidenceData] of Object.entries(userEvidence)) {
+          await storageService.saveEvidence(questionId, evidenceData);
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error importing user export:', error);
+      throw new Error('Failed to import user export: ' + error.message);
+    }
+  }
+
+  /**
    * Download data as a JSON file
    */
-  downloadData(filename = 'assessment-data.json') {
-    const dataStr = this.exportData();
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    
-    URL.revokeObjectURL(url);
+  async downloadData(filename = 'assessment-data.json') {
+    try {
+      const dataStr = await this.exportData();
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (error) {
+      console.error('Error downloading data:', error);
+      throw error;
+    }
   }
 
   /**
@@ -526,7 +787,9 @@ class DataStore {
       frameworks: [],
       questions: [],
       assignments: {},
-      selectedFrameworks: []
+      selectedFrameworks: [],
+      answers: {},
+      evidence: {}
     };
     this.initialized = false;
   }

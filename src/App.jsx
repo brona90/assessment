@@ -1,14 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAssessment } from './hooks/useAssessment';
 import { useUser } from './hooks/useUser';
-import { QuestionCard } from './components/QuestionCard';
-import { ProgressBar } from './components/ProgressBar';
-import { ComplianceDashboard } from './components/ComplianceDashboard';
-import { DomainRadarChart } from './components/DomainRadarChart';
-import { DomainBarChart } from './components/DomainBarChart';
 import { EvidenceModal } from './components/EvidenceModal';
-import { UserSelector } from './components/UserSelector';
-import { EnhancedAdminPanel } from './components/EnhancedAdminPanel';
+import { UserSelectionScreen } from './components/UserSelectionScreen';
+import { FullScreenAdminView } from './components/FullScreenAdminView';
+import { UserView } from './components/UserView';
+import { ResultsView } from './components/ResultsView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 import { userExportService } from './services/userExportService';
@@ -32,15 +29,63 @@ function App() {
     currentUser,
     loading: userLoading,
     selectUser,
-    canAccessQuestion,
     isAdmin
   } = useUser();
 
-  const [activeSection, setActiveSection] = useState('assessment');
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
+  const [userQuestions, setUserQuestions] = useState([]);
+  
+  // Initialize view from URL hash
+  const getViewFromHash = () => {
+    const hash = window.location.hash.slice(1); // Remove '#'
+    if (hash === 'results') return 'results';
+    if (hash === 'admin') return 'admin';
+    return 'assessment';
+  };
+  
+  const [currentView, setCurrentView] = useState(getViewFromHash());
   const { frameworks } = useCompliance(answers);
-  const { getQuestionsForUser } = useDataStore();
+  const { 
+    getQuestionsForUser, 
+    initialized,
+    importData,
+    exportData,
+    clearAllData
+  } = useDataStore();
+
+  // Hydrate user questions when user changes or data is updated
+  useEffect(() => {
+    const loadUserQuestions = () => {
+      if (currentUser && initialized) {
+        const questions = getQuestionsForUser(currentUser.id);
+        setUserQuestions(questions);
+      } else {
+        setUserQuestions([]);
+      }
+    };
+    
+    loadUserQuestions();
+  }, [currentUser, initialized, getQuestionsForUser]);
+
+  // Sync view with URL hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newView = getViewFromHash();
+      setCurrentView(newView);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Update URL hash when view changes
+  useEffect(() => {
+    const hash = currentView === 'assessment' ? '' : currentView;
+    if (window.location.hash.slice(1) !== hash) {
+      window.location.hash = hash;
+    }
+  }, [currentView]);
 
   const handleOpenEvidence = (questionId) => {
     setCurrentQuestionId(questionId);
@@ -61,29 +106,72 @@ function App() {
 
   const handleExportPDF = async () => {
     try {
-      // Save current section
-      const previousSection = activeSection;
-      
-      // Only switch to dashboard if not already there and not in test environment
-        // eslint-disable-next-line no-undef
-      const isTestEnv = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
-      if (!isTestEnv && activeSection !== 'dashboard') {
-        setActiveSection('dashboard');
-        // Wait for charts to render
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-      
       // Generate PDF
       const pdf = await pdfService.generatePDF(domains, answers, evidence, frameworks);
       await pdfService.downloadPDF(pdf);
-      
-      // Switch back to previous section if we changed it
-      if (!isTestEnv && previousSection !== 'dashboard') {
-        setActiveSection(previousSection);
-      }
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    selectUser(null);
+    setUserQuestions([]);
+    setCurrentView('assessment'); // Reset view on logout
+  };
+
+  const handleSwitchToResults = () => {
+    setCurrentView('results');
+  };
+
+  const handleBackToAssessment = () => {
+    setCurrentView('assessment');
+  };
+
+  const handleImportData = async (file) => {
+    try {
+      // Read the file content
+      const text = await file.text();
+      const jsonData = JSON.parse(text);
+      
+      // Import the data
+      const result = await importData(jsonData);
+      
+      if (result.success) {
+        alert('Data imported successfully!');
+        // Reload the page to reflect changes
+        window.location.reload();
+      } else {
+        throw new Error(result.error || 'Import failed');
+      }
+    } catch (error) {
+      console.error('Error importing data:', error);
+      alert(`Failed to import data: ${error.message}`);
+    }
+  };
+
+  const handleExportData = async () => {
+    try {
+      const result = await exportData();
+      if (result.success) {
+        // Download will be triggered automatically
+        // No need for alert as the download provides feedback
+      } else {
+        throw new Error(result.error || 'Export failed');
+      }
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('Failed to export data. Please try again.');
+    }
+  };
+
+  const handleClearAllData = () => {
+    try {
+      clearAllData();
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      alert('Failed to clear data. Please try again.');
     }
   };
 
@@ -97,14 +185,26 @@ function App() {
       // Get user's assigned questions
       const userQuestions = getQuestionsForUser(currentUser.id);
       
-      // Export user data
-      userExportService.downloadUserExport(
+      // Export user data with evidence validation
+      const result = userExportService.downloadUserExport(
         currentUser.id,
         currentUser.name,
         userQuestions,
         answers,
-        evidence
+        evidence,
+        true // Require evidence for all answered questions
       );
+
+      // Handle validation errors
+      if (!result.success) {
+        const validation = result.validation;
+        alert(
+          `❌ Export Failed\n\n` +
+          `${result.error}\n\n` +
+          `You have answered ${validation.totalAnswered} question(s), but ${validation.missingEvidence} of them are missing evidence.\n\n` +
+          `Please add evidence (photos/documents) to all answered questions before exporting.`
+        );
+      }
     } catch (error) {
       console.error('Error exporting user data:', error);
       alert('Failed to export user data. Please try again.');
@@ -129,156 +229,71 @@ function App() {
     );
   }
 
-  const progress = getProgress();
+  // Show user selection screen if no user is selected
+  if (!currentUser) {
+    return (
+      <UserSelectionScreen 
+        users={users}
+        onSelectUser={selectUser}
+      />
+    );
+  }
 
-  // Filter questions based on user access
-  const filterQuestionsByUser = (questions) => {
-    if (!questions) return [];
-    return questions.filter(q => canAccessQuestion(q.id));
-  };
-
-  return (
-    <div className="app-container">
-      <header className="app-header">
-        <div className="header-content">
-          <h1>Technology Assessment Framework</h1>
-          <button 
-            className="export-btn" 
-            onClick={handleExportPDF}
-            data-testid="export-pdf"
-          >
-            📄 Export PDF
-          </button>
-          {!isAdmin() && (
-            <button 
-              className="export-btn" 
-              onClick={handleExportUserData}
-              data-testid="export-user-data"
-            >
-              💾 Export My Data
-            </button>
-          )}
-        </div>
-        <UserSelector 
-          users={users}
-          currentUser={currentUser}
-          onSelectUser={selectUser}
-        />
-        <ProgressBar {...progress} />
-      </header>
-
-      <nav className="app-nav">
-        <button
-          className={activeSection === 'assessment' ? 'active' : ''}
-          onClick={() => setActiveSection('assessment')}
-        >
-          Assessment
-        </button>
-        <button
-          className={activeSection === 'compliance' ? 'active' : ''}
-          onClick={() => setActiveSection('compliance')}
-        >
-          Compliance
-        </button>
-        <button
-          className={activeSection === 'dashboard' ? 'active' : ''}
-          onClick={() => setActiveSection('dashboard')}
-        >
-          Dashboard
-        </button>
-        {isAdmin() && (
-          <button
-            className={activeSection === 'admin' ? 'active' : ''}
-            onClick={() => setActiveSection('admin')}
-            data-testid="admin-nav-button"
-          >
-            Admin
-          </button>
+const progress = getProgress();
+  
+    // Render role-based view
+    return (
+      <>
+        {isAdmin() ? (
+          <FullScreenAdminView
+            domains={domains}
+            answers={answers}
+            evidence={evidence}
+            frameworks={frameworks}
+            onExportPDF={handleExportPDF}
+              onLogout={handleLogout}
+              onImportData={handleImportData}
+              onExportData={handleExportData}
+              onClearAllData={handleClearAllData}
+          />
+        ) : (
+          <>
+            {currentView === 'assessment' ? (
+              <UserView
+                user={currentUser}
+                questions={userQuestions}
+                answers={answers}
+                evidence={evidence}
+                progress={progress}
+                onAnswerChange={saveAnswer}
+                onClearAnswer={clearAnswer}
+                onAddEvidence={handleOpenEvidence}
+                onExportUserData={handleExportUserData}
+                onSwitchToResults={handleSwitchToResults}
+                onLogout={handleLogout}
+              />
+            ) : (
+              <ResultsView
+                user={currentUser}
+                domains={domains}
+                answers={answers}
+                progress={progress}
+                onBackToAssessment={handleBackToAssessment}
+                onLogout={handleLogout}
+              />
+            )}
+          </>
         )}
-      </nav>
-
-      <main className="app-main">
-        {activeSection === 'assessment' && domains && (
-          <div className="assessment-section" data-testid="assessment-section">
-              {Object.entries(domains).map(([domainKey, domain]) => (
-                <div key={domainKey} className="domain-section">
-                  <h2>{domain.title}</h2>
-                  {Object.entries(domain.categories || {}).map(([catKey, category]) => {
-                    const filteredQuestions = filterQuestionsByUser(category.questions || []);
-                    
-                    return (
-                      <div key={catKey} className="category-section">
-                        <h3>{category.title}</h3>
-                        {filteredQuestions.length === 0 ? (
-                          <p className="no-questions">No questions assigned or available.</p>
-                        ) : (
-                          filteredQuestions.map(question => (
-                            <QuestionCard
-                              key={question.id}
-                              question={question}
-                              answer={answers[question.id]}
-                              onAnswerChange={(value) => saveAnswer(question.id, value)}
-                              onClearAnswer={() => clearAnswer(question.id)}
-                              onAddEvidence={() => handleOpenEvidence(question.id)}
-                              hasEvidence={!!evidence[question.id]}
-                            />
-                          ))
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          )}
-        {activeSection === 'compliance' && (
-          <div className="compliance-section" data-testid="compliance-section">
-            <ComplianceDashboard answers={answers} />
-          </div>
+  
+        {evidenceModalOpen && (
+          <EvidenceModal
+            questionId={currentQuestionId}
+            existingEvidence={evidence[currentQuestionId]}
+            onSave={handleSaveEvidence}
+            onClose={handleCloseEvidence}
+          />
         )}
-
-        {activeSection === 'dashboard' && (
-          <div className="dashboard-section" data-testid="dashboard-section">
-            <h2>Assessment Dashboard</h2>
-            <div className="charts-grid">
-              <div className="chart-card">
-                <h3>Domain Maturity Overview</h3>
-                <DomainBarChart domains={domains} answers={answers} />
-              </div>
-              <div className="chart-card">
-                <h3>Maturity Radar Analysis</h3>
-                <DomainRadarChart domains={domains} answers={answers} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeSection === 'admin' && isAdmin() && (
-          <div className="admin-section" data-testid="admin-section">
-            <EnhancedAdminPanel
-              domains={domains}
-              users={users}
-              onUpdateQuestion={() => {}}
-              onAddQuestion={() => {}}
-              onDeleteQuestion={() => {}}
-              onUpdateUserAssignments={() => {}}
-              onAddUser={() => {}}
-              onDeleteUser={() => {}}
-            />
-          </div>
-        )}
-      </main>
-
-      {evidenceModalOpen && (
-        <EvidenceModal
-          questionId={currentQuestionId}
-          existingEvidence={evidence[currentQuestionId]}
-          onSave={handleSaveEvidence}
-          onClose={handleCloseEvidence}
-        />
-      )}
-    </div>
-  );
-}
-
+      </>
+    );
+  }
 export default App;

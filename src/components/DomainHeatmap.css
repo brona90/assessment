@@ -1,0 +1,113 @@
+.heatmap-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+}
+
+.heatmap-header {
+  margin-bottom: 1.5rem;
+}
+
+.heatmap-header h3 {
+  color: #667eea;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.heatmap-header p {
+  color: #666;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.heatmap-canvas-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
+  max-width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.heatmap-canvas-wrapper canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.legend-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.legend-gradient {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-min,
+.legend-max {
+  font-size: 0.85rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.gradient-bar {
+  width: 200px;
+  height: 20px;
+  background: linear-gradient(to right, 
+    rgb(220, 100, 100) 0%, 
+    rgb(220, 180, 100) 25%,
+    rgb(220, 220, 100) 50%, 
+    rgb(180, 220, 100) 75%,
+    rgb(100, 220, 100) 100%
+  );
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.heatmap-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.heatmap-empty p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .heatmap-container {
+    padding: 1rem;
+  }
+
+  .heatmap-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .legend-gradient {
+    flex-direction: column;
+  }
+
+  .gradient-bar {
+    width: 150px;
+  }
+}

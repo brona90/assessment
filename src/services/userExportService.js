@@ -37,14 +37,51 @@ export const userExportService = {
   },
 
   /**
+   * Check if user has provided evidence for answered questions
+   * @param {Array} questions - User's assigned questions
+   * @param {Object} answers - User's answers
+   * @param {Object} evidence - User's evidence
+   * @returns {Object} Validation result with missing evidence details
+   */
+  validateEvidenceRequirement(questions, answers, evidence) {
+    const answeredQuestions = questions.filter(q => answers[q.id] !== undefined && answers[q.id] !== null);
+    const questionsWithoutEvidence = answeredQuestions.filter(q => !evidence[q.id] || evidence[q.id].length === 0);
+    
+    return {
+      isValid: questionsWithoutEvidence.length === 0,
+      totalAnswered: answeredQuestions.length,
+      missingEvidence: questionsWithoutEvidence.length,
+      questionsWithoutEvidence: questionsWithoutEvidence.map(q => ({
+        id: q.id,
+        text: q.text,
+        domainId: q.domainId
+      }))
+    };
+  },
+
+  /**
    * Download user export as JSON file
    * @param {string} userId - User ID
    * @param {string} userName - User name
    * @param {Array} questions - User's assigned questions
    * @param {Object} answers - User's answers
    * @param {Object} evidence - User's evidence
+   * @param {boolean} requireEvidence - Whether to require evidence for all answered questions
+   * @returns {Object} Result with success status and optional error
    */
-  downloadUserExport(userId, userName, questions, answers, evidence) {
+  downloadUserExport(userId, userName, questions, answers, evidence, requireEvidence = true) {
+    // Validate evidence requirement if enabled
+    if (requireEvidence) {
+      const validation = this.validateEvidenceRequirement(questions, answers, evidence);
+      if (!validation.isValid) {
+        return {
+          success: false,
+          error: `Cannot export: ${validation.missingEvidence} answered question(s) are missing evidence`,
+          validation
+        };
+      }
+    }
+
     const exportData = this.exportUserData(userId, userName, questions, answers, evidence);
     const dataStr = JSON.stringify(exportData, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -57,6 +94,8 @@ export const userExportService = {
     link.click();
     
     URL.revokeObjectURL(url);
+    
+    return { success: true };
   },
 
   /**
