@@ -92,15 +92,24 @@ export const FullScreenAdminView = ({
   // Assignment state
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [userAssignments, setUserAssignments] = useState({});
 
-  // Load data on mount
+  // Load data on mount and when activeTab changes to assignments
   useEffect(() => {
     setManagedDomains(getDomains());
     setManagedFrameworks(getFrameworks());
     setSelectedFrameworkIds(getSelectedFrameworks());
     setManagedUsers(getUsers());
     setManagedQuestions(getQuestions());
-  }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions]);
+    
+    // Load assignments for all users
+    const users = getUsers();
+    const assignments = {};
+    users.forEach(user => {
+      assignments[user.id] = getUserAssignments(user.id);
+    });
+    setUserAssignments(assignments);
+  }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions, getUserAssignments, activeTab]);
 
   // Domain handlers
   const handleAddDomain = async () => {
@@ -320,6 +329,15 @@ export const FullScreenAdminView = ({
     }
     try {
       await assignQuestionsToUser(selectedUserId, selectedQuestions);
+      
+      // Refresh assignments for all users
+      const users = getUsers();
+      const assignments = {};
+      users.forEach(user => {
+        assignments[user.id] = getUserAssignments(user.id);
+      });
+      setUserAssignments(assignments);
+      
       setSelectedUserId('');
       setSelectedQuestions([]);
       setMessage({ type: 'success', text: 'Questions assigned successfully!' });
@@ -848,12 +866,22 @@ export const FullScreenAdminView = ({
               <h3>Current Assignments</h3>
               <div className="items-list">
                 {managedUsers.map(user => {
-                  const assignments = getUserAssignments(user.id);
+                  const assignments = userAssignments[user.id] || [];
                   return (
                     <div key={user.id} className="item">
                       <div className="item-info">
                         <strong>{user.name}</strong>
                         <p>{assignments.length} questions assigned</p>
+                        {assignments.length > 0 && (
+                          <ul className="assignment-list">
+                            {assignments.slice(0, 5).map(q => (
+                              <li key={q.id}>{q.text}</li>
+                            ))}
+                            {assignments.length > 5 && (
+                              <li>... and {assignments.length - 5} more</li>
+                            )}
+                          </ul>
+                        )}
                       </div>
                     </div>
                   );
