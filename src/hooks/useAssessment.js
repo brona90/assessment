@@ -3,23 +3,19 @@ import { storageService } from '../services/storageService';
 import { dataService } from '../services/dataService';
 import { scoreCalculator } from '../utils/scoreCalculator';
 
-export const useAssessment = () => {
+export const useAssessment = (userId) => {
   const [domains, setDomains] = useState(null);
   const [answers, setAnswers] = useState({});
   const [evidence, setEvidence] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [questionsData, savedAnswers, savedEvidence] = await Promise.all([
         dataService.loadQuestions(),
-        storageService.loadAssessment(),
+        storageService.loadAssessment(userId),
         storageService.loadAllEvidence()
       ]);
 
@@ -36,20 +32,24 @@ export const useAssessment = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const saveAnswer = useCallback(async (questionId, value) => {
     const newAnswers = { ...answers, [questionId]: value };
     setAnswers(newAnswers);
-    await storageService.saveAssessment(newAnswers);
-  }, [answers]);
+    await storageService.saveAssessment(userId, newAnswers);
+  }, [answers, userId]);
 
   const clearAnswer = useCallback(async (questionId) => {
     const newAnswers = { ...answers };
     delete newAnswers[questionId];
     setAnswers(newAnswers);
-    await storageService.saveAssessment(newAnswers);
-  }, [answers]);
+    await storageService.saveAssessment(userId, newAnswers);
+  }, [answers, userId]);
 
   const saveEvidenceForQuestion = useCallback(async (questionId, evidenceData) => {
     const newEvidence = { ...evidence, [questionId]: evidenceData };
@@ -61,10 +61,10 @@ export const useAssessment = () => {
     setAnswers({});
     setEvidence({});
     await Promise.all([
-      storageService.clearAssessment(),
+      storageService.clearAssessment(userId),
       storageService.clearAllEvidence()
     ]);
-  }, []);
+  }, [userId]);
 
   const getProgress = useCallback(() => {
     if (!domains) return { answered: 0, total: 0, percentage: 0 };

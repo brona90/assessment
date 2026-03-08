@@ -3,6 +3,8 @@ import localforage from 'localforage';
 const ASSESSMENT_KEY = 'assessmentData';
 const EVIDENCE_STORE = 'evidence';
 
+const getAssessmentKey = (userId) => userId ? `assessmentData_${userId}` : ASSESSMENT_KEY;
+
 // Configure localforage for evidence storage
 const createEvidenceDB = () => localforage.createInstance({
   name: 'assessmentApp',
@@ -13,9 +15,10 @@ export const storageService = {
   evidenceDB: createEvidenceDB(),
 
   // Assessment data
-  async saveAssessment(data) {
+  async saveAssessment(userId, data) {
     try {
-      localStorage.setItem(ASSESSMENT_KEY, JSON.stringify(data));
+      const key = getAssessmentKey(userId);
+      localStorage.setItem(key, JSON.stringify(data));
       return true;
     } catch (error) {
       console.error('Error saving assessment:', error);
@@ -23,9 +26,10 @@ export const storageService = {
     }
   },
 
-  async loadAssessment() {
+  async loadAssessment(userId) {
     try {
-      const data = localStorage.getItem(ASSESSMENT_KEY);
+      const key = getAssessmentKey(userId);
+      const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : {};
     } catch (error) {
       console.error('Error loading assessment:', error);
@@ -33,9 +37,10 @@ export const storageService = {
     }
   },
 
-  async clearAssessment() {
+  async clearAssessment(userId) {
     try {
-      localStorage.removeItem(ASSESSMENT_KEY);
+      const key = getAssessmentKey(userId);
+      localStorage.removeItem(key);
       return true;
     } catch (error) {
       console.error('Error clearing assessment:', error);

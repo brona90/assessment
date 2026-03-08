@@ -8,34 +8,51 @@ describe('StorageService', () => {
   });
 
   describe('Assessment Data', () => {
-    it('should save assessment data', async () => {
+    it('should save assessment data with userId', async () => {
       const testData = { q1: 3, q2: 4 };
-      const result = await storageService.saveAssessment(testData);
-      
+      const result = await storageService.saveAssessment('user1', testData);
+
       expect(result).toBe(true);
-      const saved = localStorage.getItem('assessmentData');
+      const saved = localStorage.getItem('assessmentData_user1');
       expect(JSON.parse(saved)).toEqual(testData);
     });
 
-    it('should load assessment data', async () => {
+    it('should fall back to default key when no userId', async () => {
+      const testData = { q1: 3 };
+      await storageService.saveAssessment(null, testData);
+      expect(localStorage.getItem('assessmentData')).not.toBeNull();
+    });
+
+    it('should load assessment data with userId', async () => {
       const testData = { q1: 3, q2: 4 };
-      localStorage.setItem('assessmentData', JSON.stringify(testData));
-      
-      const loaded = await storageService.loadAssessment();
+      localStorage.setItem('assessmentData_user1', JSON.stringify(testData));
+
+      const loaded = await storageService.loadAssessment('user1');
       expect(loaded).toEqual(testData);
     });
 
     it('should return empty object when no data exists', async () => {
-      const loaded = await storageService.loadAssessment();
+      const loaded = await storageService.loadAssessment('user1');
       expect(loaded).toEqual({});
     });
 
-    it('should clear assessment data', async () => {
-      localStorage.setItem('assessmentData', JSON.stringify({ q1: 3 }));
-      
-      const result = await storageService.clearAssessment();
+    it('should clear assessment data with userId', async () => {
+      localStorage.setItem('assessmentData_user1', JSON.stringify({ q1: 3 }));
+
+      const result = await storageService.clearAssessment('user1');
       expect(result).toBe(true);
-      expect(localStorage.getItem('assessmentData')).toBeNull();
+      expect(localStorage.getItem('assessmentData_user1')).toBeNull();
+    });
+
+    it('should isolate data between different users', async () => {
+      await storageService.saveAssessment('user1', { q1: 3 });
+      await storageService.saveAssessment('user2', { q1: 5 });
+
+      const user1Data = await storageService.loadAssessment('user1');
+      const user2Data = await storageService.loadAssessment('user2');
+
+      expect(user1Data).toEqual({ q1: 3 });
+      expect(user2Data).toEqual({ q1: 5 });
     });
 
     it('should handle save errors gracefully', async () => {
@@ -43,10 +60,10 @@ describe('StorageService', () => {
       const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('Storage full');
       });
-      
-      const result = await storageService.saveAssessment({ q1: 3 });
+
+      const result = await storageService.saveAssessment('user1', { q1: 3 });
       expect(result).toBe(false);
-      
+
       setItemSpy.mockRestore();
       consoleSpy.mockRestore();
     });
@@ -56,10 +73,10 @@ describe('StorageService', () => {
       const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
         throw new Error('Storage error');
       });
-      
-      const result = await storageService.loadAssessment();
+
+      const result = await storageService.loadAssessment('user1');
       expect(result).toEqual({});
-      
+
       getItemSpy.mockRestore();
       consoleSpy.mockRestore();
     });
@@ -69,10 +86,10 @@ describe('StorageService', () => {
       const removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
         throw new Error('Storage error');
       });
-      
-      const result = await storageService.clearAssessment();
+
+      const result = await storageService.clearAssessment('user1');
       expect(result).toBe(false);
-      
+
       removeItemSpy.mockRestore();
       consoleSpy.mockRestore();
     });

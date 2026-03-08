@@ -25,7 +25,7 @@ describe('useAssessment', () => {
   });
 
   it('should load data on mount', async () => {
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     expect(result.current.loading).toBe(true);
 
@@ -37,9 +37,9 @@ describe('useAssessment', () => {
     expect(dataService.loadQuestions).toHaveBeenCalled();
   });
 
-  it('should save answer', async () => {
+  it('should save answer with userId', async () => {
     storageService.saveAssessment.mockResolvedValue(true);
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -50,14 +50,14 @@ describe('useAssessment', () => {
     });
 
     expect(result.current.answers).toEqual({ q1: 3 });
-    expect(storageService.saveAssessment).toHaveBeenCalledWith({ q1: 3 });
+    expect(storageService.saveAssessment).toHaveBeenCalledWith('user1', { q1: 3 });
   });
 
   it('should clear answer', async () => {
     storageService.saveAssessment.mockResolvedValue(true);
     storageService.loadAssessment.mockResolvedValue({ q1: 3, q2: 4 });
-    
-    const { result } = renderHook(() => useAssessment());
+
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -72,14 +72,14 @@ describe('useAssessment', () => {
 
   it('should save evidence', async () => {
     storageService.saveEvidence.mockResolvedValue(true);
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
     const evidenceData = { text: 'Test evidence', images: [] };
-    
+
     await act(async () => {
       await result.current.saveEvidenceForQuestion('q1', evidenceData);
     });
@@ -91,8 +91,8 @@ describe('useAssessment', () => {
   it('should clear all data', async () => {
     storageService.clearAssessment.mockResolvedValue(true);
     storageService.clearAllEvidence.mockResolvedValue(true);
-    
-    const { result } = renderHook(() => useAssessment());
+
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -104,13 +104,13 @@ describe('useAssessment', () => {
 
     expect(result.current.answers).toEqual({});
     expect(result.current.evidence).toEqual({});
-    expect(storageService.clearAssessment).toHaveBeenCalled();
+    expect(storageService.clearAssessment).toHaveBeenCalledWith('user1');
     expect(storageService.clearAllEvidence).toHaveBeenCalled();
   });
 
   it('should calculate progress', async () => {
     storageService.loadAssessment.mockResolvedValue({ q1: 3 });
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -124,7 +124,7 @@ describe('useAssessment', () => {
 
   it('should handle errors', async () => {
     dataService.loadQuestions.mockResolvedValue(null);
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -135,7 +135,7 @@ describe('useAssessment', () => {
 
   it('should get domain score', async () => {
     storageService.loadAssessment.mockResolvedValue({ q1: 3, q2: 4 });
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -147,7 +147,7 @@ describe('useAssessment', () => {
 
   it('should get overall score', async () => {
     storageService.loadAssessment.mockResolvedValue({ q1: 3, q2: 4 });
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -158,7 +158,7 @@ describe('useAssessment', () => {
   });
 
   it('should reload data', async () => {
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -172,7 +172,7 @@ describe('useAssessment', () => {
   });
 
   it('should return 0 for domain score when domain does not exist', async () => {
-    const { result } = renderHook(() => useAssessment());
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -185,8 +185,8 @@ describe('useAssessment', () => {
   it('should return 0 for overall score when no domains', async () => {
     dataService.loadQuestions.mockResolvedValue(null);
     storageService.loadAssessment.mockResolvedValue({});
-    
-    const { result } = renderHook(() => useAssessment());
+
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -198,8 +198,8 @@ describe('useAssessment', () => {
 
   it('should return default progress when no domains', async () => {
     dataService.loadQuestions.mockResolvedValue(null);
-    
-    const { result } = renderHook(() => useAssessment());
+
+    const { result } = renderHook(() => useAssessment('user1'));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -207,5 +207,23 @@ describe('useAssessment', () => {
 
     const progress = result.current.getProgress();
     expect(progress).toEqual({ answered: 0, total: 0, percentage: 0 });
+  });
+
+  it('should reload answers when userId changes', async () => {
+    storageService.loadAssessment
+      .mockResolvedValueOnce({ q1: 3 })
+      .mockResolvedValueOnce({ q2: 5 });
+
+    let userId = 'user1';
+    const { result, rerender } = renderHook(() => useAssessment(userId));
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.answers).toEqual({ q1: 3 });
+
+    userId = 'user2';
+    rerender();
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.answers).toEqual({ q2: 5 });
   });
 });
