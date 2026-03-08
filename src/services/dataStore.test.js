@@ -58,6 +58,37 @@ describe('DataStore', async () => {
       expect(dataStore.data.frameworks).toHaveLength(1);
       expect(dataStore.data.questions).toHaveLength(1);
     });
+
+    it('should add domainTitle and categoryTitle to extracted questions', async () => {
+      // eslint-disable-next-line no-undef
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          json: async () => ({
+            domains: {
+              domain1: {
+                id: 'domain1',
+                title: 'My Domain Title',
+                categories: {
+                  cat1: {
+                    title: 'My Category Title',
+                    questions: [{ id: 'q1', text: 'Question 1' }]
+                  }
+                }
+              }
+            }
+          })
+        })
+        .mockResolvedValueOnce({ json: async () => ({ users: [] }) })
+        .mockResolvedValueOnce({ json: async () => ({ frameworks: [] }) });
+
+      await dataStore.initialize();
+
+      const q = dataStore.data.questions[0];
+      expect(q.domainTitle).toBe('My Domain Title');
+      expect(q.categoryTitle).toBe('My Category Title');
+      expect(q.domainId).toBe('domain1');
+      expect(q.categoryId).toBe('cat1');
+    });
   });
 
   describe('domain operations', async () => {

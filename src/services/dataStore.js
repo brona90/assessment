@@ -83,7 +83,9 @@ class DataStore {
             questions.push({
               ...question,
               domainId,
-              categoryId
+              categoryId,
+              domainTitle: domain.title,
+              categoryTitle: category.title
             });
           });
         }
