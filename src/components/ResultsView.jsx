@@ -122,7 +122,11 @@ export const ResultsView = ({
               <span className="score-value">{overallScore.toFixed(2)}</span>
               <span className="score-max">/ 5.0</span>
             </div>
-            <span className="maturity-label" data-testid="overall-maturity-label">
+            <span
+              className="maturity-label"
+              data-testid="overall-maturity-label"
+              aria-label={`Maturity level: ${scoreCalculator.getMaturityLevel(overallScore)}`}
+            >
               {scoreCalculator.getMaturityLevel(overallScore)}
             </span>
             <div className="progress-info">
@@ -145,7 +149,11 @@ export const ResultsView = ({
                     <span className="score">{score.score}</span>
                     <span className="max">/ 5.0</span>
                   </div>
-                  <span className="maturity-label" data-testid={`maturity-${domainId}`}>
+                  <span
+                    className="maturity-label"
+                    data-testid={`maturity-${domainId}`}
+                    aria-label={`Maturity level: ${scoreCalculator.getMaturityLevel(parseFloat(score.score))}`}
+                  >
                     {scoreCalculator.getMaturityLevel(parseFloat(score.score))}
                   </span>
                   <div className="domain-progress">
@@ -167,8 +175,11 @@ export const ResultsView = ({
 
         {/* Chart Tabs */}
         <div className="chart-section">
-          <div className="chart-tabs">
+          <div className="chart-tabs" role="tablist" aria-label="Chart views">
             <button
+              role="tab"
+              aria-selected={activeChart === 'heatmap'}
+              aria-controls="chart-panel"
               className={`chart-tab ${activeChart === 'heatmap' ? 'active' : ''}`}
               onClick={() => setActiveChart('heatmap')}
               data-testid="heatmap-chart-tab"
@@ -176,6 +187,9 @@ export const ResultsView = ({
               🔥 Heatmap
             </button>
             <button
+              role="tab"
+              aria-selected={activeChart === 'radar'}
+              aria-controls="chart-panel"
               className={`chart-tab ${activeChart === 'radar' ? 'active' : ''}`}
               onClick={() => setActiveChart('radar')}
               data-testid="radar-chart-tab"
@@ -183,6 +197,9 @@ export const ResultsView = ({
               📡 Radar Chart
             </button>
             <button
+              role="tab"
+              aria-selected={activeChart === 'bar'}
+              aria-controls="chart-panel"
               className={`chart-tab ${activeChart === 'bar' ? 'active' : ''}`}
               onClick={() => setActiveChart('bar')}
               data-testid="bar-chart-tab"
@@ -191,7 +208,7 @@ export const ResultsView = ({
             </button>
           </div>
 
-          <div className="chart-display">
+          <div className="chart-display" role="tabpanel" id="chart-panel">
             {activeChart === 'heatmap' ? (
               <DomainHeatmap domains={filteredDomains} answers={answers} />
             ) : activeChart === 'radar' ? (
@@ -226,6 +243,7 @@ export const ResultsView = ({
                 .slice(0, 10)
                 .map(q => {
                   const priorityLabel = q.priority >= 2.0 ? 'High' : q.priority >= 1.0 ? 'Medium' : 'Low';
+                  const priorityIcon = q.priority >= 2.0 ? '⚠' : q.priority >= 1.0 ? '◎' : '✓';
                   return (
                     <div key={q.id} className="gap-item" data-testid={`gap-item-${q.id}`}>
                       <div className="gap-item-text">{q.text}</div>
@@ -241,8 +259,9 @@ export const ResultsView = ({
                           className={`priority-badge priority-${priorityLabel.toLowerCase()}`}
                           data-testid={`priority-${q.id}`}
                           data-priority={q.priority.toFixed(2)}
+                          aria-label={`${priorityLabel} priority`}
                         >
-                          {priorityLabel} Priority
+                          {priorityIcon} {priorityLabel}
                         </span>
                       </div>
                     </div>

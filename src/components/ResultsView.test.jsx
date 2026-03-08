@@ -223,20 +223,24 @@ describe('ResultsView', () => {
 
     it('should show High priority for score of 1 (gap=3)', () => {
       render(<ResultsView {...defaultProps} answers={{ q1: 1 }} />);
-      expect(screen.getByTestId('priority-q1').textContent).toBe('High Priority');
+      expect(screen.getByTestId('priority-q1').textContent).toContain('High');
     });
 
     it('should show Medium priority for score of 3 (gap=1)', () => {
       render(<ResultsView {...defaultProps} answers={{ q1: 3 }} />);
-      expect(screen.getByTestId('priority-q1').textContent).toBe('Medium Priority');
+      expect(screen.getByTestId('priority-q1').textContent).toContain('Medium');
     });
 
-    it('should show Low priority for score of 3.5 (gap=0.5)', () => {
-      // q1=3 (gap 1=Medium), need a fractional - use answers with higher scores
-      // score 3.8 → gap 0.2 → Low
+    it('should show Low priority for score near target', () => {
       const fractionalQ = [{ id: 'qx', domainId: 'domain1', domainTitle: 'D', categoryId: 'c', categoryTitle: 'C', text: 'X' }];
       render(<ResultsView {...defaultProps} questions={fractionalQ} answers={{ qx: 3.8 }} />);
-      expect(screen.getByTestId('priority-qx').textContent).toBe('Low Priority');
+      expect(screen.getByTestId('priority-qx').textContent).toContain('Low');
+    });
+
+    it('should include an icon in the priority badge', () => {
+      render(<ResultsView {...defaultProps} answers={{ q1: 1 }} />);
+      // High priority shows ⚠
+      expect(screen.getByTestId('priority-q1').textContent).toContain('⚠');
     });
   });
 });

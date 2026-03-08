@@ -516,3 +516,12 @@
   color: #888;
   font-style: italic;
 }
+
+.completion-table tbody tr:hover {
+  background: #f9f9ff;
+}
+
+.completion-table tbody tr:focus-within {
+  outline: 2px solid #667eea;
+  outline-offset: -2px;
+}

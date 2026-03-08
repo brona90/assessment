@@ -236,18 +236,20 @@ body {
 }
 
 .clear-btn,
-.evidence-btn {
+.evidence-btn,
+.na-btn {
   padding: 0.5rem 1rem;
-  border: none;
   border-radius: 0.5rem;
   cursor: pointer;
   font-size: 0.875rem;
+  font-weight: 500;
   transition: all 0.2s;
 }
 
 .clear-btn {
   background: var(--danger-color);
   color: white;
+  border: none;
 }
 
 .clear-btn:hover {
@@ -262,6 +264,34 @@ body {
 
 .evidence-btn:hover {
   background: var(--border-color);
+}
+
+/* N/A button — neutral by default, branded when selected */
+.na-btn {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-color);
+}
+
+.na-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: #f5f3ff;
+}
+
+.na-btn.selected {
+  background: #f5f3ff;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Global focus ring for keyboard navigation */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 .loading-container,
