@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { userService } from '../services/userService';
 
 export const useUser = () => {
@@ -11,10 +11,10 @@ export const useUser = () => {
       setLoading(true);
       const loadedUsers = await userService.loadUsers();
       setUsers(loadedUsers);
-      
+
       // Always start with no user selected - user must choose from selection screen
       setCurrentUser(null);
-      
+
       setLoading(false);
     };
 
@@ -26,17 +26,18 @@ export const useUser = () => {
     userService.setCurrentUser(user);
   };
 
-  const isAdmin = () => {
+  // Stable references — only change when currentUser changes
+  const isAdmin = useCallback(() => {
     return userService.isAdmin(currentUser);
-  };
+  }, [currentUser]);
 
-  const canAccessQuestion = (questionId) => {
+  const canAccessQuestion = useCallback((questionId) => {
     return userService.canAccessQuestion(currentUser, questionId);
-  };
+  }, [currentUser]);
 
-  const getAssignedQuestions = () => {
+  const getAssignedQuestions = useCallback(() => {
     return userService.getUserAssignedQuestions(currentUser);
-  };
+  }, [currentUser]);
 
   return {
     users,
