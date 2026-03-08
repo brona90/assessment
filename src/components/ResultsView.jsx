@@ -5,9 +5,9 @@ import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
 import './ResultsView.css';
 
-export const ResultsView = ({ 
+export const ResultsView = ({
   user,
-  domains,
+  questions,
   answers,
   progress,
   onBackToAssessment,
@@ -15,43 +15,63 @@ export const ResultsView = ({
 }) => {
   const [activeChart, setActiveChart] = useState('heatmap');
 
+  // Build domain structure from the user's assigned questions only
+  const filteredDomains = {};
+  questions.forEach(q => {
+    if (!filteredDomains[q.domainId]) {
+      filteredDomains[q.domainId] = {
+        title: q.domainTitle || q.domainId,
+        weight: 1,
+        categories: {}
+      };
+    }
+    if (!filteredDomains[q.domainId].categories[q.categoryId]) {
+      filteredDomains[q.domainId].categories[q.categoryId] = {
+        title: q.categoryTitle || q.categoryId,
+        questions: []
+      };
+    }
+    filteredDomains[q.domainId].categories[q.categoryId].questions.push(q);
+  });
+
   // Calculate domain scores
-  const domainScores = Object.keys(domains).reduce((acc, domainId) => {
-    const domain = domains[domainId];
-    const questions = [];
-    
+  const domainScores = Object.keys(filteredDomains).reduce((acc, domainId) => {
+    const domain = filteredDomains[domainId];
+    const domainQuestions = [];
+
     Object.values(domain.categories || {}).forEach(cat => {
-      if (cat.questions) questions.push(...cat.questions);
+      if (cat.questions) domainQuestions.push(...cat.questions);
     });
-    
-    if (questions.length === 0) {
-      acc[domainId] = { score: 0, total: 0, percentage: 0 };
+
+    if (domainQuestions.length === 0) {
+      acc[domainId] = { score: 0, total: 0, answered: 0, percentage: 0 };
       return acc;
     }
-    
+
     let total = 0;
     let count = 0;
-    questions.forEach(q => {
+    domainQuestions.forEach(q => {
       if (answers[q.id] !== undefined) {
         total += answers[q.id];
         count++;
       }
     });
-    
+
     acc[domainId] = {
       score: count > 0 ? (total / count).toFixed(2) : 0,
-      total: questions.length,
+      total: domainQuestions.length,
       answered: count,
-      percentage: count > 0 ? ((count / questions.length) * 100).toFixed(0) : 0
+      percentage: count > 0 ? ((count / domainQuestions.length) * 100).toFixed(0) : 0
     };
-    
+
     return acc;
   }, {});
 
-  // Calculate overall score
-  const overallScore = Object.values(domainScores).reduce((sum, domain) => {
-    return sum + parseFloat(domain.score);
-  }, 0) / Object.keys(domains).length;
+  // Overall score: average of domains that have at least one answer
+  const scoredDomains = Object.values(domainScores).filter(d => parseFloat(d.score) > 0);
+  const overallScore = scoredDomains.length > 0
+    ? scoredDomains.reduce((sum, d) => sum + parseFloat(d.score), 0) / scoredDomains.length
+    : 0;
 
   return (
     <div className="results-view" data-testid="results-view">
@@ -65,15 +85,15 @@ export const ResultsView = ({
             </div>
           </div>
           <div className="user-actions">
-            <button 
-              className="back-btn" 
+            <button
+              className="back-btn"
               onClick={onBackToAssessment}
               data-testid="back-to-assessment"
             >
               ← Back to Assessment
             </button>
-            <button 
-              className="logout-btn" 
+            <button
+              className="logout-btn"
               onClick={onLogout}
               data-testid="logout-btn"
             >
@@ -103,7 +123,7 @@ export const ResultsView = ({
         <div className="domain-scores">
           <h3>Domain Breakdown</h3>
           <div className="domain-cards">
-            {Object.entries(domains).map(([domainId, domain]) => {
+            {Object.entries(filteredDomains).map(([domainId, domain]) => {
               const score = domainScores[domainId];
               return (
                 <div key={domainId} className="domain-score-card">
@@ -114,8 +134,8 @@ export const ResultsView = ({
                   </div>
                   <div className="domain-progress">
                     <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
+                      <div
+                        className="progress-fill"
                         style={{ width: `${score.percentage}%` }}
                       />
                     </div>
@@ -157,11 +177,11 @@ export const ResultsView = ({
 
           <div className="chart-display">
             {activeChart === 'heatmap' ? (
-              <DomainHeatmap domains={domains} answers={answers} />
+              <DomainHeatmap domains={filteredDomains} answers={answers} />
             ) : activeChart === 'radar' ? (
-              <DomainRadarChart domains={domains} answers={answers} />
+              <DomainRadarChart domains={filteredDomains} answers={answers} />
             ) : (
-              <DomainBarChart domains={domains} answers={answers} />
+              <DomainBarChart domains={filteredDomains} answers={answers} />
             )}
           </div>
         </div>
@@ -171,8 +191,8 @@ export const ResultsView = ({
           <div className="recommendations">
             <h3>📝 Next Steps</h3>
             <p>You have {progress.total - progress.answered} questions remaining.</p>
-            <button 
-              className="continue-btn" 
+            <button
+              className="continue-btn"
               onClick={onBackToAssessment}
               data-testid="continue-assessment"
             >
@@ -190,7 +210,7 @@ ResultsView.propTypes = {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired
   }).isRequired,
-  domains: PropTypes.object.isRequired,
+  questions: PropTypes.array.isRequired,
   answers: PropTypes.object.isRequired,
   progress: PropTypes.shape({
     answered: PropTypes.number.isRequired,

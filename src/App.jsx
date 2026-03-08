@@ -253,7 +253,7 @@ const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, a
             ) : (
               <ResultsView
                 user={currentUser}
-                domains={domains}
+                questions={userQuestions}
                 answers={answers}
                 progress={progress}
                 onBackToAssessment={handleBackToAssessment}

@@ -15,28 +15,20 @@ vi.mock('./DomainHeatmap', () => ({
 describe('ResultsView', () => {
   const mockUser = { id: 'user1', name: 'John Doe' };
 
-  const mockDomains = {
-    domain1: {
-      title: 'Test Domain',
-      weight: 1,
-      categories: {
-        cat1: {
-          questions: [{ id: 'q1' }, { id: 'q2' }, { id: 'q3' }]
-        }
-      }
-    }
-  };
+  const mockQuestions = [
+    { id: 'q1', domainId: 'domain1', domainTitle: 'Test Domain', categoryId: 'cat1', categoryTitle: 'Test Category' },
+    { id: 'q2', domainId: 'domain1', domainTitle: 'Test Domain', categoryId: 'cat1', categoryTitle: 'Test Category' },
+    { id: 'q3', domainId: 'domain1', domainTitle: 'Test Domain', categoryId: 'cat1', categoryTitle: 'Test Category' }
+  ];
 
   const mockAnswers = { q1: 3, q2: 4 };
-
   const mockProgress = { answered: 2, total: 3, percentage: 67 };
-
   const mockOnBack = vi.fn();
   const mockOnLogout = vi.fn();
 
   const defaultProps = {
     user: mockUser,
-    domains: mockDomains,
+    questions: mockQuestions,
     answers: mockAnswers,
     progress: mockProgress,
     onBackToAssessment: mockOnBack,
@@ -103,9 +95,18 @@ describe('ResultsView', () => {
     expect(screen.getByTestId('domain-bar-chart')).toBeInTheDocument();
   });
 
-  it('should display domain scores', () => {
+  it('should display domain scores derived from assigned questions', () => {
     render(<ResultsView {...defaultProps} />);
     expect(screen.getByText('Test Domain')).toBeInTheDocument();
+  });
+
+  it('should only show domains with assigned questions', () => {
+    const singleDomainQuestions = [
+      { id: 'q1', domainId: 'domain1', domainTitle: 'Only Domain', categoryId: 'cat1', categoryTitle: 'Cat' }
+    ];
+    render(<ResultsView {...defaultProps} questions={singleDomainQuestions} />);
+    expect(screen.getByText('Only Domain')).toBeInTheDocument();
+    expect(screen.queryByText('domain2')).not.toBeInTheDocument();
   });
 
   it('should call onBackToAssessment when continue button is clicked', () => {
@@ -117,5 +118,10 @@ describe('ResultsView', () => {
   it('should display overall score', () => {
     render(<ResultsView {...defaultProps} />);
     expect(screen.getByText('Overall Maturity Score')).toBeInTheDocument();
+  });
+
+  it('should show 0.00 overall score when no answers', () => {
+    render(<ResultsView {...defaultProps} answers={{}} />);
+    expect(screen.getByText('0.00')).toBeInTheDocument();
   });
 });
