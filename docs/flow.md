@@ -2,7 +2,7 @@
 
 This app runs entirely in the browser — no backend, no database.
 All data is stored in the user's browser:
-- **localStorage** — question answers (keyed per user)
+- **localStorage** — question answers (keyed per user), assignments, framework mappings, last-active timestamps
 - **IndexedDB** (via LocalForage) — evidence files (text + images)
 
 Nothing leaves the device unless the user explicitly exports a file.
@@ -19,18 +19,18 @@ flowchart TD
     SEL -->|Click admin card| ADMIN[Admin Dashboard]
 
     subgraph Assessor Journey
-        ASSESS --> Q[Answer questions\n1 = Not Implemented → 5 = Optimized]
+        ASSESS --> Q[Answer questions\n1=Not Implemented → 5=Optimized\nor mark N/A]
         Q --> E[Add evidence\ntext notes + photos]
-        E --> SAVE[(Answers → localStorage\nEvidence → IndexedDB)]
+        E --> SAVE[(Answers → localStorage\nEvidence → IndexedDB\nLast-active timestamp)]
         SAVE --> Q
-        Q --> RES[View Results\ndomain scores, charts]
+        Q --> RES[View Results\nmaturity labels, domain scores\nbenchmark overlay, gap analysis\nFix These First priority list]
         Q --> EXP[Export My Data\ndownloads JSON file]
         EXP --> LOGOUT_U[Logout]
         RES --> LOGOUT_U
     end
 
     subgraph Admin Journey
-        ADMIN --> TAB_DASH[Dashboard tab\nAggregate charts across all assessors]
+        ADMIN --> TAB_DASH[Dashboard tab\nParticipant completion status\nAggregate charts across all assessors]
         ADMIN --> TAB_ASSIGN[Assignments tab\nAssign questions to assessors]
         ADMIN --> TAB_FW[Frameworks tab\nEnable frameworks + map questions]
         ADMIN --> TAB_DATA[Data Management tab\nImport assessor exports / Export all data]
@@ -63,6 +63,8 @@ flowchart LR
         CFG[adminAssignments]
         MAP[frameworkMappings]
         CUR[currentUser]
+        TS1[lastActive_user1]
+        TSN[lastActive_userN]
     end
 
     subgraph IndexedDB store: evidence
