@@ -82,6 +82,15 @@ export const storageService = {
     }
   },
 
+  async loadAllUsersAnswers(userIds) {
+    const merged = {};
+    for (const id of userIds) {
+      const answers = await this.loadAssessment(id);
+      Object.assign(merged, answers);
+    }
+    return merged;
+  },
+
   async clearAllEvidence() {
     try {
       await this.evidenceDB.clear();

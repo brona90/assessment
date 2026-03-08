@@ -95,6 +95,34 @@ describe('StorageService', () => {
     });
   });
 
+  describe('loadAllUsersAnswers', () => {
+    it('should merge answers from multiple users', async () => {
+      localStorage.setItem('assessmentData_u1', JSON.stringify({ q1: 3 }));
+      localStorage.setItem('assessmentData_u2', JSON.stringify({ q2: 4 }));
+
+      const merged = await storageService.loadAllUsersAnswers(['u1', 'u2']);
+      expect(merged).toEqual({ q1: 3, q2: 4 });
+    });
+
+    it('should return empty object when no users provided', async () => {
+      const merged = await storageService.loadAllUsersAnswers([]);
+      expect(merged).toEqual({});
+    });
+
+    it('should skip missing user storage gracefully', async () => {
+      const merged = await storageService.loadAllUsersAnswers(['ghost']);
+      expect(merged).toEqual({});
+    });
+
+    it('should let later user answers overwrite earlier ones for same question', async () => {
+      localStorage.setItem('assessmentData_u1', JSON.stringify({ q1: 2 }));
+      localStorage.setItem('assessmentData_u2', JSON.stringify({ q1: 5 }));
+
+      const merged = await storageService.loadAllUsersAnswers(['u1', 'u2']);
+      expect(merged.q1).toBe(5);
+    });
+  });
+
   describe('Evidence Storage', () => {
     it('should save evidence for a question', async () => {
       const evidence = { images: [], text: 'Test evidence' };

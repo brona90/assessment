@@ -12,6 +12,7 @@ import { useCompliance } from './hooks/useCompliance';
 import { userExportService } from './services/userExportService';
 import { useDataStore } from './hooks/useDataStore';
 import { scoreCalculator } from './utils/scoreCalculator';
+import { storageService } from './services/storageService';
 
 function App() {
   const {
@@ -41,13 +42,24 @@ function App() {
   // Use the router hook for navigation
   const { currentRoute, navigate } = useRouter();
   const { frameworks } = useCompliance(answers);
-  const { 
-    getQuestionsForUser, 
+  const {
+    getQuestionsForUser,
+    getUsers,
     initialized,
     importData,
     exportData,
     clearAllData
   } = useDataStore();
+
+  const [adminAnswers, setAdminAnswers] = useState({});
+
+  // Load aggregated answers from all users for the admin dashboard
+  useEffect(() => {
+    if (isAdmin() && initialized) {
+      const allUserIds = getUsers().map(u => u.id);
+      storageService.loadAllUsersAnswers(allUserIds).then(setAdminAnswers);
+    }
+  }, [isAdmin, initialized, getUsers]);
 
   // Hydrate user questions when user changes or data is updated
   useEffect(() => {
@@ -225,7 +237,7 @@ const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, a
         {isAdmin() ? (
           <FullScreenAdminView
             domains={domains}
-            answers={answers}
+            answers={adminAnswers}
             evidence={evidence}
             frameworks={Object.values(frameworks)}
             onExportPDF={handleExportPDF}

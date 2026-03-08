@@ -125,6 +125,7 @@ describe('App', () => {
       { id: 'q1', text: 'Question 1', requiresEvidence: false },
       { id: 'q2', text: 'Question 2', requiresEvidence: true }
     ]),
+    getUsers: vi.fn(() => []),
     initialized: true
   };
 
