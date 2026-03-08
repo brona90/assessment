@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const RATING_OPTIONS = [
@@ -18,6 +18,10 @@ export const QuestionCard = ({
   hasEvidence 
 }) => {
   const [selectedValue, setSelectedValue] = useState(answer);
+
+  useEffect(() => {
+    setSelectedValue(answer);
+  }, [answer]);
 
   const handleOptionClick = (value) => {
     if (selectedValue === value) {

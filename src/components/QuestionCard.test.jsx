@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuestionCard } from './QuestionCard';
 
 describe('QuestionCard', () => {
@@ -89,5 +89,16 @@ describe('QuestionCard', () => {
   it('should show "Add Evidence" when no evidence exists', () => {
     render(<QuestionCard {...mockProps} hasEvidence={false} />);
     expect(screen.getByText(/Add Evidence/)).toBeInTheDocument();
+  });
+
+  it('should sync selected state when answer prop changes after mount', () => {
+    const { rerender } = render(<QuestionCard {...mockProps} answer={undefined} />);
+    expect(screen.getByTestId('option-q1-3')).not.toHaveClass('selected');
+
+    act(() => {
+      rerender(<QuestionCard {...mockProps} answer={3} />);
+    });
+
+    expect(screen.getByTestId('option-q1-3')).toHaveClass('selected');
   });
 });
