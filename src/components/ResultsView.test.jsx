@@ -108,7 +108,7 @@ describe('ResultsView', () => {
 
   it('should display domain scores derived from assigned questions', () => {
     render(<ResultsView {...defaultProps} />);
-    expect(screen.getByText('Test Domain')).toBeInTheDocument();
+    expect(screen.getAllByText('Test Domain').length).toBeGreaterThan(0);
   });
 
   it('should only show domains with assigned questions', () => {
@@ -116,7 +116,7 @@ describe('ResultsView', () => {
       { id: 'q1', domainId: 'domain1', domainTitle: 'Only Domain', categoryId: 'cat1', categoryTitle: 'Cat' }
     ];
     render(<ResultsView {...defaultProps} questions={singleDomainQuestions} />);
-    expect(screen.getByText('Only Domain')).toBeInTheDocument();
+    expect(screen.getAllByText('Only Domain').length).toBeGreaterThan(0);
     expect(screen.queryByText('domain2')).not.toBeInTheDocument();
   });
 
@@ -170,6 +170,50 @@ describe('ResultsView', () => {
     fireEvent.click(screen.getByTestId('bar-chart-tab'));
     await waitFor(() => {
       expect(screen.getByTestId('domain-bar-chart').dataset.hasBenchmarks).toBe('true');
+    });
+  });
+
+  describe('Gap Analysis', () => {
+    it('should render gap analysis section', () => {
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.getByTestId('gap-analysis')).toBeInTheDocument();
+    });
+
+    it('should show gap items for answered questions below target', () => {
+      // q1=3, q2=4 → q1 has gap 1.0, q2 meets target exactly (gap 0)
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.getByTestId('gap-item-q1')).toBeInTheDocument();
+    });
+
+    it('should not show gap item for question at or above target', () => {
+      render(<ResultsView {...defaultProps} answers={{ q1: 4, q2: 5 }} />);
+      expect(screen.queryByTestId('gap-item-q1')).not.toBeInTheDocument();
+      expect(screen.getByTestId('gap-none')).toBeInTheDocument();
+    });
+
+    it('should not show gap items for unanswered questions', () => {
+      render(<ResultsView {...defaultProps} answers={{}} />);
+      expect(screen.getByTestId('gap-none')).toBeInTheDocument();
+    });
+
+    it('should not show gap items for N/A questions', () => {
+      render(<ResultsView {...defaultProps} answers={{ q1: 0, q2: 0 }} />);
+      expect(screen.getByTestId('gap-none')).toBeInTheDocument();
+    });
+
+    it('should show at most 10 gap items', () => {
+      const manyQuestions = Array.from({ length: 15 }, (_, i) => ({
+        id: `q${i + 1}`,
+        domainId: 'domain1',
+        domainTitle: 'Test Domain',
+        categoryId: 'cat1',
+        categoryTitle: 'Test Category',
+        text: `Question ${i + 1}`
+      }));
+      const manyAnswers = Object.fromEntries(manyQuestions.map(q => [q.id, 1]));
+      render(<ResultsView {...defaultProps} questions={manyQuestions} answers={manyAnswers} />);
+      const gapItems = screen.getAllByTestId(/^gap-item-/);
+      expect(gapItems.length).toBeLessThanOrEqual(10);
     });
   });
 });
