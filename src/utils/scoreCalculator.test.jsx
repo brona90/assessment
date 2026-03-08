@@ -190,6 +190,40 @@ describe('ScoreCalculator', () => {
     });
   });
 
+  describe('calculateProgressFromQuestions', () => {
+    const questions = [{ id: 'q1' }, { id: 'q2' }, { id: 'q3' }];
+
+    it('should calculate progress from a flat question list', () => {
+      const answers = { q1: 3, q2: 4 };
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, answers);
+      expect(progress.answered).toBe(2);
+      expect(progress.total).toBe(3);
+      expect(progress.percentage).toBe(67);
+    });
+
+    it('should return 0% for no answers', () => {
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, {});
+      expect(progress.answered).toBe(0);
+      expect(progress.total).toBe(3);
+      expect(progress.percentage).toBe(0);
+    });
+
+    it('should return 100% when all answered', () => {
+      const answers = { q1: 1, q2: 2, q3: 3 };
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, answers);
+      expect(progress.answered).toBe(3);
+      expect(progress.total).toBe(3);
+      expect(progress.percentage).toBe(100);
+    });
+
+    it('should return 0% for empty question list', () => {
+      const progress = scoreCalculator.calculateProgressFromQuestions([], { q1: 3 });
+      expect(progress.answered).toBe(0);
+      expect(progress.total).toBe(0);
+      expect(progress.percentage).toBe(0);
+    });
+  });
+
   describe('getAllQuestionsFromDomain edge cases', () => {
     it('should handle domain with null categories', () => {
       const domain = { categories: null };

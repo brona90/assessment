@@ -93,7 +93,7 @@ export const ResultsView = ({
               <span className="score-max">/ 5.0</span>
             </div>
             <div className="progress-info">
-              <span>{progress.answeredQuestions} of {progress.totalQuestions} questions answered</span>
+              <span>{progress.answered} of {progress.total} questions answered</span>
               <span className="progress-percentage">{progress.percentage}%</span>
             </div>
           </div>
@@ -170,7 +170,7 @@ export const ResultsView = ({
         {progress.percentage < 100 && (
           <div className="recommendations">
             <h3>📝 Next Steps</h3>
-            <p>You have {progress.totalQuestions - progress.answeredQuestions} questions remaining.</p>
+            <p>You have {progress.total - progress.answered} questions remaining.</p>
             <button 
               className="continue-btn" 
               onClick={onBackToAssessment}
@@ -193,8 +193,8 @@ ResultsView.propTypes = {
   domains: PropTypes.object.isRequired,
   answers: PropTypes.object.isRequired,
   progress: PropTypes.shape({
-    totalQuestions: PropTypes.number.isRequired,
-    answeredQuestions: PropTypes.number.isRequired,
+    answered: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
     percentage: PropTypes.number.isRequired
   }).isRequired,
   onBackToAssessment: PropTypes.func.isRequired,

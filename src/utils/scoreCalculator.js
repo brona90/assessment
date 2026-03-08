@@ -84,6 +84,16 @@ export const scoreCalculator = {
     return 'Not Implemented';
   },
 
+  calculateProgressFromQuestions(questions, answers) {
+    const total = questions.length;
+    const answered = questions.filter(q => answers[q.id] !== undefined).length;
+    return {
+      answered,
+      total,
+      percentage: total > 0 ? Math.round((answered / total) * 100) : 0
+    };
+  },
+
   getComplianceStatus(score, threshold) {
     if (score >= 90) return 'Excellent';
     if (score >= threshold) return 'Good';
