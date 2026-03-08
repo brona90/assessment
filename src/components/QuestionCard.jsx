@@ -10,19 +10,33 @@ const RATING_OPTIONS = [
   { value: 5, label: 'Optimized/Innovating' }
 ];
 
-export const QuestionCard = ({ 
-  question, 
-  answer, 
-  onAnswerChange, 
+export const QuestionCard = ({
+  question,
+  answer,
+  comment,
+  onAnswerChange,
   onClearAnswer,
+  onCommentChange,
   onAddEvidence,
-  hasEvidence 
+  hasEvidence
 }) => {
   const [selectedValue, setSelectedValue] = useState(answer);
+  const [commentOpen, setCommentOpen] = useState(!!comment);
+  const [commentText, setCommentText] = useState(comment || '');
 
   useEffect(() => {
     setSelectedValue(answer);
   }, [answer]);
+
+  useEffect(() => {
+    setCommentText(comment || '');
+    if (comment) setCommentOpen(true);
+  }, [comment]);
+
+  const handleCommentChange = (e) => {
+    setCommentText(e.target.value);
+    onCommentChange(e.target.value);
+  };
 
   const handleOptionClick = (value) => {
     if (selectedValue === value) {
@@ -96,7 +110,30 @@ export const QuestionCard = ({
         >
           📎 {hasEvidence ? 'View Evidence' : 'Add Evidence'}
         </button>
+
+        <button
+          className={`comment-toggle-btn ${commentText ? 'has-comment' : ''}`}
+          onClick={() => setCommentOpen(open => !open)}
+          data-testid={`comment-toggle-${question.id}`}
+          title="Add a brief note for this question"
+        >
+          💬 {commentText ? 'Edit Note' : 'Add Note'}
+        </button>
       </div>
+
+      {commentOpen && (
+        <div className="comment-area" data-testid={`comment-area-${question.id}`}>
+          <textarea
+            className="comment-textarea"
+            placeholder="Add a brief note about this question…"
+            value={commentText}
+            onChange={handleCommentChange}
+            rows={3}
+            data-testid={`comment-input-${question.id}`}
+            aria-label={`Note for question ${question.id}`}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -108,8 +145,10 @@ QuestionCard.propTypes = {
     requiresEvidence: PropTypes.bool
   }).isRequired,
   answer: PropTypes.number,
+  comment: PropTypes.string,
   onAnswerChange: PropTypes.func.isRequired,
   onClearAnswer: PropTypes.func.isRequired,
+  onCommentChange: PropTypes.func.isRequired,
   onAddEvidence: PropTypes.func.isRequired,
   hasEvidence: PropTypes.bool
 };

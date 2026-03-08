@@ -359,13 +359,44 @@ describe('StorageService', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const clearSpy = vi.spyOn(storageService.evidenceDB, 'clear')
         .mockRejectedValue(new Error('Clear error'));
-      
+
       const result = await storageService.clearAllEvidence();
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Error clearing evidence:', expect.any(Error));
-      
+
       clearSpy.mockRestore();
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe('Comments', () => {
+    it('should save and load comments for a user', () => {
+      storageService.saveComments('user1', { q1: 'My note', q2: 'Another note' });
+      const loaded = storageService.loadComments('user1');
+      expect(loaded).toEqual({ q1: 'My note', q2: 'Another note' });
+    });
+
+    it('should return empty object when no comments exist', () => {
+      const loaded = storageService.loadComments('user1');
+      expect(loaded).toEqual({});
+    });
+
+    it('should isolate comments between users', () => {
+      storageService.saveComments('user1', { q1: 'user1 note' });
+      storageService.saveComments('user2', { q1: 'user2 note' });
+      expect(storageService.loadComments('user1')).toEqual({ q1: 'user1 note' });
+      expect(storageService.loadComments('user2')).toEqual({ q1: 'user2 note' });
+    });
+
+    it('should do nothing when userId is falsy', () => {
+      storageService.saveComments(null, { q1: 'test' });
+      expect(storageService.loadComments(null)).toEqual({});
+    });
+
+    it('should overwrite previous comments on save', () => {
+      storageService.saveComments('user1', { q1: 'first' });
+      storageService.saveComments('user1', { q1: 'updated' });
+      expect(storageService.loadComments('user1')).toEqual({ q1: 'updated' });
     });
   });
 });

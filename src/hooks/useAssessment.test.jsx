@@ -22,6 +22,8 @@ describe('useAssessment', () => {
     dataService.loadQuestions.mockResolvedValue(mockDomains);
     storageService.loadAssessment.mockResolvedValue({});
     storageService.loadAllEvidence.mockResolvedValue({});
+    storageService.loadComments.mockReturnValue({});
+    storageService.saveComments.mockImplementation(() => {});
   });
 
   it('should load data on mount', async () => {
@@ -207,6 +209,61 @@ describe('useAssessment', () => {
 
     const progress = result.current.getProgress();
     expect(progress).toEqual({ answered: 0, total: 0, percentage: 0 });
+  });
+
+  describe('Comments', () => {
+    it('should load comments on mount', async () => {
+      storageService.loadComments.mockReturnValue({ q1: 'a note' });
+      const { result } = renderHook(() => useAssessment('user1'));
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      expect(result.current.comments).toEqual({ q1: 'a note' });
+      expect(storageService.loadComments).toHaveBeenCalledWith('user1');
+    });
+
+    it('should save comment and update state', async () => {
+      const { result } = renderHook(() => useAssessment('user1'));
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      act(() => {
+        result.current.saveComment('q1', 'my note');
+      });
+
+      expect(result.current.comments).toEqual({ q1: 'my note' });
+      expect(storageService.saveComments).toHaveBeenCalledWith('user1', { q1: 'my note' });
+    });
+
+    it('should preserve existing comments when saving a new one', async () => {
+      storageService.loadComments.mockReturnValue({ q1: 'first' });
+      const { result } = renderHook(() => useAssessment('user1'));
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      act(() => {
+        result.current.saveComment('q2', 'second');
+      });
+
+      expect(result.current.comments).toEqual({ q1: 'first', q2: 'second' });
+    });
+
+    it('should clear comments on clearAllData', async () => {
+      storageService.loadComments.mockReturnValue({ q1: 'a note' });
+      storageService.clearAssessment.mockResolvedValue(true);
+      storageService.clearAllEvidence.mockResolvedValue(true);
+
+      const { result } = renderHook(() => useAssessment('user1'));
+
+      await waitFor(() => expect(result.current.loading).toBe(false));
+
+      await act(async () => {
+        await result.current.clearAllData();
+      });
+
+      expect(result.current.comments).toEqual({});
+      expect(storageService.saveComments).toHaveBeenCalledWith('user1', {});
+    });
   });
 
   it('should reload answers when userId changes', async () => {

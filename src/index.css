@@ -286,6 +286,57 @@ body {
   font-weight: 600;
 }
 
+/* Comment toggle button */
+.comment-toggle-btn {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.comment-toggle-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.comment-toggle-btn.has-comment {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+/* Comment text area */
+.comment-area {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.comment-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  color: var(--text-primary);
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+
+.comment-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+}
+
 /* Global focus ring for keyboard navigation */
 button:focus-visible,
 input:focus-visible,

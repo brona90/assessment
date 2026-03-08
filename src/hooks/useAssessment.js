@@ -7,6 +7,7 @@ export const useAssessment = (userId) => {
   const [domains, setDomains] = useState(null);
   const [answers, setAnswers] = useState({});
   const [evidence, setEvidence] = useState({});
+  const [comments, setComments] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,6 +27,7 @@ export const useAssessment = (userId) => {
       setDomains(questionsData);
       setAnswers(savedAnswers);
       setEvidence(savedEvidence);
+      setComments(storageService.loadComments(userId));
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -58,13 +60,21 @@ export const useAssessment = (userId) => {
     await storageService.saveEvidence(questionId, evidenceData);
   }, [evidence]);
 
+  const saveComment = useCallback((questionId, text) => {
+    const newComments = { ...comments, [questionId]: text };
+    setComments(newComments);
+    storageService.saveComments(userId, newComments);
+  }, [comments, userId]);
+
   const clearAllData = useCallback(async () => {
     setAnswers({});
     setEvidence({});
+    setComments({});
     await Promise.all([
       storageService.clearAssessment(userId),
       storageService.clearAllEvidence()
     ]);
+    storageService.saveComments(userId, {});
   }, [userId]);
 
   const getProgress = useCallback(() => {
@@ -87,10 +97,12 @@ export const useAssessment = (userId) => {
     domains,
     answers,
     evidence,
+    comments,
     loading,
     error,
     saveAnswer,
     clearAnswer,
+    saveComment,
     saveEvidenceForQuestion,
     clearAllData,
     getProgress,

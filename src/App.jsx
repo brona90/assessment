@@ -27,10 +27,12 @@ function App() {
     domains,
     answers,
     evidence,
+    comments,
     loading,
     error,
     saveAnswer,
     clearAnswer,
+    saveComment,
     saveEvidenceForQuestion,
     getProgress
   } = useAssessment(currentUser?.id);
@@ -254,9 +256,11 @@ const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, a
                 questions={userQuestions}
                 answers={answers}
                 evidence={evidence}
+                comments={comments}
                 progress={progress}
                 onAnswerChange={saveAnswer}
                 onClearAnswer={clearAnswer}
+                onCommentChange={saveComment}
                 onAddEvidence={handleOpenEvidence}
                 onExportUserData={handleExportUserData}
                 onSwitchToResults={handleSwitchToResults}

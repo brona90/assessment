@@ -4,14 +4,16 @@ import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
 import './UserView.css';
 
-export const UserView = ({ 
+export const UserView = ({
   user,
   questions,
   answers,
   evidence,
+  comments,
   progress,
   onAnswerChange,
   onClearAnswer,
+  onCommentChange,
   onAddEvidence,
   onExportUserData,
   onSwitchToResults,
@@ -138,8 +140,10 @@ export const UserView = ({
                             key={question.id}
                             question={question}
                             answer={answers[question.id]}
+                            comment={comments?.[question.id] || ''}
                             onAnswerChange={(value) => onAnswerChange(question.id, value)}
                             onClearAnswer={() => onClearAnswer(question.id)}
+                            onCommentChange={(text) => onCommentChange(question.id, text)}
                             onAddEvidence={() => onAddEvidence(question.id)}
                             hasEvidence={!!evidence[question.id]}
                           />
@@ -165,6 +169,7 @@ UserView.propTypes = {
   questions: PropTypes.array.isRequired,
   answers: PropTypes.object.isRequired,
   evidence: PropTypes.object.isRequired,
+  comments: PropTypes.object,
   progress: PropTypes.shape({
     answered: PropTypes.number.isRequired,
     total: PropTypes.number.isRequired,
@@ -173,6 +178,7 @@ UserView.propTypes = {
   }).isRequired,
   onAnswerChange: PropTypes.func.isRequired,
   onClearAnswer: PropTypes.func.isRequired,
+  onCommentChange: PropTypes.func.isRequired,
   onAddEvidence: PropTypes.func.isRequired,
   onExportUserData: PropTypes.func.isRequired,
   onSwitchToResults: PropTypes.func.isRequired,

@@ -131,6 +131,25 @@ export const storageService = {
     return merged;
   },
 
+  saveComments(userId, comments) {
+    if (!userId) return;
+    try {
+      localStorage.setItem(`comments_${userId}`, JSON.stringify(comments));
+    } catch {
+      // Non-critical
+    }
+  },
+
+  loadComments(userId) {
+    if (!userId) return {};
+    try {
+      const data = localStorage.getItem(`comments_${userId}`);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  },
+
   saveLastActive(userId) {
     if (!userId) return;
     try {

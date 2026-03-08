@@ -13,8 +13,10 @@ describe('QuestionCard', () => {
   const mockProps = {
     question: mockQuestion,
     answer: null,
+    comment: '',
     onAnswerChange: vi.fn(),
     onClearAnswer: vi.fn(),
+    onCommentChange: vi.fn(),
     onAddEvidence: vi.fn(),
     hasEvidence: false
   };
@@ -135,6 +137,53 @@ describe('QuestionCard', () => {
       render(<QuestionCard {...mockProps} answer={3} />);
       fireEvent.click(screen.getByTestId('na-q1'));
       expect(mockProps.onAnswerChange).toHaveBeenCalledWith(NA_VALUE);
+    });
+  });
+
+  describe('Comments / Notes', () => {
+    it('should render a comment toggle button', () => {
+      render(<QuestionCard {...mockProps} />);
+      expect(screen.getByTestId('comment-toggle-q1')).toBeInTheDocument();
+    });
+
+    it('should not show textarea initially when no comment', () => {
+      render(<QuestionCard {...mockProps} />);
+      expect(screen.queryByTestId('comment-area-q1')).not.toBeInTheDocument();
+    });
+
+    it('should show textarea when toggle button is clicked', () => {
+      render(<QuestionCard {...mockProps} />);
+      fireEvent.click(screen.getByTestId('comment-toggle-q1'));
+      expect(screen.getByTestId('comment-area-q1')).toBeInTheDocument();
+    });
+
+    it('should show textarea automatically when comment prop has a value', () => {
+      render(<QuestionCard {...mockProps} comment="Existing note" />);
+      expect(screen.getByTestId('comment-area-q1')).toBeInTheDocument();
+    });
+
+    it('should display existing comment text in textarea', () => {
+      render(<QuestionCard {...mockProps} comment="Existing note" />);
+      expect(screen.getByTestId('comment-input-q1').value).toBe('Existing note');
+    });
+
+    it('should call onCommentChange when textarea is edited', () => {
+      render(<QuestionCard {...mockProps} />);
+      fireEvent.click(screen.getByTestId('comment-toggle-q1'));
+      fireEvent.change(screen.getByTestId('comment-input-q1'), { target: { value: 'new note' } });
+      expect(mockProps.onCommentChange).toHaveBeenCalledWith('new note');
+    });
+
+    it('should show has-comment class on toggle when comment is non-empty', () => {
+      render(<QuestionCard {...mockProps} comment="has text" />);
+      expect(screen.getByTestId('comment-toggle-q1')).toHaveClass('has-comment');
+    });
+
+    it('should hide textarea when toggle button is clicked again', () => {
+      render(<QuestionCard {...mockProps} />);
+      fireEvent.click(screen.getByTestId('comment-toggle-q1'));
+      fireEvent.click(screen.getByTestId('comment-toggle-q1'));
+      expect(screen.queryByTestId('comment-area-q1')).not.toBeInTheDocument();
     });
   });
 });
