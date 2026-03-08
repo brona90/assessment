@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
+import { scoreCalculator } from '../utils/scoreCalculator';
 import './ResultsView.css';
 
 export const ResultsView = ({
@@ -112,6 +113,9 @@ export const ResultsView = ({
               <span className="score-value">{overallScore.toFixed(2)}</span>
               <span className="score-max">/ 5.0</span>
             </div>
+            <span className="maturity-label" data-testid="overall-maturity-label">
+              {scoreCalculator.getMaturityLevel(overallScore)}
+            </span>
             <div className="progress-info">
               <span>{progress.answered} of {progress.total} questions answered</span>
               <span className="progress-percentage">{progress.percentage}%</span>
@@ -132,6 +136,9 @@ export const ResultsView = ({
                     <span className="score">{score.score}</span>
                     <span className="max">/ 5.0</span>
                   </div>
+                  <span className="maturity-label" data-testid={`maturity-${domainId}`}>
+                    {scoreCalculator.getMaturityLevel(parseFloat(score.score))}
+                  </span>
                   <div className="domain-progress">
                     <div className="progress-bar">
                       <div

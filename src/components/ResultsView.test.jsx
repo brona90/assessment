@@ -124,4 +124,25 @@ describe('ResultsView', () => {
     render(<ResultsView {...defaultProps} answers={{}} />);
     expect(screen.getByText('0.00')).toBeInTheDocument();
   });
+
+  it('should display a maturity label for overall score', () => {
+    render(<ResultsView {...defaultProps} />);
+    expect(screen.getByTestId('overall-maturity-label')).toBeInTheDocument();
+  });
+
+  it('should show correct maturity label for answered score', () => {
+    // q1=3, q2=4 → avg 3.5 → Managed
+    render(<ResultsView {...defaultProps} />);
+    expect(screen.getByTestId('overall-maturity-label').textContent).toBe('Managed');
+  });
+
+  it('should show Not Implemented maturity label when no answers', () => {
+    render(<ResultsView {...defaultProps} answers={{}} />);
+    expect(screen.getByTestId('overall-maturity-label').textContent).toBe('Not Implemented');
+  });
+
+  it('should display maturity label for each domain', () => {
+    render(<ResultsView {...defaultProps} />);
+    expect(screen.getByTestId('maturity-domain1')).toBeInTheDocument();
+  });
 });
