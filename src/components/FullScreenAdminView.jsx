@@ -228,6 +228,22 @@ export const FullScreenAdminView = ({
     });
   };
 
+  const handleToggleQuestionMapping = async (frameworkId, questionId, checked) => {
+    const framework = managedFrameworks.find(f => f.id === frameworkId);
+    const currentMappings = framework?.mappedQuestions || [];
+    const newMappings = checked
+      ? [...currentMappings, questionId]
+      : currentMappings.filter(id => id !== questionId);
+    try {
+      await updateFramework(frameworkId, { mappedQuestions: newMappings });
+      setManagedFrameworks(getFrameworks());
+      setMessage({ type: 'success', text: 'Framework mapping updated!' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message });
+    }
+  };
+
   const handleToggleFramework = async (frameworkId) => {
     try {
       const newSelection = selectedFrameworkIds.includes(frameworkId)
@@ -655,6 +671,27 @@ export const FullScreenAdminView = ({
                         />
                         {selectedFrameworkIds.includes(framework.id) ? ' Enabled' : ' Disabled'}
                       </label>
+                      <details className="framework-mapping">
+                        <summary data-testid={`mapping-toggle-${framework.id}`}>
+                          Map Questions ({framework.mappedQuestions?.length || 0} mapped)
+                        </summary>
+                        <div className="mapping-questions">
+                          {managedQuestions.map(q => (
+                            <label key={q.id} className="mapping-checkbox">
+                              <input
+                                type="checkbox"
+                                checked={framework.mappedQuestions?.includes(q.id) || false}
+                                onChange={(e) => handleToggleQuestionMapping(framework.id, q.id, e.target.checked)}
+                                data-testid={`map-question-${framework.id}-${q.id}`}
+                              />
+                              <span>{q.text}</span>
+                            </label>
+                          ))}
+                          {managedQuestions.length === 0 && (
+                            <p className="no-questions-hint">No questions available. Add questions first.</p>
+                          )}
+                        </div>
+                      </details>
                     </div>
                     <div className="item-actions">
                       <button onClick={() => startEditFramework(framework)}>Edit</button>

@@ -82,6 +82,26 @@ export const storageService = {
     }
   },
 
+  saveFrameworkMappings(mappings) {
+    try {
+      localStorage.setItem('frameworkMappings', JSON.stringify(mappings));
+      return true;
+    } catch (error) {
+      console.error('Error saving framework mappings:', error);
+      return false;
+    }
+  },
+
+  loadFrameworkMappings() {
+    try {
+      const data = localStorage.getItem('frameworkMappings');
+      return data ? JSON.parse(data) : {};
+    } catch (error) {
+      console.error('Error loading framework mappings:', error);
+      return {};
+    }
+  },
+
   async loadAllUsersAnswers(userIds) {
     const merged = {};
     for (const id of userIds) {

@@ -58,6 +58,15 @@ class DataStore {
       // Initialize all frameworks as selected by default
       this.data.selectedFrameworks = this.data.frameworks.map(f => f.id);
 
+      // Restore persisted framework question mappings
+      const savedMappings = storageService.loadFrameworkMappings();
+      if (Object.keys(savedMappings).length > 0) {
+        this.data.frameworks = this.data.frameworks.map(f => ({
+          ...f,
+          mappedQuestions: savedMappings[f.id] ?? f.mappedQuestions ?? []
+        }));
+      }
+
       // Initialize assignments from user data
       this.data.assignments = {};
       this.data.users.forEach(user => {
@@ -202,6 +211,16 @@ class DataStore {
       ...updates,
       id: frameworkId // Preserve the ID
     };
+
+    // Persist question mappings whenever they change
+    if ('mappedQuestions' in updates) {
+      const mappings = {};
+      this.data.frameworks.forEach(f => {
+        mappings[f.id] = f.mappedQuestions || [];
+      });
+      storageService.saveFrameworkMappings(mappings);
+    }
+
     return this.data.frameworks[index];
   }
 

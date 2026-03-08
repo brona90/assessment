@@ -631,4 +631,91 @@ describe('FullScreenAdminView', () => {
       expect(exportPDFButton).toHaveAttribute('aria-label');
     });
   });
+
+  describe('Compliance Framework Question Mapping', () => {
+    const mappingProps = {
+      domains: mockDomains,
+      answers: mockAnswers,
+      evidence: mockEvidence,
+      frameworks: mockFrameworks,
+      onExportPDF: mockOnExportPDF,
+      onLogout: mockOnLogout,
+      onImportData: mockOnImportData,
+      onExportData: mockOnExportData,
+      onClearAllData: mockOnClearAllData
+    };
+
+    beforeEach(() => {
+      datastoreMocks.getFrameworks.mockReturnValue([
+        { id: 'fw1', name: 'Framework 1', mappedQuestions: [] }
+      ]);
+      datastoreMocks.getQuestions.mockReturnValue([
+        { id: 'q1', text: 'Question 1', domainId: 'domain1' },
+        { id: 'q2', text: 'Question 2', domainId: 'domain1' }
+      ]);
+    });
+
+    it('should show mapping toggle on framework items', async () => {
+      render(<FullScreenAdminView {...mappingProps} />);
+      fireEvent.click(screen.getByTestId('frameworks-tab'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('mapping-toggle-fw1')).toBeInTheDocument();
+      });
+    });
+
+    it('should show mapped question count in toggle summary', async () => {
+      datastoreMocks.getFrameworks.mockReturnValue([
+        { id: 'fw1', name: 'Framework 1', mappedQuestions: ['q1'] }
+      ]);
+
+      render(<FullScreenAdminView {...mappingProps} />);
+      fireEvent.click(screen.getByTestId('frameworks-tab'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/1 mapped/)).toBeInTheDocument();
+      });
+    });
+
+    it('should call updateFramework when a question mapping is toggled', async () => {
+      datastoreMocks.updateFramework.mockResolvedValue({ id: 'fw1', mappedQuestions: ['q1'] });
+
+      render(<FullScreenAdminView {...mappingProps} />);
+      fireEvent.click(screen.getByTestId('frameworks-tab'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('mapping-toggle-fw1')).toBeInTheDocument();
+      });
+
+      // Open the details element
+      fireEvent.click(screen.getByTestId('mapping-toggle-fw1'));
+
+      await waitFor(() => {
+        const checkbox = screen.getByTestId('map-question-fw1-q1');
+        fireEvent.click(checkbox);
+      });
+
+      await waitFor(() => {
+        expect(datastoreMocks.updateFramework).toHaveBeenCalledWith(
+          'fw1',
+          expect.objectContaining({ mappedQuestions: expect.any(Array) })
+        );
+      });
+    });
+
+    it('should show no-questions hint when no questions are available', async () => {
+      datastoreMocks.getQuestions.mockReturnValue([]);
+
+      render(<FullScreenAdminView {...mappingProps} />);
+      fireEvent.click(screen.getByTestId('frameworks-tab'));
+
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('mapping-toggle-fw1'));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('No questions available. Add questions first.')).toBeInTheDocument();
+      });
+    });
+  });
 });
