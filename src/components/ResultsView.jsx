@@ -202,41 +202,56 @@ export const ResultsView = ({
           </div>
         </div>
 
-        {/* Gap Analysis */}
+        {/* Gap Analysis — Fix These First */}
         {questions.length > 0 && (
           <div className="gap-analysis" data-testid="gap-analysis">
-            <h3>Gap Analysis</h3>
-            <p className="gap-analysis-subtitle">Questions furthest from target (4.0), ranked by priority</p>
+            <h3>Fix These First</h3>
+            <p className="gap-analysis-subtitle">
+              Ranked by priority score: gap × domain weight. Target = 4.0.
+            </p>
             <div className="gap-list">
               {questions
                 .filter(q => {
                   const val = answers[q.id];
                   return val !== undefined && val !== NA_VALUE;
                 })
-                .map(q => ({ ...q, score: answers[q.id], gap: 4.0 - answers[q.id] }))
-                .filter(q => q.gap > 0)
-                .sort((a, b) => b.gap - a.gap)
+                .map(q => {
+                  const score = answers[q.id];
+                  const domainWeight = filteredDomains[q.domainId]?.weight || 1;
+                  const priority = scoreCalculator.calculatePriorityScore(score, domainWeight);
+                  return { ...q, score, priority };
+                })
+                .filter(q => q.priority > 0)
+                .sort((a, b) => b.priority - a.priority)
                 .slice(0, 10)
-                .map(q => (
-                  <div key={q.id} className="gap-item" data-testid={`gap-item-${q.id}`}>
-                    <div className="gap-item-text">{q.text}</div>
-                    <div className="gap-item-meta">
-                      <span className="gap-item-domain">{q.domainTitle || q.domainId}</span>
-                      <span className="gap-item-score">
-                        {q.score.toFixed(1)} / 4.0
-                        <span className="gap-item-level">
-                          {' '}({scoreCalculator.getMaturityLevel(q.score)})
+                .map(q => {
+                  const priorityLabel = q.priority >= 2.0 ? 'High' : q.priority >= 1.0 ? 'Medium' : 'Low';
+                  return (
+                    <div key={q.id} className="gap-item" data-testid={`gap-item-${q.id}`}>
+                      <div className="gap-item-text">{q.text}</div>
+                      <div className="gap-item-meta">
+                        <span className="gap-item-domain">{q.domainTitle || q.domainId}</span>
+                        <span className="gap-item-score">
+                          {q.score.toFixed(1)} / 4.0
+                          <span className="gap-item-level">
+                            {' '}({scoreCalculator.getMaturityLevel(q.score)})
+                          </span>
                         </span>
-                      </span>
-                      <span className="gap-badge" data-gap={q.gap.toFixed(1)}>
-                        Gap: {q.gap.toFixed(1)}
-                      </span>
+                        <span
+                          className={`priority-badge priority-${priorityLabel.toLowerCase()}`}
+                          data-testid={`priority-${q.id}`}
+                          data-priority={q.priority.toFixed(2)}
+                        >
+                          {priorityLabel} Priority
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               {questions.filter(q => {
                 const val = answers[q.id];
-                return val !== undefined && val !== NA_VALUE && 4.0 - val > 0;
+                return val !== undefined && val !== NA_VALUE &&
+                  scoreCalculator.calculatePriorityScore(val, filteredDomains[q.domainId]?.weight || 1) > 0;
               }).length === 0 && (
                 <p className="gap-none" data-testid="gap-none">
                   All answered questions meet the target score. Well done!

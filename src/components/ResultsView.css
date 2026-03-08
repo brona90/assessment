@@ -260,14 +260,27 @@
   font-weight: 400;
 }
 
-.gap-badge {
+.priority-badge {
   margin-left: auto;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.priority-high {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.priority-medium {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.priority-low {
+  background: #d1fae5;
+  color: #065f46;
 }
 
 .gap-none {

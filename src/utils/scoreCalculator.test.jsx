@@ -244,6 +244,32 @@ describe('ScoreCalculator', () => {
     });
   });
 
+  describe('calculatePriorityScore', () => {
+    it('should return gap × weight for a scored question', () => {
+      expect(scoreCalculator.calculatePriorityScore(2, 1)).toBe(2);
+    });
+
+    it('should return 0 for a question that meets target', () => {
+      expect(scoreCalculator.calculatePriorityScore(4, 1)).toBe(0);
+    });
+
+    it('should return 0 for a question that exceeds target', () => {
+      expect(scoreCalculator.calculatePriorityScore(5, 1)).toBe(0);
+    });
+
+    it('should scale by domain weight', () => {
+      expect(scoreCalculator.calculatePriorityScore(2, 2)).toBe(4); // gap=2, weight=2
+    });
+
+    it('should return 0 for NA_VALUE', () => {
+      expect(scoreCalculator.calculatePriorityScore(NA_VALUE, 1)).toBe(0);
+    });
+
+    it('should default weight to 1 when not provided', () => {
+      expect(scoreCalculator.calculatePriorityScore(3)).toBe(1); // gap=1, weight defaults to 1
+    });
+  });
+
   describe('N/A (NA_VALUE) handling', () => {
     it('NA_VALUE should be exported as a number', () => {
       expect(typeof NA_VALUE).toBe('number');

@@ -104,6 +104,12 @@ export const scoreCalculator = {
     };
   },
 
+  calculatePriorityScore(score, domainWeight, target = 4.0) {
+    if (score === undefined || score === NA_VALUE) return 0;
+    const gap = Math.max(0, target - score);
+    return gap * (domainWeight || 1);
+  },
+
   getComplianceStatus(score, threshold) {
     if (score >= 90) return 'Excellent';
     if (score >= threshold) return 'Good';

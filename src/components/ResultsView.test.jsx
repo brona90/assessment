@@ -173,14 +173,14 @@ describe('ResultsView', () => {
     });
   });
 
-  describe('Gap Analysis', () => {
+  describe('Gap Analysis / Fix These First', () => {
     it('should render gap analysis section', () => {
       render(<ResultsView {...defaultProps} />);
       expect(screen.getByTestId('gap-analysis')).toBeInTheDocument();
     });
 
     it('should show gap items for answered questions below target', () => {
-      // q1=3, q2=4 → q1 has gap 1.0, q2 meets target exactly (gap 0)
+      // q1=3, q2=4 → q1 has priority > 0, q2 has priority 0
       render(<ResultsView {...defaultProps} />);
       expect(screen.getByTestId('gap-item-q1')).toBeInTheDocument();
     });
@@ -214,6 +214,29 @@ describe('ResultsView', () => {
       render(<ResultsView {...defaultProps} questions={manyQuestions} answers={manyAnswers} />);
       const gapItems = screen.getAllByTestId(/^gap-item-/);
       expect(gapItems.length).toBeLessThanOrEqual(10);
+    });
+
+    it('should show a priority badge for each gap item', () => {
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.getByTestId('priority-q1')).toBeInTheDocument();
+    });
+
+    it('should show High priority for score of 1 (gap=3)', () => {
+      render(<ResultsView {...defaultProps} answers={{ q1: 1 }} />);
+      expect(screen.getByTestId('priority-q1').textContent).toBe('High Priority');
+    });
+
+    it('should show Medium priority for score of 3 (gap=1)', () => {
+      render(<ResultsView {...defaultProps} answers={{ q1: 3 }} />);
+      expect(screen.getByTestId('priority-q1').textContent).toBe('Medium Priority');
+    });
+
+    it('should show Low priority for score of 3.5 (gap=0.5)', () => {
+      // q1=3 (gap 1=Medium), need a fractional - use answers with higher scores
+      // score 3.8 → gap 0.2 → Low
+      const fractionalQ = [{ id: 'qx', domainId: 'domain1', domainTitle: 'D', categoryId: 'c', categoryTitle: 'C', text: 'X' }];
+      render(<ResultsView {...defaultProps} questions={fractionalQ} answers={{ qx: 3.8 }} />);
+      expect(screen.getByTestId('priority-qx').textContent).toBe('Low Priority');
     });
   });
 });
