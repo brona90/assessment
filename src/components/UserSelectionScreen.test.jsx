@@ -4,9 +4,9 @@ import { UserSelectionScreen } from './UserSelectionScreen';
 
 describe('UserSelectionScreen', () => {
   const mockUsers = [
-    { id: 'user1', name: 'John Doe', isAdmin: false },
-    { id: 'admin1', name: 'Admin User', isAdmin: true },
-    { id: 'user2', name: 'Jane Smith', isAdmin: false }
+    { id: 'user1', name: 'John Doe', role: 'user' },
+    { id: 'admin1', name: 'Admin User', role: 'admin' },
+    { id: 'user2', name: 'Jane Smith', role: 'user' }
   ];
 
   const mockOnSelectUser = vi.fn();

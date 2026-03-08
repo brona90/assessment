@@ -14,17 +14,17 @@ export const UserSelectionScreen = ({ users, onSelectUser }) => {
           {users.map(user => (
             <button
               key={user.id}
-              className={`user-card ${user.isAdmin ? 'admin-card' : 'user-card'}`}
+              className={`user-card ${user.role === 'admin' ? 'admin-card' : 'user-card'}`}
               onClick={() => onSelectUser(user)}
               data-testid={`user-card-${user.id}`}
             >
               <div className="user-avatar">
-                {user.isAdmin ? '👨‍💼' : '👤'}
+                {user.role === 'admin' ? '👨‍💼' : '👤'}
               </div>
               <div className="user-info">
                 <h3>{user.name}</h3>
-                <span className={`user-role ${user.isAdmin ? 'admin-badge' : 'user-badge'}`}>
-                  {user.isAdmin ? 'Administrator' : 'User'}
+                <span className={`user-role ${user.role === 'admin' ? 'admin-badge' : 'user-badge'}`}>
+                  {user.role === 'admin' ? 'Administrator' : 'User'}
                 </span>
               </div>
             </button>
@@ -46,7 +46,7 @@ UserSelectionScreen.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
-      isAdmin: PropTypes.bool
+      role: PropTypes.string
     })
   ).isRequired,
   onSelectUser: PropTypes.func.isRequired
