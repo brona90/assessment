@@ -95,10 +95,12 @@ describe('App', () => {
     },
     answers: {},
     evidence: {},
+    comments: {},
     loading: false,
     error: null,
     saveAnswer: vi.fn(),
     clearAnswer: vi.fn(),
+    saveComment: vi.fn(),
     saveEvidenceForQuestion: vi.fn(),
     getProgress: vi.fn(() => ({ answered: 0, total: 2, percentage: 0 }))
   };
@@ -117,7 +119,7 @@ describe('App', () => {
   };
 
   const mockUseCompliance = {
-    frameworks: []
+    frameworks: {}
   };
 
   const mockUseDataStore = {
@@ -231,9 +233,11 @@ describe('App', () => {
       await waitFor(() => {
         expect(pdfService.generatePDF).toHaveBeenCalledWith(
           mockUseAssessment.domains,
-          mockUseAssessment.answers,
+          {},                             // adminAnswers (empty — no users have stored answers)
           mockUseAssessment.evidence,
-          mockUseCompliance.frameworks
+          {},                             // scoredFrameworks (empty — no frameworks configured)
+          {},                             // options
+          mockUseAssessment.comments
         );
         expect(pdfService.downloadPDF).toHaveBeenCalled();
       });

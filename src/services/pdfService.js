@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { scoreCalculator } from '../utils/scoreCalculator';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const BRAND_PURPLE  = [102, 126, 234];
@@ -96,43 +97,22 @@ function loadImageAsBase64(url) {
 // ─── Main service ─────────────────────────────────────────────────────────────
 
 export const pdfService = {
-  // Expose for backwards-compat and unit tests
+  // Delegates to scoreCalculator — single source of truth for scoring logic
   getMaturityLevel(score) {
-    if (score >= 4.5) return 'Optimized';
-    if (score >= 3.5) return 'Managed';
-    if (score >= 2.5) return 'Defined';
-    if (score >= 1.5) return 'Initial';
-    return 'Not Implemented';
+    return scoreCalculator.getMaturityLevel(score);
   },
 
   calculateDomainScore(domain, answers) {
-    const questions = [];
-    Object.values(domain.categories || {}).forEach(cat => {
-      if (cat.questions) questions.push(...cat.questions);
-    });
-    if (questions.length === 0) return 0;
-    let total = 0, count = 0;
-    questions.forEach(q => {
-      if (answers[q.id] !== undefined && answers[q.id] !== 0) {
-        total += answers[q.id]; count++;
-      }
-    });
-    return count > 0 ? total / count : 0;
+    return scoreCalculator.calculateDomainScore(
+      scoreCalculator.getAllQuestionsFromDomain(domain), answers
+    );
   },
 
   calculateOverallScore(domains, answers) {
-    let weighted = 0, weight = 0;
-    Object.values(domains).forEach(domain => {
-      const score = this.calculateDomainScore(domain, answers);
-      if (score > 0) {
-        weighted += score * (domain.weight || 1);
-        weight   += (domain.weight || 1);
-      }
-    });
-    return weight > 0 ? weighted / weight : 0;
+    return scoreCalculator.calculateOverallScore(domains, answers);
   },
 
-  async generatePDF(domains, answers, evidence, complianceFrameworks, options = {}) {
+  async generatePDF(domains, answers, evidence, complianceFrameworks, options = {}, comments = {}) {
     const pdf = new jsPDF('p', 'mm', 'a4');
     const { orgName = 'Organisation', reportTitle = 'Technology Maturity Assessment' } = options || {};
 
@@ -266,6 +246,21 @@ export const pdfService = {
           pdf.text(ansLabel, PAGE_W - MARGIN, y - (lines.length > 1 ? 5 : 0), { align: 'right' });
 
           y += 7;
+
+          // Assessor note / comment
+          const note = comments?.[question.id];
+          if (note?.trim()) {
+            ({ y, pageNum } = ensureSpace(pdf, y, 8, pageNum, totalPages));
+            setColor(pdf, [124, 58, 237], 'text');
+            pdf.setFont('helvetica', 'italic');
+            pdf.setFontSize(8);
+            const noteLines = pdf.splitTextToSize(`Note: ${note}`, CONTENT_W - 6);
+            noteLines.slice(0, 3).forEach(line => {
+              ({ y, pageNum } = ensureSpace(pdf, y, 6, pageNum, totalPages));
+              pdf.text(line, MARGIN + 6, y);
+              y += 5;
+            });
+          }
 
           // Evidence text
           const ev = evidence?.[question.id];

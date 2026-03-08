@@ -9,6 +9,7 @@ import { UserView } from './components/UserView';
 import { ResultsView } from './components/ResultsView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
+import { complianceService } from './services/complianceService';
 import { userExportService } from './services/userExportService';
 import { useDataStore } from './hooks/useDataStore';
 import { scoreCalculator } from './utils/scoreCalculator';
@@ -98,8 +99,20 @@ function App() {
 
   const handleExportPDF = async () => {
     try {
-      // Generate PDF
-      const pdf = await pdfService.generatePDF(domains, answers, evidence, frameworks);
+      // Admin report uses all users' merged answers; assessor report uses their own
+      const reportAnswers = isAdmin() ? adminAnswers : answers;
+
+      // Attach live-calculated compliance scores to each framework before passing to PDF
+      const scoredFrameworks = Object.fromEntries(
+        Object.entries(frameworks).map(([id, fw]) => [
+          id,
+          { ...fw, score: complianceService.calculateFrameworkScore(fw, reportAnswers) }
+        ])
+      );
+
+      const pdf = await pdfService.generatePDF(
+        domains, reportAnswers, evidence, scoredFrameworks, {}, comments
+      );
       await pdfService.downloadPDF(pdf);
     } catch (error) {
       console.error('Error generating PDF:', error);
