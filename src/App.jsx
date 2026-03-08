@@ -11,8 +11,17 @@ import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 import { userExportService } from './services/userExportService';
 import { useDataStore } from './hooks/useDataStore';
+import { scoreCalculator } from './utils/scoreCalculator';
 
 function App() {
+  const {
+    users,
+    currentUser,
+    loading: userLoading,
+    selectUser,
+    isAdmin
+  } = useUser();
+
   const {
     domains,
     answers,
@@ -23,15 +32,7 @@ function App() {
     clearAnswer,
     saveEvidenceForQuestion,
     getProgress
-  } = useAssessment();
-
-  const {
-    users,
-    currentUser,
-    loading: userLoading,
-    selectUser,
-    isAdmin
-  } = useUser();
+  } = useAssessment(currentUser?.id);
 
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState(null);
@@ -216,8 +217,8 @@ function App() {
     );
   }
 
-const progress = getProgress();
-  
+const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers);
+
     // Render role-based view
     return (
       <>
@@ -226,7 +227,7 @@ const progress = getProgress();
             domains={domains}
             answers={answers}
             evidence={evidence}
-            frameworks={frameworks}
+            frameworks={Object.values(frameworks)}
             onExportPDF={handleExportPDF}
               onLogout={handleLogout}
               onImportData={handleImportData}

@@ -107,7 +107,7 @@ export const FullScreenAdminView = ({
   useEffect(() => {
     setManagedDomains(getDomains());
     setManagedFrameworks(getFrameworks());
-    setSelectedFrameworkIds(getSelectedFrameworks());
+    setSelectedFrameworkIds(getSelectedFrameworks().map(f => f.id));
     setManagedUsers(getUsers());
     setManagedQuestions(getQuestions());
   }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions]);

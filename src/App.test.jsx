@@ -556,7 +556,7 @@ describe('App', () => {
     it('should display correct progress percentage', () => {
       useAssessment.mockReturnValue({
         ...mockUseAssessment,
-        getProgress: vi.fn(() => ({ answered: 1, total: 2, percentage: 50 }))
+        answers: { q1: 3 }
       });
 
       render(<App />);

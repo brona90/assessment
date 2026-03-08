@@ -19,6 +19,34 @@ vi.mock('./ComplianceDashboard', () => ({
   ComplianceDashboard: () => <div data-testid="compliance-dashboard">Compliance Dashboard</div>
 }));
 
+// Stable mock references for useDataStore (avoids infinite useEffect loops)
+const datastoreMocks = vi.hoisted(() => ({
+  getDomains: vi.fn(() => ({})),
+  addDomain: vi.fn(),
+  updateDomain: vi.fn(),
+  deleteDomain: vi.fn(),
+  getFrameworks: vi.fn(() => []),
+  getSelectedFrameworks: vi.fn(() => []),
+  addFramework: vi.fn(),
+  updateFramework: vi.fn(),
+  deleteFramework: vi.fn(),
+  setSelectedFrameworks: vi.fn().mockResolvedValue(undefined),
+  getUsers: vi.fn(() => []),
+  addUser: vi.fn(),
+  updateUser: vi.fn(),
+  deleteUser: vi.fn(),
+  getQuestions: vi.fn(() => []),
+  addQuestion: vi.fn(),
+  updateQuestion: vi.fn(),
+  deleteQuestion: vi.fn(),
+  getUserAssignments: vi.fn(() => []),
+  assignQuestionsToUser: vi.fn(),
+}));
+
+vi.mock('../hooks/useDataStore', () => ({
+  useDataStore: () => datastoreMocks
+}));
+
 describe('FullScreenAdminView', () => {
   const mockDomains = {
     domain1: {
@@ -43,6 +71,14 @@ describe('FullScreenAdminView', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset datastore mock implementations to empty defaults
+    datastoreMocks.getDomains.mockReturnValue({});
+    datastoreMocks.getFrameworks.mockReturnValue([]);
+    datastoreMocks.getSelectedFrameworks.mockReturnValue([]);
+    datastoreMocks.getUsers.mockReturnValue([]);
+    datastoreMocks.getQuestions.mockReturnValue([]);
+    datastoreMocks.getUserAssignments.mockReturnValue([]);
+    datastoreMocks.setSelectedFrameworks.mockResolvedValue(undefined);
   });
 
   describe('Component Rendering', () => {
@@ -500,6 +536,58 @@ describe('FullScreenAdminView', () => {
 
       fireEvent.click(screen.getByTestId('compliance-tab'));
       expect(screen.getByTestId('compliance-dashboard')).toBeInTheDocument();
+    });
+  });
+
+  describe('Frameworks Tab', () => {
+    it('should show framework checkboxes as checked when framework is selected', () => {
+      const fw = { id: 'fw1', name: 'Framework 1' };
+      datastoreMocks.getFrameworks.mockReturnValue([fw]);
+      datastoreMocks.getSelectedFrameworks.mockReturnValue([fw]);
+
+      render(
+        <FullScreenAdminView
+          domains={mockDomains}
+          answers={mockAnswers}
+          evidence={mockEvidence}
+          frameworks={mockFrameworks}
+          onExportPDF={mockOnExportPDF}
+          onLogout={mockOnLogout}
+          onImportData={mockOnImportData}
+          onExportData={mockOnExportData}
+          onClearAllData={mockOnClearAllData}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('frameworks-tab'));
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toBeChecked();
+    });
+
+    it('should show framework checkboxes as unchecked when framework is not selected', () => {
+      const fw = { id: 'fw1', name: 'Framework 1' };
+      datastoreMocks.getFrameworks.mockReturnValue([fw]);
+      datastoreMocks.getSelectedFrameworks.mockReturnValue([]);
+
+      render(
+        <FullScreenAdminView
+          domains={mockDomains}
+          answers={mockAnswers}
+          evidence={mockEvidence}
+          frameworks={mockFrameworks}
+          onExportPDF={mockOnExportPDF}
+          onLogout={mockOnLogout}
+          onImportData={mockOnImportData}
+          onExportData={mockOnExportData}
+          onClearAllData={mockOnClearAllData}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('frameworks-tab'));
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.toBeChecked();
     });
   });
 
