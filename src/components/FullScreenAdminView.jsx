@@ -6,6 +6,7 @@ import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
 import { useDataStore } from '../hooks/useDataStore';
 import { useRouter } from '../hooks/useRouter';
+import { storageService } from '../services/storageService';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -103,6 +104,9 @@ export const FullScreenAdminView = ({
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [userAssignments, setUserAssignments] = useState({});
 
+  // Completion status for dashboard
+  const [completionStatus, setCompletionStatus] = useState([]);
+
   // Load data on mount
   useEffect(() => {
     setManagedDomains(getDomains());
@@ -111,6 +115,23 @@ export const FullScreenAdminView = ({
     setManagedUsers(getUsers());
     setManagedQuestions(getQuestions());
   }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions]);
+
+  // Load participant completion status when dashboard tab is active
+  useEffect(() => {
+    if (activeTab === 'dashboard') {
+      const users = getUsers();
+      const questions = getQuestions();
+      const questionsPerUser = {};
+      users.forEach(user => {
+        const qIds = getUserAssignments(user.id);
+        questionsPerUser[user.id] = qIds
+          .map(id => questions.find(q => q.id === id))
+          .filter(Boolean);
+      });
+      storageService.loadUsersCompletionStatus(users, questionsPerUser)
+        .then(setCompletionStatus);
+    }
+  }, [activeTab, getUsers, getQuestions, getUserAssignments]);
 
   // Load assignments when activeTab changes to assignments or when users/questions change
   useEffect(() => {
@@ -1092,10 +1113,53 @@ export const FullScreenAdminView = ({
           >
             <div className="dashboard-section">
               <h2>Assessment Overview</h2>
-               
-               {/* Heatmap */}
-               <DomainHeatmap domains={domains} answers={answers} />
-               
+
+              {/* Participant Completion */}
+              <div className="completion-section" data-testid="completion-section">
+                <h3>Participant Completion</h3>
+                {completionStatus.length === 0 ? (
+                  <p className="completion-empty">No users found.</p>
+                ) : (
+                  <table className="completion-table" data-testid="completion-table">
+                    <thead>
+                      <tr>
+                        <th>Assessor</th>
+                        <th>Assigned</th>
+                        <th>Answered</th>
+                        <th>Progress</th>
+                        <th>Last Active</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {completionStatus.map(s => (
+                        <tr key={s.userId} data-testid={`completion-row-${s.userId}`}>
+                          <td>{s.name}</td>
+                          <td>{s.total}</td>
+                          <td>{s.answered}</td>
+                          <td>
+                            <div className="completion-bar-wrap">
+                              <div
+                                className="completion-bar-fill"
+                                style={{ width: `${s.percentage}%` }}
+                              />
+                              <span className="completion-pct">{s.percentage}%</span>
+                            </div>
+                          </td>
+                          <td className="completion-last-active">
+                            {s.lastActive
+                              ? new Date(s.lastActive).toLocaleString()
+                              : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* Heatmap */}
+              <DomainHeatmap domains={domains} answers={answers} />
+
               <div className="charts-grid">
                 <div className="chart-container">
                   <h3>Domain Scores (Radar)</h3>

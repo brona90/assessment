@@ -47,6 +47,14 @@ vi.mock('../hooks/useDataStore', () => ({
   useDataStore: () => datastoreMocks
 }));
 
+vi.mock('../services/storageService', () => ({
+  storageService: {
+    loadUsersCompletionStatus: vi.fn().mockResolvedValue([]),
+    saveLastActive: vi.fn(),
+    loadLastActive: vi.fn().mockReturnValue(null)
+  }
+}));
+
 describe('FullScreenAdminView', () => {
   const mockDomains = {
     domain1: {
@@ -431,6 +439,62 @@ describe('FullScreenAdminView', () => {
       // Charts should be rendered with data
       expect(screen.getByTestId('domain-radar-chart')).toBeInTheDocument();
       expect(screen.getByTestId('domain-bar-chart')).toBeInTheDocument();
+    });
+  });
+
+  describe('Participant Completion', () => {
+    const defaultProps = {
+      domains: mockDomains,
+      answers: mockAnswers,
+      evidence: mockEvidence,
+      frameworks: mockFrameworks,
+      onExportPDF: mockOnExportPDF,
+      onLogout: mockOnLogout,
+      onImportData: mockOnImportData,
+      onExportData: mockOnExportData,
+      onClearAllData: mockOnClearAllData
+    };
+
+    it('should show completion section in Dashboard tab', async () => {
+      const { storageService } = await import('../services/storageService');
+      storageService.loadUsersCompletionStatus.mockResolvedValue([]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('dashboard-tab'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('completion-section')).toBeInTheDocument();
+      });
+    });
+
+    it('should show completion table rows for each user', async () => {
+      const { storageService } = await import('../services/storageService');
+      storageService.loadUsersCompletionStatus.mockResolvedValue([
+        { userId: 'u1', name: 'Alice', total: 10, answered: 7, percentage: 70, lastActive: null },
+        { userId: 'u2', name: 'Bob', total: 8, answered: 8, percentage: 100, lastActive: '2024-01-15T10:00:00.000Z' }
+      ]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('dashboard-tab'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('completion-row-u1')).toBeInTheDocument();
+        expect(screen.getByTestId('completion-row-u2')).toBeInTheDocument();
+      });
+    });
+
+    it('should show "—" for users with no last active timestamp', async () => {
+      const { storageService } = await import('../services/storageService');
+      storageService.loadUsersCompletionStatus.mockResolvedValue([
+        { userId: 'u1', name: 'Alice', total: 10, answered: 0, percentage: 0, lastActive: null }
+      ]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('dashboard-tab'));
+
+      await waitFor(() => {
+        expect(screen.getByText('—')).toBeInTheDocument();
+      });
     });
   });
 

@@ -189,6 +189,66 @@ describe('StorageService', () => {
     });
   });
 
+  describe('Last Active Tracking', () => {
+    it('should save last active timestamp for a user', () => {
+      storageService.saveLastActive('user1');
+      const stored = localStorage.getItem('lastActive_user1');
+      expect(stored).toBeTruthy();
+      expect(new Date(stored).toString()).not.toBe('Invalid Date');
+    });
+
+    it('should load last active timestamp for a user', () => {
+      const ts = new Date().toISOString();
+      localStorage.setItem('lastActive_user1', ts);
+      expect(storageService.loadLastActive('user1')).toBe(ts);
+    });
+
+    it('should return null when no last active timestamp exists', () => {
+      expect(storageService.loadLastActive('ghost')).toBeNull();
+    });
+
+    it('should do nothing when userId is null', () => {
+      expect(() => storageService.saveLastActive(null)).not.toThrow();
+      expect(storageService.loadLastActive(null)).toBeNull();
+    });
+  });
+
+  describe('loadUsersCompletionStatus', () => {
+    it('should return completion stats per user', async () => {
+      const users = [{ id: 'u1', name: 'Alice' }];
+      const questions = [{ id: 'q1' }, { id: 'q2' }];
+      localStorage.setItem('assessmentData_u1', JSON.stringify({ q1: 3 }));
+
+      const statuses = await storageService.loadUsersCompletionStatus(users, { u1: questions });
+      expect(statuses).toHaveLength(1);
+      expect(statuses[0].userId).toBe('u1');
+      expect(statuses[0].answered).toBe(1);
+      expect(statuses[0].total).toBe(2);
+      expect(statuses[0].percentage).toBe(50);
+    });
+
+    it('should return 0% for user with no answers', async () => {
+      const users = [{ id: 'u1', name: 'Alice' }];
+      const questions = [{ id: 'q1' }];
+      const statuses = await storageService.loadUsersCompletionStatus(users, { u1: questions });
+      expect(statuses[0].answered).toBe(0);
+      expect(statuses[0].percentage).toBe(0);
+    });
+
+    it('should handle empty user list', async () => {
+      const statuses = await storageService.loadUsersCompletionStatus([], {});
+      expect(statuses).toEqual([]);
+    });
+
+    it('should include last active timestamp in status', async () => {
+      const ts = new Date().toISOString();
+      localStorage.setItem('lastActive_u1', ts);
+      const users = [{ id: 'u1', name: 'Alice' }];
+      const statuses = await storageService.loadUsersCompletionStatus(users, { u1: [] });
+      expect(statuses[0].lastActive).toBe(ts);
+    });
+  });
+
   describe('loadAllUsersAnswers', () => {
     it('should merge answers from multiple users', async () => {
       localStorage.setItem('assessmentData_u1', JSON.stringify({ q1: 3 }));

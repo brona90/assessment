@@ -42,6 +42,7 @@ export const useAssessment = (userId) => {
     const newAnswers = { ...answers, [questionId]: value };
     setAnswers(newAnswers);
     await storageService.saveAssessment(userId, newAnswers);
+    storageService.saveLastActive(userId);
   }, [answers, userId]);
 
   const clearAnswer = useCallback(async (questionId) => {

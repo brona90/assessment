@@ -452,3 +452,67 @@
   margin: 0;
   color: #333;
 }
+
+/* Completion Status Table */
+.completion-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.completion-section h3 {
+  margin: 0 0 1rem;
+  color: #667eea;
+}
+
+.completion-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.completion-table th,
+.completion-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.completion-table th {
+  font-weight: 600;
+  color: #555;
+  background: #f8f8f8;
+}
+
+.completion-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.completion-bar-fill {
+  height: 8px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 4px;
+  flex: 0 0 auto;
+  min-width: 2px;
+}
+
+.completion-pct {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.completion-last-active {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.completion-empty {
+  color: #888;
+  font-style: italic;
+}

@@ -131,6 +131,45 @@ export const storageService = {
     return merged;
   },
 
+  saveLastActive(userId) {
+    if (!userId) return;
+    try {
+      localStorage.setItem(`lastActive_${userId}`, new Date().toISOString());
+    } catch {
+      // Non-critical — ignore storage errors for activity tracking
+    }
+  },
+
+  loadLastActive(userId) {
+    if (!userId) return null;
+    try {
+      return localStorage.getItem(`lastActive_${userId}`);
+    } catch {
+      return null;
+    }
+  },
+
+  async loadUsersCompletionStatus(users, questionsPerUser) {
+    const statuses = [];
+    for (const user of users) {
+      const answers = await this.loadAssessment(user.id);
+      const assignedQuestions = questionsPerUser[user.id] || [];
+      const total = assignedQuestions.length;
+      const answered = assignedQuestions.filter(
+        q => answers[q.id] !== undefined
+      ).length;
+      statuses.push({
+        userId: user.id,
+        name: user.name,
+        total,
+        answered,
+        percentage: total > 0 ? Math.round((answered / total) * 100) : 0,
+        lastActive: this.loadLastActive(user.id)
+      });
+    }
+    return statuses;
+  },
+
   async clearAllEvidence() {
     try {
       await this.evidenceDB.clear();
