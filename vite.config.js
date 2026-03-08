@@ -5,7 +5,11 @@ export default defineConfig({
   plugins: [react()],
   base: '/assessment/',
   server: {
-    host: true
+    host: true,
+    watch: {
+      // Also watch public/data JSON files so changes trigger a full reload
+      include: ['src/**', 'public/data/**']
+    }
   },
   test: {
     globals: true,
