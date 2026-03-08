@@ -9,6 +9,7 @@ import { useRouter } from '../hooks/useRouter';
 import { storageService } from '../services/storageService';
 import { dataService } from '../services/dataService';
 import { BenchmarkTrendChart } from './BenchmarkTrendChart';
+import { CompareExports } from './CompareExports';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -1060,6 +1061,9 @@ export const FullScreenAdminView = ({
                   Export: Download all system data including configuration, answers, and evidence.
                 </p>
               </section>
+
+              {/* Compare Exports Section */}
+              <CompareExports />
 
               {/* Clear All Data Section */}
               <section className="management-card danger-zone">

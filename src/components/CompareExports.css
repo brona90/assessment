@@ -1,0 +1,150 @@
+.compare-exports-card {
+  /* Inherits .management-card styles */
+}
+
+.compare-inputs {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin: 1.25rem 0;
+}
+
+.compare-file-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 180px;
+}
+
+.compare-file-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compare-file-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+}
+
+.compare-file-badge.before {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.compare-file-badge.after {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.compare-arrow {
+  font-size: 1.5rem;
+  color: #9ca3af;
+  align-self: center;
+}
+
+.compare-meta {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.compare-error {
+  color: #dc2626;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.compare-hint {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Comparison table */
+.compare-results {
+  margin-top: 1.5rem;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.compare-table th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.compare-domain {
+  color: #1f2937;
+}
+
+.compare-score {
+  text-align: right;
+  color: #374151;
+  font-variant-numeric: tabular-nums;
+}
+
+.compare-delta {
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-positive {
+  color: #16a34a;
+}
+
+.delta-negative {
+  color: #dc2626;
+}
+
+.delta-neutral {
+  color: #6b7280;
+}
+
+.compare-overall-row td {
+  border-top: 2px solid #d1d5db;
+  background: #f9fafb;
+}
+
+.compare-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.82rem;
+  margin-top: 0.75rem;
+  color: #6b7280;
+}
+
+.compare-legend .delta-positive,
+.compare-legend .delta-negative,
+.compare-legend .delta-neutral {
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .compare-inputs {
+    flex-direction: column;
+  }
+
+  .compare-arrow {
+    transform: rotate(90deg);
+    align-self: flex-start;
+  }
+}
