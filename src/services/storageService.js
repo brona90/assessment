@@ -82,6 +82,26 @@ export const storageService = {
     }
   },
 
+  saveAssignments(assignments) {
+    try {
+      localStorage.setItem('adminAssignments', JSON.stringify(assignments));
+      return true;
+    } catch (error) {
+      console.error('Error saving assignments:', error);
+      return false;
+    }
+  },
+
+  loadAssignments() {
+    try {
+      const data = localStorage.getItem('adminAssignments');
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Error loading assignments:', error);
+      return null;
+    }
+  },
+
   saveFrameworkMappings(mappings) {
     try {
       localStorage.setItem('frameworkMappings', JSON.stringify(mappings));

@@ -67,11 +67,16 @@ class DataStore {
         }));
       }
 
-      // Initialize assignments from user data
+      // Initialize assignments from user data (then override with persisted admin changes)
       this.data.assignments = {};
       this.data.users.forEach(user => {
         this.data.assignments[user.id] = user.assignedQuestions || [];
       });
+
+      const savedAssignments = storageService.loadAssignments();
+      if (savedAssignments) {
+        this.data.assignments = savedAssignments;
+      }
 
       this.initialized = true;
     } catch (error) {
@@ -461,6 +466,7 @@ class DataStore {
     });
 
     this.data.assignments[userId] = [...questionIds];
+    storageService.saveAssignments(this.data.assignments);
     return this.data.assignments[userId];
   }
 

@@ -95,6 +95,52 @@ describe('StorageService', () => {
     });
   });
 
+  describe('Assignments', () => {
+    it('should save and load assignments', () => {
+      const assignments = { user1: ['q1', 'q2'], user2: ['q3'] };
+      const saved = storageService.saveAssignments(assignments);
+      expect(saved).toBe(true);
+
+      const loaded = storageService.loadAssignments();
+      expect(loaded).toEqual(assignments);
+    });
+
+    it('should return null when no assignments saved', () => {
+      expect(storageService.loadAssignments()).toBeNull();
+    });
+
+    it('should overwrite previous assignments on save', () => {
+      storageService.saveAssignments({ user1: ['q1'] });
+      storageService.saveAssignments({ user1: ['q1', 'q2'] });
+      expect(storageService.loadAssignments()).toEqual({ user1: ['q1', 'q2'] });
+    });
+
+    it('should handle save errors gracefully', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('Storage full');
+      });
+
+      const result = storageService.saveAssignments({ user1: ['q1'] });
+      expect(result).toBe(false);
+
+      setItemSpy.mockRestore();
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle load errors gracefully', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('Storage error');
+      });
+
+      expect(storageService.loadAssignments()).toBeNull();
+
+      getItemSpy.mockRestore();
+      consoleSpy.mockRestore();
+    });
+  });
+
   describe('Framework Mappings', () => {
     it('should save and load framework mappings', () => {
       const mappings = { fw1: ['q1', 'q2'], fw2: ['q3'] };

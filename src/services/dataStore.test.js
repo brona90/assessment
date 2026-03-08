@@ -390,9 +390,17 @@ describe('DataStore', async () => {
     it('should remove question assignments', async () => {
       dataStore.data.assignments.user1 = ['q1', 'q2'];
       const remaining = dataStore.removeQuestionAssignments('user1', ['q1']);
-      
+
       expect(remaining).toHaveLength(1);
       expect(remaining).toContain('q2');
+    });
+
+    it('should persist assignments to localStorage when assigning questions', async () => {
+      dataStore.assignQuestionsToUser('user1', ['q1', 'q2']);
+      const stored = localStorage.getItem('adminAssignments');
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored);
+      expect(parsed.user1).toEqual(['q1', 'q2']);
     });
   });
 
