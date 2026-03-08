@@ -1,5 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { pdfService } from './pdfService';
+
+// Mock Image constructor so onload fires in jsdom (jsdom doesn't load images)
+beforeEach(() => {
+  vi.stubGlobal('Image', class {
+    constructor() {
+      this.onload = null;
+      this.onerror = null;
+      this.width = 100;
+      this.height = 75;
+    }
+    set src(_) {
+      Promise.resolve().then(() => this.onload?.());
+    }
+  });
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('PdfService', () => {
   const mockDomains = {
@@ -232,7 +251,7 @@ describe('PdfService', () => {
     it('should use default filename', async () => {
       const mockPdf = { save: vi.fn() };
       await pdfService.downloadPDF(mockPdf);
-      expect(mockPdf.save).toHaveBeenCalledWith('compliance-report.pdf');
+      expect(mockPdf.save).toHaveBeenCalledWith('maturity-assessment-report.pdf');
     });
   });
 
