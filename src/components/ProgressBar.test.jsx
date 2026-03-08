@@ -26,4 +26,20 @@ describe('ProgressBar', () => {
     const progressFill = screen.getByTestId('progress-fill');
     expect(progressFill).toHaveStyle({ width: '100%' });
   });
+
+  it('should show evidence count when provided and answered > 0', () => {
+    render(<ProgressBar answered={8} total={10} percentage={80} withEvidence={5} />);
+    expect(screen.getByTestId('evidence-count')).toBeInTheDocument();
+    expect(screen.getByText('5/8 with evidence')).toBeInTheDocument();
+  });
+
+  it('should not show evidence count when withEvidence is not provided', () => {
+    render(<ProgressBar answered={5} total={10} percentage={50} />);
+    expect(screen.queryByTestId('evidence-count')).not.toBeInTheDocument();
+  });
+
+  it('should not show evidence count when answered is 0', () => {
+    render(<ProgressBar answered={0} total={10} percentage={0} withEvidence={0} />);
+    expect(screen.queryByTestId('evidence-count')).not.toBeInTheDocument();
+  });
 });

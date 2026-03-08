@@ -168,7 +168,8 @@ UserView.propTypes = {
   progress: PropTypes.shape({
     answered: PropTypes.number.isRequired,
     total: PropTypes.number.isRequired,
-    percentage: PropTypes.number.isRequired
+    percentage: PropTypes.number.isRequired,
+    withEvidence: PropTypes.number
   }).isRequired,
   onAnswerChange: PropTypes.func.isRequired,
   onClearAnswer: PropTypes.func.isRequired,

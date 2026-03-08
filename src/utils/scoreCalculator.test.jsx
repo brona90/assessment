@@ -222,6 +222,26 @@ describe('ScoreCalculator', () => {
       expect(progress.total).toBe(0);
       expect(progress.percentage).toBe(0);
     });
+
+    it('should count withEvidence for answered questions that have evidence', () => {
+      const answers = { q1: 3, q2: 4 };
+      const evidence = { q1: { text: 'some evidence' } };
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, answers, evidence);
+      expect(progress.withEvidence).toBe(1);
+    });
+
+    it('should return withEvidence=0 when no evidence provided', () => {
+      const answers = { q1: 3, q2: 4 };
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, answers);
+      expect(progress.withEvidence).toBe(0);
+    });
+
+    it('should not count evidence for unanswered questions', () => {
+      const answers = { q1: 3 };
+      const evidence = { q1: { text: 'e1' }, q2: { text: 'e2' } };
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, answers, evidence);
+      expect(progress.withEvidence).toBe(1); // only q1 answered
+    });
   });
 
   describe('N/A (NA_VALUE) handling', () => {

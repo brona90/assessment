@@ -90,13 +90,17 @@ export const scoreCalculator = {
     return 'Not Implemented';
   },
 
-  calculateProgressFromQuestions(questions, answers) {
+  calculateProgressFromQuestions(questions, answers, evidence = {}) {
     const total = questions.length;
     const answered = questions.filter(q => answers[q.id] !== undefined).length;
+    const withEvidence = questions.filter(
+      q => answers[q.id] !== undefined && !!evidence[q.id]
+    ).length;
     return {
       answered,
       total,
-      percentage: total > 0 ? Math.round((answered / total) * 100) : 0
+      percentage: total > 0 ? Math.round((answered / total) * 100) : 0,
+      withEvidence
     };
   },
 

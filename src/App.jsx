@@ -229,7 +229,7 @@ function App() {
     );
   }
 
-const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers);
+const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers, evidence);
 
     // Render role-based view
     return (
