@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
+import { scoreCalculator } from '../utils/scoreCalculator';
 import './UserView.css';
 
 export const UserView = ({
@@ -10,6 +11,7 @@ export const UserView = ({
   answers,
   evidence,
   comments,
+  frameworks,
   progress,
   onAnswerChange,
   onClearAnswer,
@@ -19,6 +21,12 @@ export const UserView = ({
   onSwitchToResults,
   onLogout
 }) => {
+  // Reverse-map frameworks → per-question compliance tags
+  const questionFrameworkMap = useMemo(
+    () => scoreCalculator.buildQuestionFrameworkMap(frameworks),
+    [frameworks]
+  );
+
   // Group questions by domain and category
   const groupedQuestions = questions.reduce((acc, question) => {
     const domainId = question.domainId;
@@ -141,6 +149,7 @@ export const UserView = ({
                             question={question}
                             answer={answers[question.id]}
                             comment={comments?.[question.id] || ''}
+                            complianceTags={questionFrameworkMap[question.id] || []}
                             onAnswerChange={(value) => onAnswerChange(question.id, value)}
                             onClearAnswer={() => onClearAnswer(question.id)}
                             onCommentChange={(text) => onCommentChange(question.id, text)}
@@ -170,6 +179,7 @@ UserView.propTypes = {
   answers: PropTypes.object.isRequired,
   evidence: PropTypes.object.isRequired,
   comments: PropTypes.object,
+  frameworks: PropTypes.object,
   progress: PropTypes.shape({
     answered: PropTypes.number.isRequired,
     total: PropTypes.number.isRequired,

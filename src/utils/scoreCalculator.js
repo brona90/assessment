@@ -110,6 +110,21 @@ export const scoreCalculator = {
     return gap * (domainWeight || 1);
   },
 
+  /**
+   * Builds a reverse lookup: questionId → array of framework tags.
+   * Each tag is {id, name, color, icon} for display in the question card.
+   */
+  buildQuestionFrameworkMap(frameworks) {
+    const map = {};
+    Object.values(frameworks || {}).forEach(fw => {
+      (fw.mappedQuestions || []).forEach(qId => {
+        if (!map[qId]) map[qId] = [];
+        map[qId].push({ id: fw.id, name: fw.name, color: fw.color, icon: fw.icon });
+      });
+    });
+    return map;
+  },
+
   getComplianceStatus(score, threshold) {
     if (score >= 90) return 'Excellent';
     if (score >= threshold) return 'Good';

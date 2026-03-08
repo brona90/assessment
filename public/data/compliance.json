@@ -2,14 +2,20 @@
   "frameworks": {
     "sox": {
       "id": "sox",
-      "name": "SOX (Sarbanes-Oxley)",
+      "name": "SOX",
       "enabled": true,
       "description": "Financial controls and IT governance for publicly traded companies",
       "category": "Financial",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q4", "d1_q6",
+        "d2_q1", "d2_q2", "d2_q3", "d2_q4",
+        "d2_q5", "d2_q6", "d2_q7", "d2_q8",
+        "d3_q9", "d3_q10", "d3_q11", "d3_q12",
+        "d4_q9", "d4_q10", "d4_q11", "d4_q12"
+      ],
       "threshold": 4.0,
       "color": "#10b981",
-      "icon": "✓",
+      "icon": "SOX",
       "requirements": [
         "Access controls and authentication",
         "Change management processes",
@@ -19,14 +25,17 @@
     },
     "pii": {
       "id": "pii",
-      "name": "PII Protection (GDPR/CCPA)",
+      "name": "PII/GDPR",
       "enabled": true,
       "description": "Personal data protection and privacy requirements",
       "category": "Privacy",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q4", "d1_q6",
+        "d2_q9", "d2_q10", "d2_q11", "d2_q12"
+      ],
       "threshold": 4.5,
       "color": "#3b82f6",
-      "icon": "🔒",
+      "icon": "PII",
       "requirements": [
         "Data encryption at rest and in transit",
         "Access control and authentication",
@@ -40,10 +49,13 @@
       "enabled": false,
       "description": "Healthcare data security and privacy standards",
       "category": "Healthcare",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q6",
+        "d2_q9", "d2_q10", "d2_q11"
+      ],
       "threshold": 4.5,
       "color": "#8b5cf6",
-      "icon": "🏥",
+      "icon": "HIPAA",
       "requirements": [
         "Protected Health Information (PHI) security",
         "Access controls and audit logs",
@@ -57,10 +69,14 @@
       "enabled": false,
       "description": "Payment card industry data security standards",
       "category": "Financial",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q6",
+        "d2_q5", "d2_q6", "d2_q7",
+        "d2_q10", "d2_q11"
+      ],
       "threshold": 4.0,
       "color": "#f59e0b",
-      "icon": "💳",
+      "icon": "PCI",
       "requirements": [
         "Secure network architecture",
         "Cardholder data protection",
@@ -74,10 +90,16 @@
       "enabled": false,
       "description": "Information security management system standard",
       "category": "Security",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q1", "d1_q2", "d1_q3", "d1_q4", "d1_q5", "d1_q6", "d1_q7", "d1_q8",
+        "d2_q9", "d2_q10", "d2_q11", "d2_q12",
+        "d3_q3", "d3_q7", "d3_q12",
+        "d4_q1", "d4_q3",
+        "d4_q9", "d4_q10", "d4_q11"
+      ],
       "threshold": 4.0,
       "color": "#06b6d4",
-      "icon": "🛡️",
+      "icon": "ISO",
       "requirements": [
         "Information security policies",
         "Risk assessment and treatment",
@@ -87,14 +109,18 @@
     },
     "nist_csf": {
       "id": "nist_csf",
-      "name": "NIST Cybersecurity Framework",
+      "name": "NIST CSF",
       "enabled": false,
       "description": "Cybersecurity risk management framework",
       "category": "Security",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q2",
+        "d3_q1", "d3_q2", "d3_q4", "d3_q12",
+        "d4_q1", "d4_q3", "d4_q11", "d4_q12"
+      ],
       "threshold": 3.5,
       "color": "#ec4899",
-      "icon": "🔐",
+      "icon": "NIST",
       "requirements": [
         "Identify assets and risks",
         "Protect critical infrastructure",
@@ -109,10 +135,14 @@
       "enabled": false,
       "description": "Federal cloud security authorization program",
       "category": "Government",
-      "mappedQuestions": [],
+      "mappedQuestions": [
+        "d1_q5", "d1_q6", "d1_q7", "d1_q8",
+        "d4_q1", "d4_q2", "d4_q3",
+        "d4_q9", "d4_q10", "d4_q11", "d4_q12"
+      ],
       "threshold": 4.5,
       "color": "#14b8a6",
-      "icon": "🏛️",
+      "icon": "FED",
       "requirements": [
         "Cloud security controls",
         "Continuous monitoring",
@@ -122,14 +152,14 @@
     },
     "custom": {
       "id": "custom",
-      "name": "Custom Framework",
+      "name": "Custom",
       "enabled": false,
       "description": "User-defined compliance framework",
       "category": "Custom",
       "mappedQuestions": [],
       "threshold": 3.0,
       "color": "#6b7280",
-      "icon": "⚙️",
+      "icon": "CST",
       "requirements": []
     }
   },

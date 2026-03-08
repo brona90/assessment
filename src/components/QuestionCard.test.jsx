@@ -186,4 +186,49 @@ describe('QuestionCard', () => {
       expect(screen.queryByTestId('comment-area-q1')).not.toBeInTheDocument();
     });
   });
+
+  describe('Compliance Tags', () => {
+    const mockTags = [
+      { id: 'sox', name: 'SOX', color: '#10b981', icon: 'SOX' },
+      { id: 'pii', name: 'PII/GDPR', color: '#3b82f6', icon: 'PII' }
+    ];
+
+    it('should not render compliance tags section when no tags provided', () => {
+      render(<QuestionCard {...mockProps} />);
+      expect(screen.queryByTestId('compliance-tags-q1')).not.toBeInTheDocument();
+    });
+
+    it('should not render compliance tags section for empty array', () => {
+      render(<QuestionCard {...mockProps} complianceTags={[]} />);
+      expect(screen.queryByTestId('compliance-tags-q1')).not.toBeInTheDocument();
+    });
+
+    it('should render compliance tags section when tags provided', () => {
+      render(<QuestionCard {...mockProps} complianceTags={mockTags} />);
+      expect(screen.getByTestId('compliance-tags-q1')).toBeInTheDocument();
+    });
+
+    it('should render a badge for each tag', () => {
+      render(<QuestionCard {...mockProps} complianceTags={mockTags} />);
+      expect(screen.getByTestId('compliance-tag-q1-sox')).toBeInTheDocument();
+      expect(screen.getByTestId('compliance-tag-q1-pii')).toBeInTheDocument();
+    });
+
+    it('should display the icon text inside each badge', () => {
+      render(<QuestionCard {...mockProps} complianceTags={mockTags} />);
+      expect(screen.getByTestId('compliance-tag-q1-sox')).toHaveTextContent('SOX');
+      expect(screen.getByTestId('compliance-tag-q1-pii')).toHaveTextContent('PII');
+    });
+
+    it('should apply the framework color via inline style', () => {
+      render(<QuestionCard {...mockProps} complianceTags={[mockTags[0]]} />);
+      const badge = screen.getByTestId('compliance-tag-q1-sox');
+      expect(badge.style.color).toBe('rgb(16, 185, 129)');
+    });
+
+    it('should use the framework name as title attribute', () => {
+      render(<QuestionCard {...mockProps} complianceTags={[mockTags[0]]} />);
+      expect(screen.getByTestId('compliance-tag-q1-sox')).toHaveAttribute('title', 'SOX');
+    });
+  });
 });

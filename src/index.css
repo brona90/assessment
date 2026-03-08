@@ -183,8 +183,27 @@ body {
 
 .question-text {
   font-size: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   line-height: 1.6;
+}
+
+.compliance-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.compliance-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  border: 1.5px solid currentColor;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+  background: transparent;
 }
 
 .rating-scale {

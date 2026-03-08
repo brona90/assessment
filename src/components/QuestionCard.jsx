@@ -14,6 +14,7 @@ export const QuestionCard = ({
   question,
   answer,
   comment,
+  complianceTags,
   onAnswerChange,
   onClearAnswer,
   onCommentChange,
@@ -68,6 +69,22 @@ export const QuestionCard = ({
       </div>
       
       <p className="question-text">{question.text}</p>
+
+      {complianceTags && complianceTags.length > 0 && (
+        <div className="compliance-tags" data-testid={`compliance-tags-${question.id}`}>
+          {complianceTags.map(tag => (
+            <span
+              key={tag.id}
+              className="compliance-tag"
+              style={{ borderColor: tag.color, color: tag.color }}
+              title={tag.name}
+              data-testid={`compliance-tag-${question.id}-${tag.id}`}
+            >
+              {tag.icon}
+            </span>
+          ))}
+        </div>
+      )}
       
       <div className="rating-scale">
         {RATING_OPTIONS.map(option => (
@@ -146,6 +163,12 @@ QuestionCard.propTypes = {
   }).isRequired,
   answer: PropTypes.number,
   comment: PropTypes.string,
+  complianceTags: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    color: PropTypes.string,
+    icon: PropTypes.string
+  })),
   onAnswerChange: PropTypes.func.isRequired,
   onClearAnswer: PropTypes.func.isRequired,
   onCommentChange: PropTypes.func.isRequired,

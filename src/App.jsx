@@ -270,6 +270,7 @@ const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, a
                 answers={answers}
                 evidence={evidence}
                 comments={comments}
+                frameworks={frameworks}
                 progress={progress}
                 onAnswerChange={saveAnswer}
                 onClearAnswer={clearAnswer}

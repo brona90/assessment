@@ -314,4 +314,46 @@ describe('ScoreCalculator', () => {
       expect(questions).toEqual([]);
     });
   });
+
+  describe('buildQuestionFrameworkMap', () => {
+    const mockFrameworks = {
+      sox: { id: 'sox', name: 'SOX', color: '#10b981', icon: 'SOX', mappedQuestions: ['q1', 'q2'] },
+      pii: { id: 'pii', name: 'PII/GDPR', color: '#3b82f6', icon: 'PII', mappedQuestions: ['q2', 'q3'] }
+    };
+
+    it('should build reverse map from framework to questions', () => {
+      const map = scoreCalculator.buildQuestionFrameworkMap(mockFrameworks);
+      expect(map['q1']).toHaveLength(1);
+      expect(map['q1'][0].id).toBe('sox');
+    });
+
+    it('should accumulate multiple frameworks per question', () => {
+      const map = scoreCalculator.buildQuestionFrameworkMap(mockFrameworks);
+      expect(map['q2']).toHaveLength(2);
+      const ids = map['q2'].map(t => t.id);
+      expect(ids).toContain('sox');
+      expect(ids).toContain('pii');
+    });
+
+    it('should include tag fields: id, name, color, icon', () => {
+      const map = scoreCalculator.buildQuestionFrameworkMap(mockFrameworks);
+      const tag = map['q1'][0];
+      expect(tag).toMatchObject({ id: 'sox', name: 'SOX', color: '#10b981', icon: 'SOX' });
+    });
+
+    it('should return empty object for no frameworks', () => {
+      expect(scoreCalculator.buildQuestionFrameworkMap({})).toEqual({});
+      expect(scoreCalculator.buildQuestionFrameworkMap(null)).toEqual({});
+    });
+
+    it('should skip frameworks with no mappedQuestions', () => {
+      const fw = { custom: { id: 'custom', name: 'Custom', color: '#999', icon: 'CST' } };
+      expect(scoreCalculator.buildQuestionFrameworkMap(fw)).toEqual({});
+    });
+
+    it('should not include unmapped questions', () => {
+      const map = scoreCalculator.buildQuestionFrameworkMap(mockFrameworks);
+      expect(map['q99']).toBeUndefined();
+    });
+  });
 });
