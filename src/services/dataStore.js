@@ -591,9 +591,10 @@ class DataStore {
    */
   async exportData() {
     try {
-      // Load answers and evidence from storage
+      // Collect answers from every user's per-user storage key
+      const userIds = this.data.users.map(u => u.id);
       const [answers, evidence] = await Promise.all([
-        storageService.loadAssessment(),
+        storageService.loadAllUsersAnswers(userIds),
         storageService.loadAllEvidence()
       ]);
       
