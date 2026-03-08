@@ -1,5 +1,4 @@
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const BRAND_PURPLE  = [102, 126, 234];
@@ -390,12 +389,16 @@ export const pdfService = {
       hRule(pdf, y + 4, { color: BRAND_PURPLE, width: 0.5 });
       y += 16;
 
+      const maxH = PAGE_H - MARGIN * 2 - 30;
+
       for (const { el, title } of toRender) {
-        const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff' });
-        const img = canvas.toDataURL('image/png');
-        const ar = canvas.width / canvas.height;
-        const iw = CONTENT_W;
-        const ih = iw / ar;
+        // Use canvas.toDataURL() directly — captures the full Chart.js render including legend
+        const img = el.toDataURL('image/png');
+        const ar = (el.width / el.height) || 1;
+        let iw = CONTENT_W;
+        let ih = iw / ar;
+        // Cap height so the chart never overflows the page
+        if (ih > maxH) { ih = maxH; iw = ih * ar; }
 
         if (y + ih + 15 > PAGE_H - MARGIN) {
           pdf.addPage();

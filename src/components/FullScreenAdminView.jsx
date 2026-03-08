@@ -1157,7 +1157,7 @@ export const FullScreenAdminView = ({
                           </td>
                           <td className="completion-last-active">
                             {s.lastActive
-                              ? new Date(s.lastActive).toLocaleString()
+                              ? new Date(s.lastActive).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
                               : '—'}
                           </td>
                         </tr>
