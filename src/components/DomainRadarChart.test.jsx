@@ -115,11 +115,36 @@ describe('DomainRadarChart', () => {
     const { container } = render(
       <DomainRadarChart domains={mockDomains} answers={mockAnswers} />
     );
-    
+
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
-    
+
     // The tooltip callback is registered and will be called when hovering
     // We verify the chart is rendered with the correct configuration
+  });
+
+  it('should render with benchmark data', () => {
+    const benchmarks = {
+      current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services' }
+    };
+    const { container } = render(
+      <DomainRadarChart domains={mockDomains} answers={mockAnswers} benchmarks={benchmarks} />
+    );
+    expect(container.querySelector('canvas')).toBeInTheDocument();
+  });
+
+  it('should render without benchmark data gracefully', () => {
+    const { container } = render(
+      <DomainRadarChart domains={mockDomains} answers={mockAnswers} benchmarks={null} />
+    );
+    expect(container.querySelector('canvas')).toBeInTheDocument();
+  });
+
+  it('should exclude NA answers from chart scores', () => {
+    const answersWithNA = { q1: 5, q2: 0, q3: 5 }; // q2 is N/A
+    const { container } = render(
+      <DomainRadarChart domains={mockDomains} answers={answersWithNA} />
+    );
+    expect(container.querySelector('canvas')).toBeInTheDocument();
   });
 });

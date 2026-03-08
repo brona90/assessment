@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
+import { dataService } from '../services/dataService';
 import './ResultsView.css';
 
 export const ResultsView = ({
@@ -15,6 +16,13 @@ export const ResultsView = ({
   onLogout
 }) => {
   const [activeChart, setActiveChart] = useState('heatmap');
+  const [benchmarks, setBenchmarks] = useState(null);
+
+  useEffect(() => {
+    dataService.loadBenchmarks().then(data => {
+      if (data && data.current) setBenchmarks(data);
+    });
+  }, []);
 
   // Build domain structure from the user's assigned questions only
   const filteredDomains = {};
@@ -187,9 +195,9 @@ export const ResultsView = ({
             {activeChart === 'heatmap' ? (
               <DomainHeatmap domains={filteredDomains} answers={answers} />
             ) : activeChart === 'radar' ? (
-              <DomainRadarChart domains={filteredDomains} answers={answers} />
+              <DomainRadarChart domains={filteredDomains} answers={answers} benchmarks={benchmarks} />
             ) : (
-              <DomainBarChart domains={filteredDomains} answers={answers} />
+              <DomainBarChart domains={filteredDomains} answers={answers} benchmarks={benchmarks} />
             )}
           </div>
         </div>

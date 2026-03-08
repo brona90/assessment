@@ -1,15 +1,26 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ResultsView } from './ResultsView';
 
 vi.mock('./DomainRadarChart', () => ({
-  DomainRadarChart: () => <div data-testid="domain-radar-chart">Radar Chart</div>
+  DomainRadarChart: ({ benchmarks }) => (
+    <div data-testid="domain-radar-chart" data-has-benchmarks={!!benchmarks}>Radar Chart</div>
+  )
 }));
 vi.mock('./DomainBarChart', () => ({
-  DomainBarChart: () => <div data-testid="domain-bar-chart">Bar Chart</div>
+  DomainBarChart: ({ benchmarks }) => (
+    <div data-testid="domain-bar-chart" data-has-benchmarks={!!benchmarks}>Bar Chart</div>
+  )
 }));
 vi.mock('./DomainHeatmap', () => ({
   DomainHeatmap: () => <div data-testid="domain-heatmap">Heatmap</div>
+}));
+vi.mock('../services/dataService', () => ({
+  dataService: {
+    loadBenchmarks: vi.fn().mockResolvedValue({
+      current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services' }
+    })
+  }
 }));
 
 describe('ResultsView', () => {
@@ -144,5 +155,21 @@ describe('ResultsView', () => {
   it('should display maturity label for each domain', () => {
     render(<ResultsView {...defaultProps} />);
     expect(screen.getByTestId('maturity-domain1')).toBeInTheDocument();
+  });
+
+  it('should pass benchmarks to radar chart after load', async () => {
+    render(<ResultsView {...defaultProps} />);
+    fireEvent.click(screen.getByTestId('radar-chart-tab'));
+    await waitFor(() => {
+      expect(screen.getByTestId('domain-radar-chart').dataset.hasBenchmarks).toBe('true');
+    });
+  });
+
+  it('should pass benchmarks to bar chart after load', async () => {
+    render(<ResultsView {...defaultProps} />);
+    fireEvent.click(screen.getByTestId('bar-chart-tab'));
+    await waitFor(() => {
+      expect(screen.getByTestId('domain-bar-chart').dataset.hasBenchmarks).toBe('true');
+    });
   });
 });

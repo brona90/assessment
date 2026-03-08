@@ -19,44 +19,63 @@ ChartJS.register(
   Legend
 );
 
-export const DomainBarChart = ({ domains, answers }) => {
+export const DomainBarChart = ({ domains, answers, benchmarks }) => {
   if (!domains || Object.keys(domains).length === 0) {
     return <div className="chart-empty">No data available</div>;
   }
 
+  const domainKeys = Object.keys(domains);
   const domainNames = Object.values(domains).map(d => d.title);
-  const domainScores = Object.keys(domains).map(domainKey => {
+  const domainScores = domainKeys.map(domainKey => {
     const domain = domains[domainKey];
     const questions = [];
     Object.values(domain.categories || {}).forEach(cat => {
       if (cat.questions) questions.push(...cat.questions);
     });
-    
+
     if (questions.length === 0) return 0;
-    
+
     let total = 0;
     let count = 0;
     questions.forEach(q => {
-      if (answers[q.id] !== undefined) {
-        total += answers[q.id];
+      const val = answers[q.id];
+      if (val !== undefined && val !== 0) {
+        total += val;
         count++;
       }
     });
-    
+
     return count > 0 ? total / count : 0;
   });
 
+  const hasBenchmarks = benchmarks && benchmarks.current;
+  const industryScores = hasBenchmarks
+    ? domainKeys.map(key => benchmarks.current[key] ?? null)
+    : null;
+
+  const datasets = [
+    {
+      label: 'Your Score',
+      data: domainScores,
+      backgroundColor: 'rgba(99, 102, 241, 0.8)',
+      borderColor: 'rgba(99, 102, 241, 1)',
+      borderWidth: 2
+    }
+  ];
+
+  if (industryScores) {
+    datasets.push({
+      label: `Industry Avg (${benchmarks.current.industry || 'Benchmark'})`,
+      data: industryScores,
+      backgroundColor: 'rgba(251, 146, 60, 0.6)',
+      borderColor: 'rgba(251, 146, 60, 1)',
+      borderWidth: 2
+    });
+  }
+
   const data = {
     labels: domainNames,
-    datasets: [
-      {
-        label: 'Domain Score',
-        data: domainScores,
-        backgroundColor: 'rgba(99, 102, 241, 0.8)',
-        borderColor: 'rgba(99, 102, 241, 1)',
-        borderWidth: 2
-      }
-    ]
+    datasets
   };
 
   const options = {
@@ -95,7 +114,8 @@ export const DomainBarChart = ({ domains, answers }) => {
 
 DomainBarChart.propTypes = {
   domains: PropTypes.object,
-  answers: PropTypes.object
+  answers: PropTypes.object,
+  benchmarks: PropTypes.object
 };
 
 DomainBarChart.defaultProps = {

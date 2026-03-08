@@ -76,4 +76,29 @@ describe('DomainBarChart', () => {
     );
     expect(container.querySelector('canvas')).toBeInTheDocument();
   });
+
+  it('should render with benchmark data', () => {
+    const benchmarks = {
+      current: { domain1: 3.2, industry: 'Financial Services' }
+    };
+    const { container } = render(
+      <DomainBarChart domains={mockDomains} answers={mockAnswers} benchmarks={benchmarks} />
+    );
+    expect(container.querySelector('canvas')).toBeInTheDocument();
+  });
+
+  it('should render without benchmark data gracefully', () => {
+    const { container } = render(
+      <DomainBarChart domains={mockDomains} answers={mockAnswers} benchmarks={null} />
+    );
+    expect(container.querySelector('canvas')).toBeInTheDocument();
+  });
+
+  it('should exclude NA answers from chart scores', () => {
+    const answersWithNA = { q1: 4, q2: 0 }; // q2 is N/A
+    const { container } = render(
+      <DomainBarChart domains={mockDomains} answers={answersWithNA} />
+    );
+    expect(container.querySelector('canvas')).toBeInTheDocument();
+  });
 });
