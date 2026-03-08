@@ -15,10 +15,18 @@ vi.mock('./DomainBarChart', () => ({
 vi.mock('./DomainHeatmap', () => ({
   DomainHeatmap: () => <div data-testid="domain-heatmap">Heatmap</div>
 }));
+vi.mock('./BenchmarkTrendChart', () => ({
+  BenchmarkTrendChart: ({ benchmarks, userScore }) => (
+    <div data-testid="benchmark-trend-chart"
+      data-has-benchmarks={!!benchmarks}
+      data-user-score={userScore}>Trend Chart</div>
+  )
+}));
 vi.mock('../services/dataService', () => ({
   dataService: {
     loadBenchmarks: vi.fn().mockResolvedValue({
-      current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services' }
+      current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services', overall: 3.15 },
+      history: [{ date: '2024-Q3', overall: 3.05 }]
     })
   }
 }));
@@ -170,6 +178,24 @@ describe('ResultsView', () => {
     fireEvent.click(screen.getByTestId('bar-chart-tab'));
     await waitFor(() => {
       expect(screen.getByTestId('domain-bar-chart').dataset.hasBenchmarks).toBe('true');
+    });
+  });
+
+  it('should render trend chart when trend tab is clicked', async () => {
+    render(<ResultsView {...defaultProps} />);
+    fireEvent.click(screen.getByTestId('trend-chart-tab'));
+    await waitFor(() => {
+      expect(screen.getByTestId('benchmark-trend-chart')).toBeInTheDocument();
+    });
+  });
+
+  it('should pass benchmarks and userScore to trend chart', async () => {
+    render(<ResultsView {...defaultProps} />);
+    fireEvent.click(screen.getByTestId('trend-chart-tab'));
+    await waitFor(() => {
+      const chart = screen.getByTestId('benchmark-trend-chart');
+      expect(chart.dataset.hasBenchmarks).toBe('true');
+      expect(Number(chart.dataset.userScore)).toBeGreaterThanOrEqual(0);
     });
   });
 

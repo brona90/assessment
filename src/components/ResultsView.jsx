@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
+import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
 import { dataService } from '../services/dataService';
 import './ResultsView.css';
@@ -206,6 +207,16 @@ export const ResultsView = ({
             >
               📊 Bar Chart
             </button>
+            <button
+              role="tab"
+              aria-selected={activeChart === 'trend'}
+              aria-controls="chart-panel"
+              className={`chart-tab ${activeChart === 'trend' ? 'active' : ''}`}
+              onClick={() => setActiveChart('trend')}
+              data-testid="trend-chart-tab"
+            >
+              📈 Trend
+            </button>
           </div>
 
           <div className="chart-display" role="tabpanel" id="chart-panel">
@@ -213,8 +224,10 @@ export const ResultsView = ({
               <DomainHeatmap domains={filteredDomains} answers={answers} />
             ) : activeChart === 'radar' ? (
               <DomainRadarChart domains={filteredDomains} answers={answers} benchmarks={benchmarks} />
-            ) : (
+            ) : activeChart === 'bar' ? (
               <DomainBarChart domains={filteredDomains} answers={answers} benchmarks={benchmarks} />
+            ) : (
+              <BenchmarkTrendChart benchmarks={benchmarks} userScore={overallScore} />
             )}
           </div>
         </div>

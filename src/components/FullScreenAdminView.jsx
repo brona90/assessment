@@ -7,6 +7,8 @@ import { DomainHeatmap } from './DomainHeatmap';
 import { useDataStore } from '../hooks/useDataStore';
 import { useRouter } from '../hooks/useRouter';
 import { storageService } from '../services/storageService';
+import { dataService } from '../services/dataService';
+import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -106,6 +108,7 @@ export const FullScreenAdminView = ({
 
   // Completion status for dashboard
   const [completionStatus, setCompletionStatus] = useState([]);
+  const [benchmarks, setBenchmarks] = useState(null);
 
   // Load data on mount
   useEffect(() => {
@@ -116,7 +119,7 @@ export const FullScreenAdminView = ({
     setManagedQuestions(getQuestions());
   }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions]);
 
-  // Load participant completion status when dashboard tab is active
+  // Load participant completion status and benchmarks when dashboard tab is active
   useEffect(() => {
     if (activeTab === 'dashboard') {
       const users = getUsers();
@@ -130,6 +133,9 @@ export const FullScreenAdminView = ({
       });
       storageService.loadUsersCompletionStatus(users, questionsPerUser)
         .then(setCompletionStatus);
+      dataService.loadBenchmarks().then(data => {
+        if (data && data.current) setBenchmarks(data);
+      });
     }
   }, [activeTab, getUsers, getQuestions, getUserAssignments]);
 
@@ -1163,12 +1169,18 @@ export const FullScreenAdminView = ({
               <div className="charts-grid">
                 <div className="chart-container">
                   <h3>Domain Scores (Radar)</h3>
-                  <DomainRadarChart domains={domains} answers={answers} />
+                  <DomainRadarChart domains={domains} answers={answers} benchmarks={benchmarks} />
                 </div>
                 <div className="chart-container">
                   <h3>Domain Scores (Bar)</h3>
-                  <DomainBarChart domains={domains} answers={answers} />
+                  <DomainBarChart domains={domains} answers={answers} benchmarks={benchmarks} />
                 </div>
+                {benchmarks && (
+                  <div className="chart-container">
+                    <h3>Industry Benchmark Trend</h3>
+                    <BenchmarkTrendChart benchmarks={benchmarks} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
