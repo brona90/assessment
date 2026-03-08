@@ -1,17 +1,22 @@
+// Sentinel value stored in answers when a user marks a question as Not Applicable.
+// Must be excluded from score averages but counts as "answered" in progress.
+export const NA_VALUE = 0;
+
 export const scoreCalculator = {
   calculateDomainScore(questions, answers) {
     if (!questions || questions.length === 0) return 0;
-    
+
     let total = 0;
     let count = 0;
-    
+
     questions.forEach(q => {
-      if (answers[q.id] !== undefined) {
-        total += answers[q.id];
+      const val = answers[q.id];
+      if (val !== undefined && val !== NA_VALUE) {
+        total += val;
         count++;
       }
     });
-    
+
     return count > 0 ? (total / count) : 0;
   },
 
@@ -62,17 +67,18 @@ export const scoreCalculator = {
     if (!framework.mappedQuestions || framework.mappedQuestions.length === 0) {
       return 0;
     }
-    
+
     let total = 0;
     let count = 0;
-    
+
     framework.mappedQuestions.forEach(qId => {
-      if (answers[qId] !== undefined) {
-        total += (answers[qId] / 5) * 100;
+      const val = answers[qId];
+      if (val !== undefined && val !== NA_VALUE) {
+        total += (val / 5) * 100;
         count++;
       }
     });
-    
+
     return count > 0 ? (total / count) : 0;
   },
 

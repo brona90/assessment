@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
-import { scoreCalculator } from '../utils/scoreCalculator';
+import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
 import './ResultsView.css';
 
 export const ResultsView = ({
@@ -52,8 +52,9 @@ export const ResultsView = ({
     let total = 0;
     let count = 0;
     domainQuestions.forEach(q => {
-      if (answers[q.id] !== undefined) {
-        total += answers[q.id];
+      const val = answers[q.id];
+      if (val !== undefined && val !== NA_VALUE) {
+        total += val;
         count++;
       }
     });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuestionCard } from './QuestionCard';
+import { NA_VALUE } from '../utils/scoreCalculator';
 
 describe('QuestionCard', () => {
   const mockQuestion = {
@@ -100,5 +101,40 @@ describe('QuestionCard', () => {
     });
 
     expect(screen.getByTestId('option-q1-3')).toHaveClass('selected');
+  });
+
+  describe('N/A option', () => {
+    it('should render an N/A button', () => {
+      render(<QuestionCard {...mockProps} />);
+      expect(screen.getByTestId('na-q1')).toBeInTheDocument();
+    });
+
+    it('should mark question as N/A when N/A button is clicked', () => {
+      render(<QuestionCard {...mockProps} />);
+      fireEvent.click(screen.getByTestId('na-q1'));
+      expect(mockProps.onAnswerChange).toHaveBeenCalledWith(NA_VALUE);
+    });
+
+    it('should show selected state when answer is NA_VALUE', () => {
+      render(<QuestionCard {...mockProps} answer={NA_VALUE} />);
+      expect(screen.getByTestId('na-q1')).toHaveClass('selected');
+    });
+
+    it('should clear N/A when N/A button is clicked again', () => {
+      render(<QuestionCard {...mockProps} answer={NA_VALUE} />);
+      fireEvent.click(screen.getByTestId('na-q1'));
+      expect(mockProps.onClearAnswer).toHaveBeenCalled();
+    });
+
+    it('should not show clear button when question is marked N/A', () => {
+      render(<QuestionCard {...mockProps} answer={NA_VALUE} />);
+      expect(screen.queryByTestId('clear-q1')).not.toBeInTheDocument();
+    });
+
+    it('should switch from rated answer to N/A', () => {
+      render(<QuestionCard {...mockProps} answer={3} />);
+      fireEvent.click(screen.getByTestId('na-q1'));
+      expect(mockProps.onAnswerChange).toHaveBeenCalledWith(NA_VALUE);
+    });
   });
 });

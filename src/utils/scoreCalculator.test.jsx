@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { scoreCalculator } from './scoreCalculator';
+import { scoreCalculator, NA_VALUE } from './scoreCalculator';
 
 describe('ScoreCalculator', () => {
   const mockQuestions = [
@@ -221,6 +221,33 @@ describe('ScoreCalculator', () => {
       expect(progress.answered).toBe(0);
       expect(progress.total).toBe(0);
       expect(progress.percentage).toBe(0);
+    });
+  });
+
+  describe('N/A (NA_VALUE) handling', () => {
+    it('NA_VALUE should be exported as a number', () => {
+      expect(typeof NA_VALUE).toBe('number');
+    });
+
+    it('calculateDomainScore should exclude NA_VALUE answers from average', () => {
+      const answers = { q1: 4, q2: NA_VALUE, q3: 2 };
+      const score = scoreCalculator.calculateDomainScore(mockQuestions, answers);
+      expect(score).toBe(3); // (4+2)/2 — q2 excluded
+    });
+
+    it('calculateProgressFromQuestions should count NA_VALUE as answered', () => {
+      const questions = [{ id: 'q1' }, { id: 'q2' }, { id: 'q3' }];
+      const answers = { q1: 3, q2: NA_VALUE };
+      const progress = scoreCalculator.calculateProgressFromQuestions(questions, answers);
+      expect(progress.answered).toBe(2);
+      expect(progress.total).toBe(3);
+    });
+
+    it('calculateComplianceScore should exclude NA_VALUE from compliance average', () => {
+      const framework = { mappedQuestions: ['q1', 'q2', 'q3'] };
+      const answers = { q1: 5, q2: NA_VALUE, q3: 5 };
+      const score = scoreCalculator.calculateComplianceScore(framework, null, answers);
+      expect(score).toBe(100); // only q1 and q3 counted
     });
   });
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { NA_VALUE } from '../utils/scoreCalculator';
 
 const RATING_OPTIONS = [
   { value: 1, label: 'Not Implemented' },
@@ -33,6 +34,16 @@ export const QuestionCard = ({
     }
   };
 
+  const handleNAClick = () => {
+    if (selectedValue === NA_VALUE) {
+      setSelectedValue(null);
+      onClearAnswer();
+    } else {
+      setSelectedValue(NA_VALUE);
+      onAnswerChange(NA_VALUE);
+    }
+  };
+
   return (
     <div className="question-card" data-testid={`question-${question.id}`}>
       <div className="question-header">
@@ -59,8 +70,8 @@ export const QuestionCard = ({
       </div>
       
       <div className="question-actions">
-        {selectedValue && (
-          <button 
+        {selectedValue && selectedValue !== NA_VALUE && (
+          <button
             className="clear-btn"
             onClick={() => handleOptionClick(selectedValue)}
             data-testid={`clear-${question.id}`}
@@ -68,8 +79,17 @@ export const QuestionCard = ({
             ✕ Clear Answer
           </button>
         )}
-        
-        <button 
+
+        <button
+          className={`na-btn ${selectedValue === NA_VALUE ? 'selected' : ''}`}
+          onClick={handleNAClick}
+          data-testid={`na-${question.id}`}
+          title="Mark as Not Applicable — excludes this question from scoring"
+        >
+          {selectedValue === NA_VALUE ? '✓ N/A — Not Applicable' : 'N/A'}
+        </button>
+
+        <button
           className="evidence-btn"
           onClick={onAddEvidence}
           data-testid={`evidence-${question.id}`}
