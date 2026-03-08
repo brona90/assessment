@@ -39,6 +39,10 @@ outputs/
 # Generated files
 *.pdf
 
+# Claude Code files
+CLAUDE.md
+.claude/
+
 # Conversation summaries and documentation
 summarized_conversations/
 *_SUMMARY.md
