@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { storageService } from '../services/storageService';
 import { dataService } from '../services/dataService';
 import { scoreCalculator } from '../utils/scoreCalculator';
@@ -6,6 +6,7 @@ import { scoreCalculator } from '../utils/scoreCalculator';
 export const useAssessment = (userId) => {
   const [domains, setDomains] = useState(null);
   const [answers, setAnswers] = useState({});
+  const answersRef = useRef({});
   const [evidence, setEvidence] = useState({});
   const [comments, setComments] = useState({});
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,7 @@ export const useAssessment = (userId) => {
       }
 
       setDomains(questionsData);
+      answersRef.current = savedAnswers;
       setAnswers(savedAnswers);
       setEvidence(savedEvidence);
       setComments(storageService.loadComments(userId));
@@ -41,18 +43,20 @@ export const useAssessment = (userId) => {
   }, [loadData]);
 
   const saveAnswer = useCallback(async (questionId, value) => {
-    const newAnswers = { ...answers, [questionId]: value };
+    const newAnswers = { ...answersRef.current, [questionId]: value };
+    answersRef.current = newAnswers;
     setAnswers(newAnswers);
     await storageService.saveAssessment(userId, newAnswers);
     storageService.saveLastActive(userId);
-  }, [answers, userId]);
+  }, [userId]);
 
   const clearAnswer = useCallback(async (questionId) => {
-    const newAnswers = { ...answers };
+    const newAnswers = { ...answersRef.current };
     delete newAnswers[questionId];
+    answersRef.current = newAnswers;
     setAnswers(newAnswers);
     await storageService.saveAssessment(userId, newAnswers);
-  }, [answers, userId]);
+  }, [userId]);
 
   const saveEvidenceForQuestion = useCallback(async (questionId, evidenceData) => {
     const newEvidence = { ...evidence, [questionId]: evidenceData };

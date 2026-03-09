@@ -11,9 +11,9 @@ describe('UserExportService - Evidence Validation', () => {
   describe('validateEvidenceRequirement', () => {
     it('should pass validation when all answered questions have evidence', () => {
       const answers = { q1: 3, q2: 4 };
-      const evidence = { 
-        q1: [{ url: 'photo1.jpg' }], 
-        q2: [{ url: 'photo2.jpg' }] 
+      const evidence = {
+        q1: { text: '', images: [{ url: 'photo1.jpg' }] },
+        q2: { text: '', images: [{ url: 'photo2.jpg' }] }
       };
 
       const result = userExportService.validateEvidenceRequirement(
@@ -30,7 +30,7 @@ describe('UserExportService - Evidence Validation', () => {
 
     it('should fail validation when answered questions are missing evidence', () => {
       const answers = { q1: 3, q2: 4 };
-      const evidence = { q1: [{ url: 'photo1.jpg' }] }; // q2 missing evidence
+      const evidence = { q1: { text: '', images: [{ url: 'photo1.jpg' }] } }; // q2 missing evidence
 
       const result = userExportService.validateEvidenceRequirement(
         mockQuestions,
@@ -47,7 +47,7 @@ describe('UserExportService - Evidence Validation', () => {
 
     it('should fail validation when evidence array is empty', () => {
       const answers = { q1: 3 };
-      const evidence = { q1: [] }; // Empty array
+      const evidence = { q1: { text: '', images: [] } }; // Empty images, no text
 
       const result = userExportService.validateEvidenceRequirement(
         mockQuestions,
@@ -57,6 +57,19 @@ describe('UserExportService - Evidence Validation', () => {
 
       expect(result.isValid).toBe(false);
       expect(result.missingEvidence).toBe(1);
+    });
+
+    it('should pass validation when evidence is text-only (no images)', () => {
+      const answers = { q1: 3 };
+      const evidence = { q1: { text: 'some notes', images: [] } };
+
+      const result = userExportService.validateEvidenceRequirement(
+        mockQuestions,
+        answers,
+        evidence
+      );
+
+      expect(result.isValid).toBe(true);
     });
 
     it('should pass validation when no questions are answered', () => {
@@ -76,7 +89,7 @@ describe('UserExportService - Evidence Validation', () => {
 
     it('should ignore unanswered questions', () => {
       const answers = { q1: 3 }; // Only q1 answered
-      const evidence = { q1: [{ url: 'photo1.jpg' }] };
+      const evidence = { q1: { text: '', images: [{ url: 'photo1.jpg' }] } };
 
       const result = userExportService.validateEvidenceRequirement(
         mockQuestions,
@@ -92,7 +105,7 @@ describe('UserExportService - Evidence Validation', () => {
   describe('downloadUserExport with evidence validation', () => {
     it('should fail export when evidence is required but missing', () => {
       const answers = { q1: 3, q2: 4 };
-      const evidence = { q1: [{ url: 'photo1.jpg' }] }; // q2 missing
+      const evidence = { q1: { text: '', images: [{ url: 'photo1.jpg' }] } }; // q2 missing
 
       const result = userExportService.downloadUserExport(
         'user1',
@@ -127,9 +140,9 @@ describe('UserExportService - Evidence Validation', () => {
 
     it('should succeed when all evidence is provided', () => {
       const answers = { q1: 3, q2: 4 };
-      const evidence = { 
-        q1: [{ url: 'photo1.jpg' }],
-        q2: [{ url: 'photo2.jpg' }]
+      const evidence = {
+        q1: { text: '', images: [{ url: 'photo1.jpg' }] },
+        q2: { text: '', images: [{ url: 'photo2.jpg' }] }
       };
 
       const result = userExportService.downloadUserExport(

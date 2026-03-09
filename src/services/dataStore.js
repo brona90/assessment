@@ -482,6 +482,7 @@ class DataStore {
     const newAssignments = [...new Set([...currentAssignments, ...questionIds])];
     
     this.data.assignments[userId] = newAssignments;
+    storageService.saveAssignments(this.data.assignments);
     return this.data.assignments[userId];
   }
 
@@ -496,7 +497,7 @@ class DataStore {
     this.data.assignments[userId] = (this.data.assignments[userId] || []).filter(
       id => !questionIds.includes(id)
     );
-    
+    storageService.saveAssignments(this.data.assignments);
     return this.data.assignments[userId];
   }
 
@@ -717,9 +718,18 @@ class DataStore {
       };
       this.initialized = true;
       
-      // Save answers and evidence to storage
+      // Save answers back to per-user storage keys using assignment map
       if (imported.answers && Object.keys(imported.answers).length > 0) {
-        await storageService.saveAssessment(imported.answers);
+        for (const user of this.data.users) {
+          const assigned = this.data.assignments[user.id] || [];
+          const userAnswers = {};
+          assigned.forEach(qId => {
+            if (imported.answers[qId] !== undefined) userAnswers[qId] = imported.answers[qId];
+          });
+          if (Object.keys(userAnswers).length > 0) {
+            await storageService.saveAssessment(user.id, userAnswers);
+          }
+        }
       }
       
       if (imported.evidence && Object.keys(imported.evidence).length > 0) {
@@ -765,9 +775,10 @@ class DataStore {
         ...userEvidence
       };
       
-      // Save to storage
+      // Save to the importing user's per-user storage key
       if (Object.keys(userAnswers).length > 0) {
-        await storageService.saveAssessment(this.data.answers);
+        const userId = userExport.user?.id;
+        await storageService.saveAssessment(userId, userAnswers);
       }
       
       if (Object.keys(userEvidence).length > 0) {

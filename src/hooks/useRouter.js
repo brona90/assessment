@@ -9,7 +9,7 @@ export const useRouter = () => {
   // Parse the current route from URL hash
   const parseRoute = () => {
     const hash = window.location.hash.slice(1); // Remove '#'
-    
+
     // Check for admin sub-routes (e.g., admin/domains, admin/frameworks)
     if (hash.startsWith('admin/')) {
       const parts = hash.split('/');
@@ -17,6 +17,11 @@ export const useRouter = () => {
         main: 'admin',
         sub: parts[1] || 'overview' // Default to overview if no sub-route
       };
+    }
+
+    // Check for results sub-routes (e.g., results/chart/heatmap)
+    if (hash.startsWith('results/')) {
+      return { main: 'results', sub: hash.slice('results/'.length) };
     }
 
     // Handle main routes
@@ -35,6 +40,8 @@ export const useRouter = () => {
       hash = `admin/${subRoute}`;
     } else if (mainRoute === 'admin') {
       hash = 'admin/overview';
+    } else if (mainRoute === 'results' && subRoute) {
+      hash = `results/${subRoute}`;
     } else if (mainRoute === 'assessment') {
       hash = '';
     } else {
@@ -46,33 +53,25 @@ export const useRouter = () => {
       window.location.hash = hash;
     }
     
-    setRoute({ main: mainRoute, sub: subRoute });
+    // Normalise sub-route so state always matches the hash
+    const normalizedSub = mainRoute === 'admin' ? (subRoute || 'overview') : subRoute;
+    setRoute({ main: mainRoute, sub: normalizedSub });
   }, []);
 
   // Handle browser back/forward buttons
   useEffect(() => {
     const handlePopState = () => {
-      const newRoute = parseRoute();
-      setRoute(newRoute);
+      setRoute(parseRoute());
     };
 
-    // Listen for hash changes (back/forward buttons)
     window.addEventListener('hashchange', handlePopState);
-    
-    // Also listen for popstate events
     window.addEventListener('popstate', handlePopState);
-
-    // Initial route setup
-    const initialRoute = parseRoute();
-    if (initialRoute.main !== route.main || initialRoute.sub !== route.sub) {
-      setRoute(initialRoute);
-    }
 
     return () => {
       window.removeEventListener('hashchange', handlePopState);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [route]);
+  }, []);
 
   return {
     currentRoute: route.main,

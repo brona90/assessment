@@ -45,7 +45,11 @@ export const userExportService = {
    */
   validateEvidenceRequirement(questions, answers, evidence) {
     const answeredQuestions = questions.filter(q => answers[q.id] !== undefined && answers[q.id] !== null);
-    const questionsWithoutEvidence = answeredQuestions.filter(q => !evidence[q.id] || evidence[q.id].length === 0);
+    const questionsWithoutEvidence = answeredQuestions.filter(q => {
+      const ev = evidence[q.id];
+      if (!ev) return true;
+      return !ev.text && (!ev.images || ev.images.length === 0);
+    });
     
     return {
       isValid: questionsWithoutEvidence.length === 0,

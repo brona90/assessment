@@ -34,7 +34,7 @@ vi.mock('./components/FullScreenAdminView', () => ({
   FullScreenAdminView: ({ onExportPDF, onLogout }) => (
     <div data-testid="full-screen-admin-view">
       <h1>Admin View</h1>
-      <button onClick={onExportPDF} data-testid="export-pdf-button">Export PDF</button>
+      <button onClick={() => onExportPDF({})} data-testid="export-pdf-button">Export PDF</button>
       <button onClick={onLogout} data-testid="logout-button">Logout</button>
     </div>
   )
@@ -236,7 +236,7 @@ describe('App', () => {
           {},                             // adminAnswers (empty — no users have stored answers)
           mockUseAssessment.evidence,
           {},                             // scoredFrameworks (empty — no frameworks configured)
-          {},                             // options
+          { chartSnapshots: {} },         // options
           mockUseAssessment.comments
         );
         expect(pdfService.downloadPDF).toHaveBeenCalled();

@@ -6,7 +6,6 @@ import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
 import { FullScreenAdminView } from './components/FullScreenAdminView';
 import { UserView } from './components/UserView';
-import { ResultsView } from './components/ResultsView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 import { complianceService } from './services/complianceService';
@@ -43,7 +42,7 @@ function App() {
   const [userQuestions, setUserQuestions] = useState([]);
   
   // Use the router hook for navigation
-  const { currentRoute, navigate } = useRouter();
+  const { navigate } = useRouter();
   const { frameworks } = useCompliance(answers);
   const {
     getQuestionsForUser,
@@ -97,7 +96,7 @@ function App() {
     }
   };
 
-  const handleExportPDF = async () => {
+  const handleExportPDF = async (chartSnapshots = {}) => {
     try {
       // Admin report uses all users' merged answers; assessor report uses their own
       const reportAnswers = isAdmin() ? adminAnswers : answers;
@@ -111,7 +110,7 @@ function App() {
       );
 
       const pdf = await pdfService.generatePDF(
-        domains, reportAnswers, evidence, scoredFrameworks, {}, comments
+        domains, reportAnswers, evidence, scoredFrameworks, { chartSnapshots }, comments
       );
       await pdfService.downloadPDF(pdf);
     } catch (error) {
@@ -126,13 +125,6 @@ function App() {
     navigate('assessment'); // Reset view on logout
   };
 
-  const handleSwitchToResults = () => {
-    navigate('results');
-  };
-
-  const handleBackToAssessment = () => {
-    navigate('assessment');
-  };
 
   const handleImportData = async (file) => {
     try {
@@ -171,9 +163,15 @@ function App() {
     }
   };
 
-  const handleClearAllData = () => {
+  const handleClearAllData = async () => {
+    if (!window.confirm('Are you sure you want to permanently delete ALL data? This cannot be undone.')) return;
     try {
-      clearAllData();
+      const result = await clearAllData();
+      if (result?.success === false) {
+        alert('Failed to clear data. Please try again.');
+      } else {
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Error clearing data:', error);
       alert('Failed to clear data. Please try again.');
@@ -262,35 +260,21 @@ const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, a
               onClearAllData={handleClearAllData}
           />
         ) : (
-          <>
-            {currentRoute === 'assessment' ? (
-              <UserView
-                user={currentUser}
-                questions={userQuestions}
-                answers={answers}
-                evidence={evidence}
-                comments={comments}
-                frameworks={frameworks}
-                progress={progress}
-                onAnswerChange={saveAnswer}
-                onClearAnswer={clearAnswer}
-                onCommentChange={saveComment}
-                onAddEvidence={handleOpenEvidence}
-                onExportUserData={handleExportUserData}
-                onSwitchToResults={handleSwitchToResults}
-                onLogout={handleLogout}
-              />
-            ) : (
-              <ResultsView
-                user={currentUser}
-                questions={userQuestions}
-                answers={answers}
-                progress={progress}
-                onBackToAssessment={handleBackToAssessment}
-                onLogout={handleLogout}
-              />
-            )}
-          </>
+          <UserView
+            user={currentUser}
+            questions={userQuestions}
+            answers={answers}
+            evidence={evidence}
+            comments={comments}
+            frameworks={frameworks}
+            progress={progress}
+            onAnswerChange={saveAnswer}
+            onClearAnswer={clearAnswer}
+            onCommentChange={saveComment}
+            onAddEvidence={handleOpenEvidence}
+            onExportUserData={handleExportUserData}
+            onLogout={handleLogout}
+          />
         )}
   
         {evidenceModalOpen && (
