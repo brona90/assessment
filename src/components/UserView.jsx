@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
@@ -18,7 +18,6 @@ export const UserView = ({
   onCommentChange,
   onAddEvidence,
   onExportUserData,
-  onSwitchToResults,
   onLogout
 }) => {
   // Reverse-map frameworks → per-question compliance tags
@@ -28,10 +27,10 @@ export const UserView = ({
   );
 
   // Group questions by domain and category
-  const groupedQuestions = questions.reduce((acc, question) => {
+  const groupedQuestions = useMemo(() => questions.reduce((acc, question) => {
     const domainId = question.domainId;
     const categoryId = question.categoryId;
-    
+
     if (!acc[domainId]) {
       acc[domainId] = {
         id: domainId,
@@ -39,26 +38,28 @@ export const UserView = ({
         categories: {}
       };
     }
-    
+
     if (!acc[domainId].categories[categoryId]) {
       acc[domainId].categories[categoryId] = {
         title: question.categoryTitle || categoryId,
         questions: []
       };
     }
-    
-    acc[domainId].categories[categoryId].questions.push(question);
-    
-    return acc;
-  }, {});
 
-  const domains = Object.values(groupedQuestions);
+    acc[domainId].categories[categoryId].questions.push(question);
+
+    return acc;
+  }, {}), [questions]);
+
+  const domains = useMemo(() => Object.values(groupedQuestions), [groupedQuestions]);
   const [activeTab, setActiveTab] = useState(() => domains[0]?.id || null);
-  
-  // Update activeTab when domains change and activeTab is null
-  if (domains.length > 0 && !activeTab) {
-    setActiveTab(domains[0].id);
-  }
+
+  // Set active tab once questions load (domains[0] may not exist on first render)
+  useEffect(() => {
+    if (domains.length > 0 && !activeTab) {
+      setActiveTab(domains[0].id);
+    }
+  }, [domains, activeTab]);
 
   const activeDomain = groupedQuestions[activeTab];
 
@@ -74,14 +75,7 @@ export const UserView = ({
             </div>
           </div>
           <div className="user-actions">
-             <button 
-               className="results-btn" 
-               onClick={onSwitchToResults}
-               data-testid="view-results-btn"
-             >
-               📊 View Results
-             </button>
-            <button 
+            <button
               className="export-btn" 
               onClick={onExportUserData}
               data-testid="export-user-data"
@@ -191,7 +185,6 @@ UserView.propTypes = {
   onCommentChange: PropTypes.func.isRequired,
   onAddEvidence: PropTypes.func.isRequired,
   onExportUserData: PropTypes.func.isRequired,
-  onSwitchToResults: PropTypes.func.isRequired,
   onLogout: PropTypes.func.isRequired
 };
 

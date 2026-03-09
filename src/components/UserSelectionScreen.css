@@ -51,13 +51,13 @@
 }
 
 .user-card {
-  background: white;
-  border: none;
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 1rem;
   padding: 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,7 +67,8 @@
 
 .user-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  border-color: rgba(59, 130, 246, 0.4);
 }
 
 .user-card:active {
@@ -76,11 +77,12 @@
 
 .admin-card {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
+  border-color: transparent;
 }
 
 .admin-card:hover {
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.5);
+  border-color: transparent;
 }
 
 .user-avatar {
@@ -90,7 +92,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(59, 130, 246, 0.15);
   border-radius: 50%;
   margin-bottom: 0.5rem;
 }
@@ -103,12 +105,13 @@
   margin: 0 0 0.25rem 0;
   font-size: 1.5rem;
   font-weight: 700;
+  color: #f1f5f9;
 }
 
 .user-title {
   margin: 0 0 0.5rem 0;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: #94a3b8;
   line-height: 1.4;
 }
 
@@ -136,22 +139,23 @@
 }
 
 .user-badge {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
 }
 
 .no-users-message {
   text-align: center;
   padding: 3rem;
-  background: white;
+  background: #1e293b;
   border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .no-users-message p {
   margin: 0;
   font-size: 1.125rem;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 /* Responsive Design */

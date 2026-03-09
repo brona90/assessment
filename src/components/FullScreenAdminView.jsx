@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { ComplianceDashboard } from './ComplianceDashboard';
 import { DomainRadarChart } from './DomainRadarChart';
@@ -10,6 +10,8 @@ import { storageService } from '../services/storageService';
 import { dataService } from '../services/dataService';
 import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { CompareExports } from './CompareExports';
+import { CSVImportExport } from './CSVImportExport';
+import { ChartFullscreenView } from './ChartFullscreenView';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -68,7 +70,7 @@ export const FullScreenAdminView = ({
   const [domainForm, setDomainForm] = useState({ id: '', title: '', description: '', weight: 1 });
   const [editingDomainId, setEditingDomainId] = useState(null);
 
-  const [frameworkForm, setFrameworkForm] = useState({ id: '', name: '', description: '' });
+  const [frameworkForm, setFrameworkForm] = useState({ id: '', name: '', description: '', threshold: 3.5, requirements: '' });
   const [editingFrameworkId, setEditingFrameworkId] = useState(null);
 
   const [userForm, setUserForm] = useState({ id: '', name: '', email: '', role: 'user' });
@@ -83,6 +85,24 @@ export const FullScreenAdminView = ({
 
   const [completionStatus, setCompletionStatus] = useState([]);
   const [benchmarks, setBenchmarks] = useState(null);
+  const [expandedChart, setExpandedChart] = useState(null);
+
+  // Chart instance refs for PDF capture (populated via onChartReady/onCanvasReady)
+  const chartRefs = useRef({});
+
+  const handleExportPDFClick = () => {
+    const snapshots = {};
+    if (chartRefs.current.radar?.toBase64Image) {
+      snapshots.radar = chartRefs.current.radar.toBase64Image();
+    }
+    if (chartRefs.current.bar?.toBase64Image) {
+      snapshots.bar = chartRefs.current.bar.toBase64Image();
+    }
+    if (chartRefs.current.heatmap) {
+      snapshots.heatmap = chartRefs.current.heatmap.toDataURL('image/png');
+    }
+    onExportPDF(snapshots);
+  };
 
   // Load management data on mount
   useEffect(() => {
@@ -176,8 +196,14 @@ export const FullScreenAdminView = ({
   // Framework handlers
   const handleAddFramework = async () => {
     try {
-      await addFramework(frameworkForm);
-      setFrameworkForm({ id: '', name: '', description: '' });
+      await addFramework({
+        ...frameworkForm,
+        threshold: Number(frameworkForm.threshold) || 60,
+        requirements: frameworkForm.requirements
+          ? frameworkForm.requirements.split('\n').map(s => s.trim()).filter(Boolean)
+          : []
+      });
+      setFrameworkForm({ id: '', name: '', description: '', threshold: 3.5, requirements: '' });
       setManagedFrameworks(getFrameworks());
       setMessage({ type: 'success', text: 'Framework added successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -188,9 +214,15 @@ export const FullScreenAdminView = ({
 
   const handleUpdateFramework = async () => {
     try {
-      await updateFramework(editingFrameworkId, frameworkForm);
+      await updateFramework(editingFrameworkId, {
+        ...frameworkForm,
+        threshold: Number(frameworkForm.threshold) || 60,
+        requirements: frameworkForm.requirements
+          ? frameworkForm.requirements.split('\n').map(s => s.trim()).filter(Boolean)
+          : []
+      });
       setEditingFrameworkId(null);
-      setFrameworkForm({ id: '', name: '', description: '' });
+      setFrameworkForm({ id: '', name: '', description: '', threshold: 3.5, requirements: '' });
       setManagedFrameworks(getFrameworks());
       setMessage({ type: 'success', text: 'Framework updated successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -214,7 +246,13 @@ export const FullScreenAdminView = ({
 
   const startEditFramework = (framework) => {
     setEditingFrameworkId(framework.id);
-    setFrameworkForm({ id: framework.id, name: framework.name, description: framework.description || '' });
+    setFrameworkForm({
+      id: framework.id,
+      name: framework.name,
+      description: framework.description || '',
+      threshold: framework.threshold ?? 60,
+      requirements: (framework.requirements || []).join('\n')
+    });
   };
 
   const handleToggleQuestionMapping = async (frameworkId, questionId, checked) => {
@@ -380,6 +418,18 @@ export const FullScreenAdminView = ({
     }
   };
 
+  // Fullscreen chart overlay
+  if (expandedChart) {
+    return (
+      <ChartFullscreenView
+        chartType={expandedChart}
+        questions={managedQuestions}
+        answers={answers}
+        onBack={() => setExpandedChart(null)}
+      />
+    );
+  }
+
   return (
     <div className="full-screen-admin-view" data-testid="full-screen-admin-view">
       {/* Header */}
@@ -390,7 +440,7 @@ export const FullScreenAdminView = ({
         <div className="admin-header-right">
           <button
             className="export-pdf-btn"
-            onClick={onExportPDF}
+            onClick={handleExportPDFClick}
             data-testid="export-pdf-button"
             aria-label="Export PDF Report"
           >
@@ -499,20 +549,42 @@ export const FullScreenAdminView = ({
               </div>
 
               {/* Heatmap */}
-              <DomainHeatmap domains={domains} answers={answers} />
+              <div
+                className="chart-display chart-display--clickable"
+                onClick={() => setExpandedChart('heatmap')}
+                title="Click to expand"
+              >
+                <span className="chart-expand-hint">⤢ Click to expand</span>
+                <DomainHeatmap domains={domains} answers={answers} onCanvasReady={(c) => { chartRefs.current.heatmap = c; }} />
+              </div>
 
               {/* Charts */}
               <div className="charts-grid">
-                <div className="chart-container">
+                <div
+                  className="chart-container chart-display--clickable"
+                  onClick={() => setExpandedChart('radar')}
+                  title="Click to expand"
+                >
+                  <span className="chart-expand-hint">⤢ Click to expand</span>
                   <h3>Domain Scores (Radar)</h3>
-                  <DomainRadarChart domains={domains} answers={answers} benchmarks={benchmarks} />
+                  <DomainRadarChart domains={domains} answers={answers} benchmarks={benchmarks} onChartReady={(r) => { chartRefs.current.radar = r; }} />
                 </div>
-                <div className="chart-container">
+                <div
+                  className="chart-container chart-display--clickable"
+                  onClick={() => setExpandedChart('bar')}
+                  title="Click to expand"
+                >
+                  <span className="chart-expand-hint">⤢ Click to expand</span>
                   <h3>Domain Scores (Bar)</h3>
-                  <DomainBarChart domains={domains} answers={answers} benchmarks={benchmarks} />
+                  <DomainBarChart domains={domains} answers={answers} benchmarks={benchmarks} onChartReady={(r) => { chartRefs.current.bar = r; }} />
                 </div>
                 {benchmarks && (
-                  <div className="chart-container">
+                  <div
+                    className="chart-container chart-display--clickable"
+                    onClick={() => setExpandedChart('trend')}
+                    title="Click to expand"
+                  >
+                    <span className="chart-expand-hint">⤢ Click to expand</span>
                     <h3>Industry Benchmark Trend</h3>
                     <BenchmarkTrendChart benchmarks={benchmarks} />
                   </div>
@@ -572,58 +644,78 @@ export const FullScreenAdminView = ({
             {configureSubTab === 'people' && (
               <div data-testid="people-content">
                 {/* Users */}
-                <div className="admin-section" data-testid="users-content">
-                  <h2>Users</h2>
-                  {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
-                  <h3>{editingUserId ? 'Edit User' : 'Add User'}</h3>
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      placeholder="User ID"
-                      value={userForm.id}
-                      onChange={(e) => setUserForm({ ...userForm, id: e.target.value })}
-                      disabled={editingUserId !== null}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={userForm.name}
-                      onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      value={userForm.email}
-                      onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    />
-                    <select
-                      value={userForm.role}
-                      onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    {editingUserId ? (
-                      <>
-                        <button onClick={handleUpdateUser}>Update User</button>
-                        <button onClick={() => { setEditingUserId(null); setUserForm({ id: '', name: '', email: '', role: 'user' }); }}>Cancel</button>
-                      </>
-                    ) : (
-                      <button onClick={handleAddUser}>Add User</button>
-                    )}
+                <div className="cfg-section" data-testid="users-content">
+                  <div className="cfg-section-header">
+                    <h3 className="cfg-section-title">👥 {editingUserId ? 'Edit User' : 'Add User'}</h3>
                   </div>
-                  <h3>Existing Users</h3>
-                  <div className="items-list">
+                  {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
+                  <div className="cfg-form">
+                    <div className="cfg-form-row">
+                      <div className="cfg-field">
+                        <label>User ID</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. alice"
+                          value={userForm.id}
+                          onChange={(e) => setUserForm({ ...userForm, id: e.target.value })}
+                          disabled={editingUserId !== null}
+                        />
+                      </div>
+                      <div className="cfg-field">
+                        <label>Full Name</label>
+                        <input
+                          type="text"
+                          placeholder="Alice Smith"
+                          value={userForm.name}
+                          onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="cfg-form-row">
+                      <div className="cfg-field">
+                        <label>Email</label>
+                        <input
+                          type="email"
+                          placeholder="alice@example.com"
+                          value={userForm.email}
+                          onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                        />
+                      </div>
+                      <div className="cfg-field">
+                        <label>Role</label>
+                        <select
+                          value={userForm.role}
+                          onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                        >
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="cfg-form-actions">
+                      {editingUserId ? (
+                        <>
+                          <button className="cfg-btn cfg-btn--primary" onClick={handleUpdateUser}>Update User</button>
+                          <button className="cfg-btn cfg-btn--secondary" onClick={() => { setEditingUserId(null); setUserForm({ id: '', name: '', email: '', role: 'user' }); }}>Cancel</button>
+                        </>
+                      ) : (
+                        <button className="cfg-btn cfg-btn--primary" onClick={handleAddUser}>Add User</button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="cfg-list-header">Existing Users</div>
+                  <div className="cfg-list">
                     {managedUsers.map(user => (
-                      <div key={user.id} className="item">
-                        <div className="item-info">
-                          <strong>{user.name}</strong> ({user.id})
-                          {user.email && <p>{user.email}</p>}
-                          <span className={`badge ${user.role === 'admin' ? 'admin' : 'user'}`}>{user.role}</span>
+                      <div key={user.id} className="cfg-item">
+                        <div className="cfg-item-body">
+                          <span className="cfg-item-title">{user.name}</span>
+                          <span className="cfg-item-sub">{user.email || 'No email'} · {user.id}</span>
                         </div>
-                        <div className="item-actions">
-                          <button onClick={() => startEditUser(user)}>Edit</button>
-                          <button onClick={() => handleDeleteUser(user.id)} className="danger">Delete</button>
+                        <span className={`cfg-item-badge cfg-item-badge--${user.role}`}>{user.role}</span>
+                        <div className="cfg-item-actions">
+                          <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditUser(user)}>Edit</button>
+                          <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteUser(user.id)}>Delete</button>
                         </div>
                       </div>
                     ))}
@@ -631,76 +723,87 @@ export const FullScreenAdminView = ({
                 </div>
 
                 {/* Assignments */}
-                <div className="admin-section" data-testid="assignments-content">
-                  <h2>Assignments</h2>
-                  <h3>Assign Questions to User</h3>
-                  <div className="form-group">
-                    <select
-                      value={selectedUserId}
-                      onChange={(e) => {
-                        const userId = e.target.value;
-                        setSelectedUserId(userId);
-                        if (userId) {
-                          setSelectedQuestions(getUserAssignments(userId));
-                        } else {
-                          setSelectedQuestions([]);
-                        }
-                      }}
-                    >
-                      <option value="">Select User</option>
-                      {managedUsers.map(user => (
-                        <option key={user.id} value={user.id}>{user.name}</option>
-                      ))}
-                    </select>
-                    {selectedUserId && (
-                      <div className="current-assignments-info">
-                        <p>
-                          <strong>Current assignments:</strong> {userAssignments[selectedUserId]?.length || 0} questions
-                          {userAssignments[selectedUserId]?.length > 0 && ' (pre-selected below)'}
-                        </p>
-                      </div>
-                    )}
-                    <div className="question-selection">
-                      <h4>Select Questions:</h4>
-                      <div style={{ marginBottom: '0.5rem' }}>
-                        <button type="button" onClick={() => setSelectedQuestions(managedQuestions.map(q => q.id))} style={{ marginRight: '0.5rem' }}>Select All</button>
-                        <button type="button" onClick={() => setSelectedQuestions([])}>Clear All</button>
-                      </div>
-                      {managedQuestions.map(question => (
-                        <label key={question.id} className="question-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={selectedQuestions.includes(question.id)}
+                <div className="cfg-section" data-testid="assignments-content">
+                  <div className="cfg-section-header">
+                    <h3 className="cfg-section-title">📋 Assign Questions</h3>
+                  </div>
+                  <div className="cfg-form">
+                    <div className="cfg-form-row">
+                      <div className="cfg-field cfg-field--full">
+                        <label>Select Assessor</label>
+                        <div className="cfg-assign-select-header">
+                          <select
+                            value={selectedUserId}
                             onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedQuestions([...selectedQuestions, question.id]);
+                              const userId = e.target.value;
+                              setSelectedUserId(userId);
+                              if (userId) {
+                                setSelectedQuestions(getUserAssignments(userId));
                               } else {
-                                setSelectedQuestions(selectedQuestions.filter(id => id !== question.id));
+                                setSelectedQuestions([]);
                               }
                             }}
-                          />
-                          {question.text}
-                        </label>
-                      ))}
+                          >
+                            <option value="">— choose an assessor —</option>
+                            {managedUsers.map(user => (
+                              <option key={user.id} value={user.id}>{user.name}</option>
+                            ))}
+                          </select>
+                          {selectedUserId && (
+                            <span className="cfg-current-assign">
+                              {userAssignments[selectedUserId]?.length || 0} currently assigned
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <button onClick={handleAssignQuestions}>Assign Questions</button>
+                    {selectedUserId && (
+                      <>
+                        <div className="cfg-form-row">
+                          <div className="cfg-field cfg-field--full">
+                            <label>Questions</label>
+                            <div className="cfg-form-actions" style={{ marginBottom: '0.5rem' }}>
+                              <button type="button" className="cfg-btn cfg-btn--secondary" onClick={() => setSelectedQuestions(managedQuestions.map(q => q.id))}>Select All</button>
+                              <button type="button" className="cfg-btn cfg-btn--secondary" onClick={() => setSelectedQuestions([])}>Clear All</button>
+                            </div>
+                            <div className="cfg-question-list">
+                              {managedQuestions.map(question => (
+                                <label key={question.id} className="cfg-question-check">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedQuestions.includes(question.id)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedQuestions([...selectedQuestions, question.id]);
+                                      } else {
+                                        setSelectedQuestions(selectedQuestions.filter(id => id !== question.id));
+                                      }
+                                    }}
+                                  />
+                                  <span>{question.text}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="cfg-form-actions">
+                          <button className="cfg-btn cfg-btn--primary" onClick={handleAssignQuestions}>Save Assignments</button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <h3>Current Assignments</h3>
-                  <div className="items-list">
+
+                  <div className="cfg-list-header">Current Assignments</div>
+                  <div className="cfg-list">
                     {managedUsers.map(user => {
                       const assignments = userAssignments[user.id] || [];
                       return (
-                        <div key={user.id} className="item">
-                          <div className="item-info">
-                            <strong>{user.name}</strong>
-                            <p>{assignments.length} questions assigned</p>
-                            {assignments.length > 0 && (
-                              <ul className="assignment-list">
-                                {assignments.slice(0, 5).map(q => <li key={q.id}>{q.text}</li>)}
-                                {assignments.length > 5 && <li>... and {assignments.length - 5} more</li>}
-                              </ul>
-                            )}
+                        <div key={user.id} className="cfg-item">
+                          <div className="cfg-item-body">
+                            <span className="cfg-item-title">{user.name}</span>
+                            <span className="cfg-item-sub">{assignments.length} question{assignments.length !== 1 ? 's' : ''} assigned</span>
                           </div>
+                          <span className={`cfg-item-badge cfg-item-badge--${user.role}`}>{assignments.length}</span>
                         </div>
                       );
                     })}
@@ -713,59 +816,78 @@ export const FullScreenAdminView = ({
             {configureSubTab === 'content' && (
               <div data-testid="content-content">
                 {/* Domains */}
-                <div className="admin-section" data-testid="domains-content">
-                  <h2>Domains</h2>
-                  {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
-                  <h3>{editingDomainId ? 'Edit Domain' : 'Add Domain'}</h3>
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      placeholder="Domain ID (e.g., security)"
-                      value={domainForm.id}
-                      onChange={(e) => setDomainForm({ ...domainForm, id: e.target.value })}
-                      disabled={editingDomainId !== null}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Title"
-                      value={domainForm.title}
-                      onChange={(e) => setDomainForm({ ...domainForm, title: e.target.value })}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Description"
-                      value={domainForm.description}
-                      onChange={(e) => setDomainForm({ ...domainForm, description: e.target.value })}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Weight"
-                      value={domainForm.weight}
-                      onChange={(e) => setDomainForm({ ...domainForm, weight: parseFloat(e.target.value) })}
-                      min="0"
-                      step="0.1"
-                    />
-                    {editingDomainId ? (
-                      <>
-                        <button onClick={handleUpdateDomain}>Update Domain</button>
-                        <button onClick={() => { setEditingDomainId(null); setDomainForm({ id: '', title: '', description: '', weight: 1 }); }}>Cancel</button>
-                      </>
-                    ) : (
-                      <button onClick={handleAddDomain}>Add Domain</button>
-                    )}
+                <div className="cfg-section" data-testid="domains-content">
+                  <div className="cfg-section-header">
+                    <h3 className="cfg-section-title">🗂️ {editingDomainId ? 'Edit Domain' : 'Add Domain'}</h3>
                   </div>
-                  <h3>Existing Domains</h3>
-                  <div className="items-list">
+                  {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
+                  <div className="cfg-form">
+                    <div className="cfg-form-row">
+                      <div className="cfg-field">
+                        <label>Domain ID</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. security"
+                          value={domainForm.id}
+                          onChange={(e) => setDomainForm({ ...domainForm, id: e.target.value })}
+                          disabled={editingDomainId !== null}
+                        />
+                      </div>
+                      <div className="cfg-field">
+                        <label>Title</label>
+                        <input
+                          type="text"
+                          placeholder="Data Governance"
+                          value={domainForm.title}
+                          onChange={(e) => setDomainForm({ ...domainForm, title: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="cfg-form-row">
+                      <div className="cfg-field">
+                        <label>Description</label>
+                        <input
+                          type="text"
+                          placeholder="Optional description"
+                          value={domainForm.description}
+                          onChange={(e) => setDomainForm({ ...domainForm, description: e.target.value })}
+                        />
+                      </div>
+                      <div className="cfg-field">
+                        <label>Weight</label>
+                        <input
+                          type="number"
+                          placeholder="1.0"
+                          value={domainForm.weight}
+                          onChange={(e) => setDomainForm({ ...domainForm, weight: parseFloat(e.target.value) })}
+                          min="0"
+                          step="0.1"
+                        />
+                      </div>
+                    </div>
+                    <div className="cfg-form-actions">
+                      {editingDomainId ? (
+                        <>
+                          <button className="cfg-btn cfg-btn--primary" onClick={handleUpdateDomain}>Update Domain</button>
+                          <button className="cfg-btn cfg-btn--secondary" onClick={() => { setEditingDomainId(null); setDomainForm({ id: '', title: '', description: '', weight: 1 }); }}>Cancel</button>
+                        </>
+                      ) : (
+                        <button className="cfg-btn cfg-btn--primary" onClick={handleAddDomain}>Add Domain</button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="cfg-list-header">Existing Domains</div>
+                  <div className="cfg-list">
                     {Object.values(managedDomains).map(domain => (
-                      <div key={domain.id} className="item">
-                        <div className="item-info">
-                          <strong>{domain.title}</strong> ({domain.id})
-                          {domain.description && <p>{domain.description}</p>}
-                          <small>Weight: {domain.weight}</small>
+                      <div key={domain.id} className="cfg-item">
+                        <div className="cfg-item-body">
+                          <span className="cfg-item-title">{domain.title}</span>
+                          <span className="cfg-item-sub">{domain.id} · weight {domain.weight}{domain.description ? ` · ${domain.description}` : ''}</span>
                         </div>
-                        <div className="item-actions">
-                          <button onClick={() => startEditDomain(domain)}>Edit</button>
-                          <button onClick={() => handleDeleteDomain(domain.id)} className="danger">Delete</button>
+                        <div className="cfg-item-actions">
+                          <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditDomain(domain)}>Edit</button>
+                          <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteDomain(domain.id)}>Delete</button>
                         </div>
                       </div>
                     ))}
@@ -773,67 +895,95 @@ export const FullScreenAdminView = ({
                 </div>
 
                 {/* Questions */}
-                <div className="admin-section" data-testid="questions-content">
-                  <h2>Questions</h2>
-                  <h3>{editingQuestionId ? 'Edit Question' : 'Add Question'}</h3>
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      placeholder="Question ID"
-                      value={questionForm.id}
-                      onChange={(e) => setQuestionForm({ ...questionForm, id: e.target.value })}
-                      disabled={editingQuestionId !== null}
-                    />
-                    <textarea
-                      placeholder="Question Text"
-                      value={questionForm.text}
-                      onChange={(e) => setQuestionForm({ ...questionForm, text: e.target.value })}
-                      rows="3"
-                    />
-                    <select
-                      value={questionForm.domainId}
-                      onChange={(e) => setQuestionForm({ ...questionForm, domainId: e.target.value })}
-                    >
-                      <option value="">Select Domain</option>
-                      {Object.values(managedDomains).map(domain => (
-                        <option key={domain.id} value={domain.id}>{domain.title}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="Category ID"
-                      value={questionForm.categoryId}
-                      onChange={(e) => setQuestionForm({ ...questionForm, categoryId: e.target.value })}
-                    />
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={questionForm.requiresEvidence}
-                        onChange={(e) => setQuestionForm({ ...questionForm, requiresEvidence: e.target.checked })}
-                      />
-                      Requires Evidence
-                    </label>
-                    {editingQuestionId ? (
-                      <>
-                        <button onClick={handleUpdateQuestion}>Update Question</button>
-                        <button onClick={() => { setEditingQuestionId(null); setQuestionForm({ id: '', text: '', domainId: '', categoryId: '', requiresEvidence: false }); }}>Cancel</button>
-                      </>
-                    ) : (
-                      <button onClick={handleAddQuestion}>Add Question</button>
-                    )}
+                <div className="cfg-section" data-testid="questions-content">
+                  <div className="cfg-section-header">
+                    <h3 className="cfg-section-title">❓ {editingQuestionId ? 'Edit Question' : 'Add Question'}</h3>
                   </div>
-                  <h3>Existing Questions</h3>
-                  <div className="items-list">
-                    {managedQuestions.map(question => (
-                      <div key={question.id} className="item">
-                        <div className="item-info">
-                          <strong>{question.text}</strong>
-                          <p>Domain: {question.domainId} | Category: {question.categoryId}</p>
-                          {question.requiresEvidence && <span className="badge">Requires Evidence</span>}
+                  <div className="cfg-form">
+                    <div className="cfg-form-row">
+                      <div className="cfg-field">
+                        <label>Question ID</label>
+                        <input
+                          type="text"
+                          placeholder="q-001"
+                          value={questionForm.id}
+                          onChange={(e) => setQuestionForm({ ...questionForm, id: e.target.value })}
+                          disabled={editingQuestionId !== null}
+                        />
+                      </div>
+                      <div className="cfg-field">
+                        <label>Domain</label>
+                        <select
+                          value={questionForm.domainId}
+                          onChange={(e) => setQuestionForm({ ...questionForm, domainId: e.target.value })}
+                        >
+                          <option value="">— select domain —</option>
+                          {Object.values(managedDomains).map(domain => (
+                            <option key={domain.id} value={domain.id}>{domain.title}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="cfg-form-row">
+                      <div className="cfg-field cfg-field--full">
+                        <label>Question Text</label>
+                        <textarea
+                          placeholder="How mature is your data pipeline automation?"
+                          value={questionForm.text}
+                          onChange={(e) => setQuestionForm({ ...questionForm, text: e.target.value })}
+                          rows="3"
+                        />
+                      </div>
+                    </div>
+                    <div className="cfg-form-row">
+                      <div className="cfg-field">
+                        <label>Category ID</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. pipelines"
+                          value={questionForm.categoryId}
+                          onChange={(e) => setQuestionForm({ ...questionForm, categoryId: e.target.value })}
+                        />
+                      </div>
+                      <div className="cfg-field">
+                        <label>&nbsp;</label>
+                        <div className="cfg-checkbox-row">
+                          <input
+                            id="requires-evidence"
+                            type="checkbox"
+                            checked={questionForm.requiresEvidence}
+                            onChange={(e) => setQuestionForm({ ...questionForm, requiresEvidence: e.target.checked })}
+                          />
+                          <label htmlFor="requires-evidence">Requires Evidence</label>
                         </div>
-                        <div className="item-actions">
-                          <button onClick={() => startEditQuestion(question)}>Edit</button>
-                          <button onClick={() => handleDeleteQuestion(question.id)} className="danger">Delete</button>
+                      </div>
+                    </div>
+                    <div className="cfg-form-actions">
+                      {editingQuestionId ? (
+                        <>
+                          <button className="cfg-btn cfg-btn--primary" onClick={handleUpdateQuestion}>Update Question</button>
+                          <button className="cfg-btn cfg-btn--secondary" onClick={() => { setEditingQuestionId(null); setQuestionForm({ id: '', text: '', domainId: '', categoryId: '', requiresEvidence: false }); }}>Cancel</button>
+                        </>
+                      ) : (
+                        <button className="cfg-btn cfg-btn--primary" onClick={handleAddQuestion}>Add Question</button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="cfg-list-header">Existing Questions ({managedQuestions.length})</div>
+                  <div className="cfg-list">
+                    {managedQuestions.map(question => (
+                      <div key={question.id} className="cfg-item">
+                        <div className="cfg-item-body">
+                          <span className="cfg-item-title">{question.text}</span>
+                          <span className="cfg-item-sub">{question.domainId} / {question.categoryId}</span>
+                        </div>
+                        {question.requiresEvidence && (
+                          <span className="cfg-item-badge cfg-item-badge--evidence">Evidence</span>
+                        )}
+                        <div className="cfg-item-actions">
+                          <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditQuestion(question)}>Edit</button>
+                          <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteQuestion(question.id)}>Delete</button>
                         </div>
                       </div>
                     ))}
@@ -844,79 +994,120 @@ export const FullScreenAdminView = ({
 
             {/* Frameworks */}
             {configureSubTab === 'frameworks' && (
-              <div className="admin-section" data-testid="frameworks-content">
-                <h2>Compliance Frameworks</h2>
-                {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
-                <h3>{editingFrameworkId ? 'Edit Framework' : 'Add Framework'}</h3>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    placeholder="Framework ID (e.g., nist)"
-                    value={frameworkForm.id}
-                    onChange={(e) => setFrameworkForm({ ...frameworkForm, id: e.target.value })}
-                    disabled={editingFrameworkId !== null}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    value={frameworkForm.name}
-                    onChange={(e) => setFrameworkForm({ ...frameworkForm, name: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Description"
-                    value={frameworkForm.description}
-                    onChange={(e) => setFrameworkForm({ ...frameworkForm, description: e.target.value })}
-                  />
-                  {editingFrameworkId ? (
-                    <>
-                      <button onClick={handleUpdateFramework}>Update Framework</button>
-                      <button onClick={() => { setEditingFrameworkId(null); setFrameworkForm({ id: '', name: '', description: '' }); }}>Cancel</button>
-                    </>
-                  ) : (
-                    <button onClick={handleAddFramework}>Add Framework</button>
-                  )}
+              <div className="cfg-section" data-testid="frameworks-content">
+                <div className="cfg-section-header">
+                  <h3 className="cfg-section-title">✅ {editingFrameworkId ? 'Edit Framework' : 'Add Framework'}</h3>
                 </div>
-                <h3>Existing Frameworks</h3>
-                <div className="items-list">
+                {message.text && <div className={`message ${message.type}`}>{message.text}</div>}
+                <div className="cfg-form">
+                  <div className="cfg-form-row">
+                    <div className="cfg-field">
+                      <label>Framework ID</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. nist"
+                        value={frameworkForm.id}
+                        onChange={(e) => setFrameworkForm({ ...frameworkForm, id: e.target.value })}
+                        disabled={editingFrameworkId !== null}
+                      />
+                    </div>
+                    <div className="cfg-field">
+                      <label>Name</label>
+                      <input
+                        type="text"
+                        placeholder="NIST CSF"
+                        value={frameworkForm.name}
+                        onChange={(e) => setFrameworkForm({ ...frameworkForm, name: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="cfg-form-row">
+                    <div className="cfg-field cfg-field--full">
+                      <label>Description</label>
+                      <input
+                        type="text"
+                        placeholder="Brief description"
+                        value={frameworkForm.description}
+                        onChange={(e) => setFrameworkForm({ ...frameworkForm, description: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="cfg-form-row">
+                    <div className="cfg-field">
+                      <label>Pass Threshold <span style={{ fontWeight: 400, opacity: 0.7 }}>(1–5 maturity score)</span></label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="5"
+                        step="0.5"
+                        placeholder="3.5"
+                        value={frameworkForm.threshold}
+                        onChange={(e) => setFrameworkForm({ ...frameworkForm, threshold: e.target.value })}
+                      />
+                    </div>
+                    <div className="cfg-field">
+                      <label>Requirements <span style={{ fontWeight: 400, opacity: 0.7 }}>(one per line)</span></label>
+                      <textarea
+                        rows={4}
+                        placeholder="e.g. Annual risk assessment&#10;Access control review"
+                        value={frameworkForm.requirements}
+                        onChange={(e) => setFrameworkForm({ ...frameworkForm, requirements: e.target.value })}
+                        style={{ resize: 'vertical' }}
+                      />
+                    </div>
+                  </div>
+                  <div className="cfg-form-actions">
+                    {editingFrameworkId ? (
+                      <>
+                        <button className="cfg-btn cfg-btn--primary" onClick={handleUpdateFramework}>Update Framework</button>
+                        <button className="cfg-btn cfg-btn--secondary" onClick={() => { setEditingFrameworkId(null); setFrameworkForm({ id: '', name: '', description: '' }); }}>Cancel</button>
+                      </>
+                    ) : (
+                      <button className="cfg-btn cfg-btn--primary" onClick={handleAddFramework}>Add Framework</button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="cfg-list-header">Existing Frameworks</div>
+                <div className="cfg-list">
                   {managedFrameworks.map(framework => (
-                    <div key={framework.id} className="item">
-                      <div className="item-info">
-                        <strong>{framework.name}</strong> ({framework.id})
-                        {framework.description && <p>{framework.description}</p>}
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={selectedFrameworkIds.includes(framework.id)}
-                            onChange={() => handleToggleFramework(framework.id)}
-                          />
-                          {selectedFrameworkIds.includes(framework.id) ? ' Enabled' : ' Disabled'}
-                        </label>
-                        <details className="framework-mapping">
-                          <summary data-testid={`mapping-toggle-${framework.id}`}>
-                            Map Questions ({framework.mappedQuestions?.length || 0} mapped)
-                          </summary>
-                          <div className="mapping-questions">
-                            {managedQuestions.map(q => (
-                              <label key={q.id} className="mapping-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={framework.mappedQuestions?.includes(q.id) || false}
-                                  onChange={(e) => handleToggleQuestionMapping(framework.id, q.id, e.target.checked)}
-                                  data-testid={`map-question-${framework.id}-${q.id}`}
-                                />
-                                <span>{q.text}</span>
-                              </label>
-                            ))}
-                            {managedQuestions.length === 0 && (
-                              <p className="no-questions-hint">No questions available. Add questions first.</p>
-                            )}
-                          </div>
-                        </details>
+                    <div key={framework.id} className="cfg-item">
+                      <div className="cfg-item-body">
+                        <span className="cfg-item-title">{framework.name}</span>
+                        <span className="cfg-item-sub">{framework.id}{framework.description ? ` · ${framework.description}` : ''}</span>
                       </div>
-                      <div className="item-actions">
-                        <button onClick={() => startEditFramework(framework)}>Edit</button>
-                        <button onClick={() => handleDeleteFramework(framework.id)} className="danger">Delete</button>
+                      <label className="cfg-checkbox-row" style={{ cursor: 'pointer', marginBottom: 0 }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedFrameworkIds.includes(framework.id)}
+                          onChange={() => handleToggleFramework(framework.id)}
+                        />
+                        <span>{selectedFrameworkIds.includes(framework.id) ? 'Enabled' : 'Disabled'}</span>
+                      </label>
+                      <details className="cfg-mapping-details">
+                        <summary data-testid={`mapping-toggle-${framework.id}`}>
+                          Map Questions ({framework.mappedQuestions?.length || 0} mapped)
+                        </summary>
+                        <div className="cfg-mapping-questions">
+                          {managedQuestions.map(q => (
+                            <label key={q.id} className="cfg-mapping-check">
+                              <input
+                                type="checkbox"
+                                checked={framework.mappedQuestions?.includes(q.id) || false}
+                                onChange={(e) => handleToggleQuestionMapping(framework.id, q.id, e.target.checked)}
+                                data-testid={`map-question-${framework.id}-${q.id}`}
+                              />
+                              <span>{q.text}</span>
+                            </label>
+                          ))}
+                          {managedQuestions.length === 0 && (
+                            <p className="no-questions-hint">No questions available. Add questions first.</p>
+                          )}
+                        </div>
+                      </details>
+                      <div className="cfg-item-actions">
+                        <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditFramework(framework)}>Edit</button>
+                        <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteFramework(framework.id)}>Delete</button>
                       </div>
                     </div>
                   ))}
@@ -971,6 +1162,8 @@ export const FullScreenAdminView = ({
               </section>
 
               <CompareExports />
+
+              <CSVImportExport />
 
               <section className="management-card danger-zone">
                 <h3>⚠️ Danger Zone</h3>

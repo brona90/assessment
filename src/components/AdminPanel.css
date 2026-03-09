@@ -3,7 +3,7 @@
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   border-radius: 1rem;
   padding: 0;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   max-width: 1400px;
   margin: 2rem auto;
@@ -11,29 +11,25 @@
 
 /* ==================== HEADER ==================== */
 .admin-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: #1e293b;
   backdrop-filter: blur(10px);
   padding: 2rem 2.5rem;
-  border-bottom: none;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
   margin-bottom: 0;
 }
 
 .admin-header h2 {
   margin: 0 0 0.5rem 0;
-  color: #2563eb;
+  color: #60a5fa;
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .admin-header p {
   margin: 0;
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 1rem;
 }
 
@@ -43,9 +39,10 @@
   gap: 0;
   margin-bottom: 0;
   border-bottom: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: #1e293b;
   padding: 0 2.5rem;
   overflow-x: auto;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .admin-tabs button {
@@ -55,7 +52,7 @@
   border-bottom: 3px solid transparent;
   cursor: pointer;
   font-weight: 600;
-  color: #6b7280;
+  color: #94a3b8;
   transition: all 0.3s ease;
   position: relative;
   white-space: nowrap;
@@ -63,14 +60,14 @@
 }
 
 .admin-tabs button:hover {
-  color: #2563eb;
-  background: rgba(37, 99, 235, 0.05);
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
 }
 
 .admin-tabs button.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
-  background: rgba(37, 99, 235, 0.1);
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .admin-tabs button.active::after {
@@ -87,7 +84,7 @@
 /* ==================== CONTENT AREA ==================== */
 .admin-content {
   min-height: 500px;
-  background: white;
+  background: #1e293b;
   padding: 2.5rem;
 }
 
@@ -107,14 +104,14 @@
 }
 
 .admin-section h3 {
-  color: #1f2937;
+  color: #f1f5f9;
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
 .admin-section > p {
-  color: #6b7280;
+  color: #94a3b8;
   margin-bottom: 2rem;
 }
 
@@ -126,7 +123,7 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: #94a3b8;
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -136,25 +133,32 @@
 .form-group select {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(148, 163, 184, 0.2);
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: white;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: #263248;
+  color: #f1f5f9;
+  line-height: 1.5;
 }
 
 .form-group textarea {
   min-height: 120px;
   resize: vertical;
   font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #64748b;
 }
 
 .form-group input[type="number"] {
@@ -192,12 +196,14 @@ button:not(.danger):not(.secondary):hover {
 }
 
 button.secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: #263248;
+  color: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 button.secondary:hover {
-  background: #e5e7eb;
+  background: #2d3b52;
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 button.danger {
@@ -247,15 +253,15 @@ button:disabled {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem;
-  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  background: #263248;
   border-radius: 0.75rem;
-  border: 2px solid transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
   transition: all 0.2s ease;
 }
 
 .item:hover {
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
   transform: translateX(4px);
 }
 
@@ -265,13 +271,13 @@ button:disabled {
 
 .item-info h4 {
   margin: 0 0 0.25rem 0;
-  color: #1f2937;
+  color: #f1f5f9;
   font-size: 1.1rem;
 }
 
 .item-info p {
   margin: 0;
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 0.9rem;
 }
 
@@ -317,16 +323,16 @@ button:disabled {
 
 /* ==================== DATA STATS ==================== */
 .data-stats {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: rgba(59, 130, 246, 0.1);
   padding: 1.5rem;
   border-radius: 0.75rem;
   margin-top: 2rem;
-  border: 2px solid #bae6fd;
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
 .data-stats h4 {
   margin: 0 0 1rem 0;
-  color: #0c4a6e;
+  color: #93c5fd;
   font-size: 1.1rem;
 }
 
@@ -341,11 +347,11 @@ button:disabled {
 
 .data-stats li {
   padding: 0.75rem 1rem;
-  background: white;
+  background: #263248;
   border-radius: 0.5rem;
-  color: #0c4a6e;
+  color: #f1f5f9;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ==================== MESSAGES ==================== */
@@ -372,31 +378,31 @@ button:disabled {
 }
 
 .message.success {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: #065f46;
-  border: 2px solid #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .message.error {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: #991b1b;
-  border: 2px solid #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .message.info {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1e40af;
-  border: 2px solid #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 /* ==================== EMPTY STATES ==================== */
 .empty-state {
   padding: 3rem 2rem;
   text-align: center;
-  color: #6b7280;
-  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  color: #94a3b8;
+  background: #263248;
   border-radius: 0.75rem;
-  border: 2px dashed #d1d5db;
+  border: 1px dashed rgba(148, 163, 184, 0.25);
 }
 
 .empty-state p {
