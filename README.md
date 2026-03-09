@@ -1,100 +1,143 @@
 # Technology Assessment Framework
 
-A client-side React SPA for running structured data & engineering maturity assessments across teams. No backend — all data lives in the browser.
+A structured maturity assessment tool for data & engineering teams. Runs entirely in the browser — no server, no accounts, no data ever leaves your machine.
 
 **Live app:** https://brona90.github.io/assessment
 
 ---
 
-## What it does
+## Privacy first: where your data lives
 
-The app guides one or more assessors through a scored questionnaire covering four maturity domains:
+Everything you enter stays on your device.
 
-| Domain | Focus |
-|--------|-------|
-| Data Platform & Observability | Data quality, pipelines, observability tooling |
-| FinOps & Data Management | Cloud cost management, data governance |
-| Analytics & AI/ML Capabilities | ML adoption, GenAI, analytics maturity |
-| Engineering Culture & Operations | DevOps, platform engineering, reliability |
-
-Each question is scored on a 1–5 maturity scale (Not Implemented → Optimized). The app calculates domain and overall scores, benchmarks them against published industry data, maps them to compliance frameworks, and generates a PDF report.
+- **Answers and comments** are written to your browser's `localStorage` the moment you click a rating.
+- **Evidence** (images and text notes) is stored in your browser's `IndexedDB`.
+- **Nothing is transmitted** — there is no backend, no database, no analytics.
+- Clearing your browser data removes all assessment data permanently.
+- Exporting a PDF or JSON file is the only way to take your data out.
 
 ---
 
-## Assessment workflow
+## Running an assessment: participant guide
 
-### 1. Select a user
+### Step 1 — Open the app and select your name
 
-The login screen lists all configured assessors. Click a name to begin. Each assessor sees only the questions assigned to them by the admin.
+The first screen shows a list of assessors. Click your name. You do not need a password. If your name is not listed, ask your admin to add you.
 
-### 2. Answer questions
+### Step 2 — Work through the questions
 
-Questions are grouped by domain (tabs across the top) and category (sections within each tab). For each question:
+Your questions are grouped into domains (tabs at the top) and categories (sections within each tab).
 
-- Select a maturity rating from 1 (Not Implemented) to 5 (Optimized), or mark N/A
-- Optionally add a comment
-- Optionally attach evidence — images or text notes — via the evidence button
+For each question, select a maturity rating:
 
-Progress is tracked per domain and overall. Answers save automatically to `localStorage` as you go.
+| Score | Label | What it means |
+|-------|-------|---------------|
+| 1 | Not Implemented | Nothing in place |
+| 2 | Initial | Ad hoc, inconsistent |
+| 3 | Defined | Documented, repeatable |
+| 4 | Managed | Measured, proactively managed |
+| 5 | Optimized | Continuously improved |
 
-### 3. View results
+You can also mark a question **N/A** if it does not apply to your role or team.
 
-Click **View Results** (or navigate to `#results`) once you have answered enough questions. The results screen shows:
+**Your answers save automatically** as you go — you do not need to click a save button. You can close the browser and return later; your progress will still be there.
 
-- **Overall maturity score** and maturity level label
-- **Domain scores** compared against the 2025 industry average and top-quartile benchmark
-- **Four charts** — radar, bar, heatmap, and trend line — all expandable to fullscreen with toolbar controls (filter by domain, adjust target score, toggle benchmark datasets, export PNG)
-- **Compliance framework status** — cards showing your score against each enabled framework's pass threshold, expandable to see per-question breakdown
+### Step 3 — Add evidence (optional)
 
-### 4. Export a PDF report
+Click the evidence icon on any question to attach supporting material:
 
-Click **Download Report** from the results screen. The PDF includes:
+- Upload screenshots, architecture diagrams, or other images
+- Type free-text notes, links, or justifications
 
-- Cover page
-- Executive summary with maturity distribution and top gaps
-- Detailed domain pages with category breakdowns
-- Compliance page with framework scores
+Evidence helps reviewers understand the context behind a score and is included in the PDF report.
 
-Charts are captured from the live canvas and embedded in the report.
+### Step 4 — View your results
 
----
+Once you have answered your questions, click **View Results**. The results screen shows:
 
-## Admin workflow
+- Your overall maturity score and level
+- Domain-by-domain scores compared against the **2025 industry average** and **top-quartile benchmark** from published research (FinOps Foundation, McKinsey, DORA, Gartner, and others)
+- Four interactive charts — radar, bar, heatmap, and trend over time — each expandable to fullscreen with filter and export controls
+- Compliance framework status cards showing how your scores map to frameworks like SOX, ISO 27001, NIST CSF, and GDPR
 
-Navigate to `#admin` and select an admin user at the login screen.
+### Step 5 — Download the report
 
-### Overview tab
-The default view shows a completion table (all users × all questions), domain charts aggregated across all users, and the compliance framework status for the whole team.
-
-### Configure tab
-Three sub-tabs for setup tasks:
-
-- **People** — add/edit/delete users, assign questions to each user
-- **Content** — add/edit/delete domains and questions
-- **Frameworks** — enable/disable compliance frameworks, edit name/description/threshold/requirements, map questions to each framework
-
-### Data tab
-- **CSV import/export** — download or upload questions, users, domains, and frameworks as CSV files
-- **JSON import/export** — full bulk export of all app state; re-import to restore
-- **Danger zone** — clear all data (with confirmation)
+Click **Download Report** to generate a PDF. The report includes a cover page, executive summary with top gaps, detailed domain breakdowns, and a compliance summary. Charts are embedded from the live canvas.
 
 ---
 
-## Compliance frameworks
+## Admin guide: how data flows through the tool
 
-Seven frameworks are pre-configured: SOX, PII/GDPR, HIPAA, PCI DSS, ISO 27001, NIST CSF, and FedRAMP. Each has:
+As admin you configure the tool, run the assessment cycle, and collect the results. Here is the end-to-end flow.
 
-- A set of mapped questions relevant to that framework's controls
-- A pass threshold on the 1–5 maturity scale (e.g. 4.0 = 80%)
-- A requirements list shown in the expanded compliance card
+```
+Static JSON files          Admin configures          Participants answer
+(shipped with app)    →    users & questions    →    in their browsers
+      ↓                           ↓                         ↓
+questions.json             localStorage                 localStorage
+users.json              (adminAssignments)           (per-user answers)
+compliance.json                                        IndexedDB (evidence)
+benchmarks.json
+                                                            ↓
+                                               Admin aggregates in Overview tab
+                                                            ↓
+                                               Export PDF / JSON / CSV
+```
 
-Admins can enable/disable frameworks, adjust mappings, and edit thresholds.
+### Phase 1 — Set up the assessment
+
+Navigate to the admin dashboard (`#admin`) and go to the **Configure** tab.
+
+**People sub-tab:**
+1. Add each participant as a user (name, email, role).
+2. Assign questions to each user. You can give everyone the same full set, or scope different domains to different roles (e.g. FinOps questions only to the cloud team).
+
+**Content sub-tab:**
+Review the default question set — 48 questions across four domains and twelve categories. Edit questions or add new ones to fit your organisation's context.
+
+**Frameworks sub-tab:**
+Enable the compliance frameworks relevant to your organisation (SOX, GDPR, HIPAA, PCI DSS, ISO 27001, NIST CSF, FedRAMP). For each framework you can:
+- Set the pass threshold (a 1–5 maturity score — e.g. 4.0 means 80% required to pass)
+- Edit the requirements list shown on each compliance card
+- Adjust which questions are mapped to the framework
+
+### Phase 2 — Share the app URL
+
+Send participants the URL. Because there is no login system, each person simply clicks their name on the first screen. All they need is a browser — no install, no account.
+
+If participants are on different machines, their answers stay on their own machine. You will need to collect their data via JSON export (see Phase 3).
+
+### Phase 3 — Collect results
+
+**If everyone is on the same machine** (e.g. a workshop setting): go to the **Overview** tab. It aggregates all users' answers and shows the full team picture immediately.
+
+**If participants are on different machines**: ask each person to export their data via **Download My Data** (JSON) from the results screen, then use the **Data** tab → JSON import to load each export into the admin instance. The admin instance merges all imports and the Overview updates.
+
+### Phase 4 — Review the aggregated dashboard
+
+The **Overview** tab shows:
+
+- **Completion table** — each user × each question, colour-coded by score, so you can see at a glance where gaps and unanswered questions are
+- **Domain charts** — radar and bar charts aggregated across all participants against industry benchmarks
+- **Assessment heatmap** — all questions ranked by average score; lowest-scoring questions surface at the bottom
+- **Compliance framework cards** — team-level scores against each enabled framework's pass threshold
+
+### Phase 5 — Export
+
+From the **Data** tab:
+- **Export JSON** — full snapshot of all configuration and answers; use this to back up or hand off to another admin
+- **Export CSV** — separate files for questions, users, domains, and frameworks; useful for editing in a spreadsheet and re-importing
+- **Generate PDF** — from the results screen; one report per user, or run as admin to get the aggregated view
+
+### Phase 6 — Reset for the next cycle
+
+When you are ready to run the assessment again (e.g. quarterly), go to the **Data** tab → Danger Zone → **Clear All Data**. This wipes all answers and evidence from the browser and returns the app to a clean state. Configuration (users, questions, frameworks) is also cleared, so export your JSON first if you want to restore the setup.
 
 ---
 
-## Benchmark data
+## Benchmark reference
 
-Industry average and top-quartile (75th percentile) scores are drawn from published annual research (2020–2026), including:
+Scores are compared against industry averages and top-quartile (75th percentile) figures derived from published research across 17 sources including:
 
 - FinOps Foundation State of FinOps (2024–2026)
 - McKinsey State of AI (2024, March 2025, November 2025)
@@ -103,51 +146,34 @@ Industry average and top-quartile (75th percentile) scores are drawn from publis
 - Gartner AI-Ready Data & AI Maturity surveys 2025
 - Red Hat State of Platform Engineering 2025
 - Catchpoint SRE Report 2025
-- Databricks State of Data + AI 2024
-- TDWI BI & AI Maturity Assessment 2025
-- Monte Carlo Data Quality Statistics 2025
 
-Sources are cited in `public/data/benchmarks.json` and displayed in the chart header via the Sources panel.
+Historical data covers 2020–2026. Full citations are in `public/data/benchmarks.json` and visible in the chart Sources panel.
 
 ---
 
 ## Tech stack
 
-| Layer | Technology |
-|-------|-----------|
+| | |
+|--|--|
 | UI | React 19 + Vite |
-| Charts | Chart.js via react-chartjs-2 |
-| Storage | localStorage (answers/settings) + IndexedDB via LocalForage (evidence) |
+| Charts | Chart.js |
+| Client storage | localStorage + IndexedDB (LocalForage) |
 | PDF | jsPDF |
-| Testing | Vitest + React Testing Library + Cucumber/Playwright (E2E) |
+| Tests | Vitest + React Testing Library + Cucumber/Playwright |
 | Hosting | GitHub Pages |
 
 ---
 
-## Getting started
+## Development
 
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-```
-
-### Commands
-
-```bash
-npm run dev           # Dev server
-npm run build         # Production build → dist/
-npm run preview       # Preview production build
-npm run lint          # ESLint
-npm test              # Unit/component tests (Vitest)
-npm run test:ui       # Interactive Vitest UI
-npm run test:coverage # Coverage report (95% minimum threshold)
-npm run cucumber      # BDD/E2E tests (5 parallel workers)
-npm run deploy        # Build + push to gh-pages
-```
-
-Run a single test file:
-```bash
-npx vitest run src/components/ComplianceCard.test.jsx
+npm test             # 790 unit tests
+npm run test:coverage  # Coverage report (95% minimum)
+npm run cucumber     # BDD/E2E tests
+npm run build        # Production build → dist/
+npm run deploy       # Deploy to GitHub Pages
 ```
 
 ---
@@ -155,73 +181,20 @@ npx vitest run src/components/ComplianceCard.test.jsx
 ## Project structure
 
 ```
-public/
-└── data/
-    ├── questions.json     # Domains, categories, questions
-    ├── users.json         # Users and roles
-    ├── compliance.json    # Frameworks, thresholds, question mappings
-    └── benchmarks.json    # Industry benchmark scores + sources
+public/data/
+  questions.json      domains → categories → questions
+  users.json          user list and roles
+  compliance.json     frameworks, thresholds, question mappings
+  benchmarks.json     industry scores + source citations
 
 src/
-├── components/            # React UI components
-│   ├── UserView.jsx       # Assessment (questions + tabs)
-│   ├── ResultsView.jsx    # Scores + charts + compliance cards
-│   ├── FullScreenAdminView.jsx  # Admin dashboard (3-tab)
-│   ├── ComplianceCard.jsx # Expandable framework status card
-│   ├── ChartFullscreenView.jsx  # Fullscreen chart with toolbar
-│   ├── CSVImportExport.jsx      # CSV import/export UI
-│   ├── EvidenceModal.jsx  # Evidence (images + text) capture
-│   └── Domain*Chart.jsx   # Radar / bar / heatmap / trend charts
-├── hooks/                 # Custom hooks (one per domain slice)
-│   ├── useAssessment.js   # Answers, evidence, comments
-│   ├── useUser.js         # Auth and roles
-│   ├── useRouter.js       # Hash-based routing
-│   ├── useCompliance.js   # Framework score calculation
-│   └── useDataStore.js    # Questions, users, frameworks
-├── services/
-│   ├── storageService.js  # localStorage / IndexedDB abstraction
-│   ├── dataStore.js       # In-memory data model + persistence
-│   ├── pdfService.js      # PDF generation (jsPDF)
-│   ├── complianceService.js  # Framework scoring
-│   └── dataService.js     # Static JSON loader
-└── utils/
-    ├── scoreCalculator.js # Maturity scoring and progress
-    ├── csvUtils.js        # CSV parse/generate/download
-    └── chartTheme.js      # Shared Chart.js dark theme config
+  components/         React UI (UserView, ResultsView, FullScreenAdminView, ...)
+  hooks/              Domain logic (useAssessment, useUser, useRouter, ...)
+  services/           Storage, PDF, compliance scoring, data loading
+  utils/              Score calculator, CSV helpers, chart theme
 
-features/                  # Cucumber BDD scenarios + step definitions
+features/             Cucumber BDD scenarios
 ```
-
----
-
-## Routing
-
-Hash-based routing, no server configuration required:
-
-| Hash | View |
-|------|------|
-| `#` | Assessment (question answering) |
-| `#results` | Results (scores + charts) |
-| `#results/chart/radar` | Fullscreen radar chart |
-| `#results/chart/bar` | Fullscreen bar chart |
-| `#results/chart/heatmap` | Fullscreen heatmap |
-| `#results/chart/trend` | Fullscreen trend chart |
-| `#admin` | Admin dashboard (Overview) |
-| `#admin/overview` | Overview tab |
-| `#admin/configure` | Configure tab |
-| `#admin/data` | Data tab |
-
----
-
-## Testing
-
-790 unit and component tests across 33 test files. 95% coverage threshold enforced on all metrics.
-
-```bash
-npm run test:coverage
-```
-
-E2E/BDD tests use Cucumber + Playwright and cover the full assessment workflow, PDF export, compliance framework behaviour, and chart interactions.
 
 ---
 
