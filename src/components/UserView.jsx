@@ -70,7 +70,7 @@ export const UserView = ({
             <span className="user-avatar">👤</span>
             <div>
               <h2>{user.name}</h2>
-              <p className="user-role">Assessment User</p>
+              <p className="user-role">{user.title || 'Assessment User'}</p>
             </div>
           </div>
           <div className="user-actions">

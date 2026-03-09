@@ -30,9 +30,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
 }
 
 .user-profile h2 {
@@ -68,13 +68,13 @@
 }
 
 .export-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
-  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
 }
 
 .export-btn:hover {
-  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
   transform: translateY(-2px);
 }
 
@@ -168,7 +168,7 @@
   color: #1f2937;
   padding-bottom: 1rem;
   border-bottom: 2px solid #e5e7eb;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -261,19 +261,19 @@
 }
 
 .domain-tab:hover {
-  color: #7c3aed;
+  color: #2563eb;
   background-color: #f3f4f6;
 }
 
 .domain-tab.active {
-  color: #7c3aed;
-  border-bottom-color: #7c3aed;
+  color: #2563eb;
+  border-bottom-color: #2563eb;
   font-weight: 600;
 }
 
 .domain-tab[aria-selected="true"] {
-  color: #7c3aed;
-  border-bottom-color: #7c3aed;
+  color: #2563eb;
+  border-bottom-color: #2563eb;
 }
 
 .results-btn {

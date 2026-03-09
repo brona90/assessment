@@ -1,6 +1,6 @@
 /* ==================== ADMIN PANEL CONTAINER ==================== */
 .admin-panel {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   border-radius: 1rem;
   padding: 0;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -20,10 +20,10 @@
 
 .admin-header h2 {
   margin: 0 0 0.5rem 0;
-  color: #667eea;
+  color: #2563eb;
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -63,14 +63,14 @@
 }
 
 .admin-tabs button:hover {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
 }
 
 .admin-tabs button.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .admin-tabs button.active::after {
@@ -80,7 +80,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
   border-radius: 3px 3px 0 0;
 }
 
@@ -147,8 +147,8 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-group textarea {
@@ -181,14 +181,14 @@ button {
 }
 
 button:not(.danger):not(.secondary):not(.file-input-label) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 button:not(.danger):not(.secondary):hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
 button.secondary {
@@ -254,8 +254,8 @@ button:disabled {
 }
 
 .item:hover {
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
   transform: translateX(4px);
 }
 

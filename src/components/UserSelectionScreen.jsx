@@ -23,6 +23,7 @@ export const UserSelectionScreen = ({ users, onSelectUser }) => {
               </div>
               <div className="user-info">
                 <h3>{user.name}</h3>
+                {user.title && <p className="user-title">{user.title}</p>}
                 <span className={`user-role ${user.role === 'admin' ? 'admin-badge' : 'user-badge'}`}>
                   {user.role === 'admin' ? 'Administrator' : 'User'}
                 </span>

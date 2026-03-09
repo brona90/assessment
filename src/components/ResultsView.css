@@ -1,6 +1,6 @@
 .results-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f1f5f9;
 }
 
 .results-header {
@@ -32,7 +32,7 @@
 }
 
 .overall-score-card h3 {
-  color: #667eea;
+  color: #2563eb;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
@@ -44,8 +44,8 @@
 .score-value {
   font-size: 4rem;
   font-weight: bold;
-  color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #2563eb;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -67,7 +67,7 @@
 
 .progress-percentage {
   font-weight: bold;
-  color: #667eea;
+  color: #2563eb;
 }
 
 .maturity-label {
@@ -76,7 +76,7 @@
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   margin: 0.5rem 0;
 }
@@ -87,7 +87,7 @@
 }
 
 .domain-scores h3 {
-  color: white;
+  color: #111827;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
@@ -124,7 +124,7 @@
 .domain-score .score {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #667eea;
+  color: #2563eb;
 }
 
 .domain-score .max {
@@ -147,7 +147,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
   transition: width 0.3s ease;
 }
 
@@ -184,12 +184,12 @@
 }
 
 .chart-tab:hover {
-  color: #667eea;
+  color: #2563eb;
 }
 
 .chart-tab.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
+  color: #2563eb;
+  border-bottom-color: #2563eb;
   font-weight: bold;
 }
 
@@ -207,7 +207,7 @@
 }
 
 .gap-analysis h3 {
-  color: #667eea;
+  color: #2563eb;
   margin-bottom: 0.25rem;
   font-size: 1.5rem;
 }
@@ -300,7 +300,7 @@
 }
 
 .recommendations h3 {
-  color: #667eea;
+  color: #2563eb;
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
@@ -313,7 +313,7 @@
 
 .continue-btn {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -325,14 +325,14 @@
 
 .continue-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
 }
 
 .back-btn {
   padding: 0.75rem 1.5rem;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #2563eb;
+  border: 2px solid #2563eb;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
@@ -340,7 +340,7 @@
 }
 
 .back-btn:hover {
-  background: #667eea;
+  background: #2563eb;
   color: white;
 }
 
@@ -368,7 +368,7 @@
   }
 
   .chart-tab.active {
-    border-left-color: #667eea;
+    border-left-color: #2563eb;
     border-bottom-color: transparent;
   }
 }

@@ -34,7 +34,8 @@ describe('UserView', () => {
   const mockUser = {
     id: 'user1',
     name: 'John Doe',
-    role: 'user'
+    role: 'user',
+    title: 'Assessment User'
   };
 
   const mockQuestions = [
