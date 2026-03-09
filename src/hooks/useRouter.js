@@ -15,13 +15,13 @@ export const useRouter = () => {
       const parts = hash.split('/');
       return {
         main: 'admin',
-        sub: parts[1] || 'domains' // Default to domains if no sub-route
+        sub: parts[1] || 'overview' // Default to overview if no sub-route
       };
     }
-    
+
     // Handle main routes
     if (hash === 'results') return { main: 'results', sub: null };
-    if (hash === 'admin') return { main: 'admin', sub: 'domains' };
+    if (hash === 'admin') return { main: 'admin', sub: 'overview' };
     return { main: 'assessment', sub: null };
   };
 
@@ -34,7 +34,7 @@ export const useRouter = () => {
     if (mainRoute === 'admin' && subRoute) {
       hash = `admin/${subRoute}`;
     } else if (mainRoute === 'admin') {
-      hash = 'admin/domains';
+      hash = 'admin/overview';
     } else if (mainRoute === 'assessment') {
       hash = '';
     } else {

@@ -35,7 +35,7 @@ describe('useRouter', () => {
       window.location.hash = '#admin';
       const { result } = renderHook(() => useRouter());
       expect(result.current.currentRoute).toBe('admin');
-      expect(result.current.currentSubRoute).toBe('domains');
+      expect(result.current.currentSubRoute).toBe('overview');
     });
 
     it('should navigate to results route', () => {
@@ -57,8 +57,8 @@ describe('useRouter', () => {
       });
 
       expect(result.current.currentRoute).toBe('admin');
-      expect(result.current.currentSubRoute).toBe('domains');
-      expect(window.location.hash).toBe('#admin/domains');
+      expect(result.current.currentSubRoute).toBe('overview');
+      expect(window.location.hash).toBe('#admin/overview');
     });
 
     it('should navigate to assessment route and clear hash', () => {
@@ -225,16 +225,16 @@ describe('useRouter', () => {
       });
     });
 
-    it('should default to domains when navigating to admin without sub-route', () => {
+    it('should default to overview when navigating to admin without sub-route', () => {
       const { result } = renderHook(() => useRouter());
-      
+
       act(() => {
         result.current.navigate('admin');
       });
 
       expect(result.current.currentRoute).toBe('admin');
-      expect(result.current.currentSubRoute).toBe('domains');
-      expect(window.location.hash).toBe('#admin/domains');
+      expect(result.current.currentSubRoute).toBe('overview');
+      expect(window.location.hash).toBe('#admin/overview');
     });
   });
 });

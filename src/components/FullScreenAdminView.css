@@ -391,6 +391,38 @@
   cursor: not-allowed;
 }
 
+/* Configure sub-navigation */
+.configure-sub-nav {
+  display: flex;
+  gap: 0.25rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.configure-sub-tab {
+  padding: 0.5rem 1.25rem;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.configure-sub-tab:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.configure-sub-tab.active {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+  color: #667eea;
+}
+
 /* Hide nested admin tabs when rendered inside FullScreenAdminView */
 .hide-nested-tabs .admin-tabs {
   display: none !important;
