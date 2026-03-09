@@ -1,0 +1,242 @@
+.chart-fullscreen-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #0f172a;
+}
+
+.chart-fullscreen-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: #1e293b;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.chart-fullscreen-back-btn {
+  padding: 0.6rem 1.25rem;
+  background: transparent;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chart-fullscreen-back-btn:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.chart-fullscreen-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  flex: 1;
+}
+
+.chart-fullscreen-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.cfs-score-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.cfs-score-label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* ── Toolbar ── */
+.cfs-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 2rem;
+  background: #1e293b;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.cfs-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.cfs-toolbar-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cfs-toolbar-spacer {
+  flex: 1;
+  min-width: 1rem;
+}
+
+.cfs-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 6px;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.cfs-toggle-btn.active {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+}
+
+.cfs-toggle-btn:hover {
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #f1f5f9;
+}
+
+.cfs-toggle-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cfs-domain-chip {
+  padding: 0.25rem 0.6rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 999px;
+  color: #93c5fd;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.cfs-domain-chip.hidden {
+  background: rgba(148, 163, 184, 0.06);
+  border-color: rgba(148, 163, 184, 0.15);
+  color: #475569;
+  text-decoration: line-through;
+}
+
+.cfs-domain-chip:hover {
+  border-color: #3b82f6;
+  color: #f1f5f9;
+}
+
+.cfs-slider-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.cfs-slider {
+  width: 100px;
+  accent-color: #a855f7;
+  cursor: pointer;
+}
+
+.cfs-export-btn {
+  padding: 0.35rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  color: #6ee7b7;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.cfs-export-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+}
+
+.chart-fullscreen-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  /* Give chart components room to breathe */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Override child chart containers to fill the space */
+.chart-fullscreen-main .heatmap-container,
+.chart-fullscreen-main [data-testid="radar-chart"],
+.chart-fullscreen-main [data-testid="bar-chart"],
+.chart-fullscreen-main [data-testid="benchmark-trend-chart"] {
+  flex: 1;
+}
+
+.chart-fullscreen-main .heatmap-canvas-wrapper {
+  max-height: none;
+  height: calc(100vh - 200px);
+}
+
+.chart-fullscreen-main .chart-container {
+  height: calc(100vh - 200px) !important;
+}
+
+.chart-fullscreen-unknown {
+  color: #94a3b8;
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .chart-fullscreen-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .chart-fullscreen-title {
+    font-size: 1.1rem;
+  }
+
+  .chart-fullscreen-score {
+    margin-left: 0;
+  }
+
+  .chart-fullscreen-main {
+    padding: 1rem;
+  }
+}

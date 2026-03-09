@@ -11,6 +11,13 @@ import {
   Filler
 } from 'chart.js';
 import PropTypes from 'prop-types';
+import {
+  CHART_COLORS,
+  darkLegend,
+  darkTooltip,
+  darkScaleY,
+  darkScaleX
+} from '../utils/chartTheme';
 
 ChartJS.register(
   CategoryScale,
@@ -23,15 +30,9 @@ ChartJS.register(
   Filler
 );
 
-/**
- * Renders a quarterly trend line for the industry benchmark overall score.
- * Optionally overlays the user's current overall score as a horizontal reference line.
- *
- * Props:
- *   benchmarks  — the full benchmarks object ({ current, history })
- *   userScore   — optional number; user's current overall maturity score (0–5)
- */
-export const BenchmarkTrendChart = ({ benchmarks, userScore }) => {
+export const BenchmarkTrendChart = ({
+  benchmarks, userScore, showIndustryAvg, showTopQuartile, trendRange, onChartReady
+}) => {
   if (!benchmarks || !benchmarks.history || benchmarks.history.length === 0) {
     return (
       <div className="chart-empty" data-testid="trend-chart-empty">
@@ -40,95 +41,92 @@ export const BenchmarkTrendChart = ({ benchmarks, userScore }) => {
     );
   }
 
-  // Build chronological series: history (oldest first) + current
-  const historicalPoints = [...benchmarks.history].sort((a, b) =>
-    a.date.localeCompare(b.date)
+  let sorted = [...benchmarks.history].sort((a, b) =>
+    String(a.date).localeCompare(String(b.date))
   );
 
-  const labels = [
-    ...historicalPoints.map(p => p.date),
-    benchmarks.current?.source?.replace('Industry Average ', '') || '2024-Q4'
-  ];
+  if (trendRange === 'recent' && sorted.length > 4) {
+    sorted = sorted.slice(-4);
+  }
 
-  const industryOverall = [
-    ...historicalPoints.map(p => p.overall),
-    benchmarks.current?.overall ?? null
-  ];
+  const labels = sorted.map(p => p.label || p.date);
+  const industryAvg = sorted.map(p => p.overall);
+  const topQ = sorted.map(p => p.topQuartileOverall ?? null);
 
-  const datasets = [
-    {
-      label: `Industry Benchmark (${benchmarks.current?.industry || 'Overall'})`,
-      data: industryOverall,
-      borderColor: 'rgba(102, 126, 234, 1)',
-      backgroundColor: 'rgba(102, 126, 234, 0.12)',
+  const datasets = [];
+
+  if (showIndustryAvg !== false) {
+    datasets.push({
+      label: 'Industry Avg',
+      data: industryAvg,
+      borderColor: CHART_COLORS.industryAvg.border,
+      backgroundColor: CHART_COLORS.industryAvg.fill,
       borderWidth: 2,
-      pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+      pointBackgroundColor: CHART_COLORS.industryAvg.point,
       pointRadius: 5,
-      tension: 0.3,
+      pointHoverRadius: 7,
+      tension: 0.35,
       fill: true
-    }
-  ];
+    });
+  }
+
+  if (showTopQuartile !== false && topQ.some(v => v !== null)) {
+    datasets.push({
+      label: 'Top Quartile',
+      data: topQ,
+      borderColor: CHART_COLORS.topQuartile.border,
+      backgroundColor: CHART_COLORS.topQuartile.fill,
+      borderWidth: 2,
+      borderDash: [4, 4],
+      pointBackgroundColor: CHART_COLORS.topQuartile.point,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      tension: 0.35,
+      fill: false
+    });
+  }
 
   if (userScore !== undefined && userScore !== null) {
     datasets.push({
       label: 'Your Score',
       data: Array(labels.length).fill(userScore),
-      borderColor: 'rgba(16, 185, 129, 1)',
+      borderColor: CHART_COLORS.userScore.border,
+      backgroundColor: 'transparent',
       borderWidth: 2,
       borderDash: [6, 4],
       pointRadius: 0,
+      pointHoverRadius: 0,
       tension: 0,
       fill: false
     });
   }
-
-  const data = { labels, datasets };
 
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       y: {
-        min: 0,
-        max: 5,
-        ticks: { stepSize: 1 },
-        title: {
-          display: true,
-          text: 'Maturity Score (1–5)'
-        }
+        ...darkScaleY(0, 5),
+        title: { display: true, text: 'Maturity Score (1–5)', color: '#94a3b8', font: { size: 11 } }
       },
       x: {
-        title: {
-          display: true,
-          text: 'Quarter'
-        }
+        ...darkScaleX(),
+        title: { display: true, text: 'Year', color: '#94a3b8', font: { size: 11 } }
       }
     },
     plugins: {
-      legend: {
-        display: true,
-        position: 'top'
-      },
-      title: {
-        display: true,
-        text: 'Industry Benchmark Trend',
-        font: { size: 16, weight: 'bold' }
-      },
-      tooltip: {
-        callbacks: {
-          label: ctx => `${ctx.dataset.label}: ${Number(ctx.parsed.y).toFixed(2)}`
-        }
-      }
+      legend: darkLegend,
+      tooltip: darkTooltip
     }
   };
 
   return (
     <div
       className="chart-container"
-      style={{ height: '350px' }}
+      style={{ height: '440px' }}
       data-testid="benchmark-trend-chart"
     >
-      <Line data={data} options={options} />
+      <Line ref={onChartReady ? (r) => onChartReady(r) : undefined} data={{ labels, datasets }} options={options} />
     </div>
   );
 };
@@ -138,10 +136,14 @@ BenchmarkTrendChart.propTypes = {
     current: PropTypes.object,
     history: PropTypes.arrayOf(
       PropTypes.shape({
-        date: PropTypes.string.isRequired,
+        date: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         overall: PropTypes.number.isRequired
       })
     )
   }),
-  userScore: PropTypes.number
+  userScore: PropTypes.number,
+  showIndustryAvg: PropTypes.bool,
+  showTopQuartile: PropTypes.bool,
+  trendRange: PropTypes.oneOf(['all', 'recent']),
+  onChartReady: PropTypes.func
 };

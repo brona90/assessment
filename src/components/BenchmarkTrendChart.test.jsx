@@ -40,11 +40,11 @@ describe('BenchmarkTrendChart', () => {
     expect(screen.getByTestId('trend-chart-empty')).toBeInTheDocument();
   });
 
-  it('should render 4 labels (3 history + current)', () => {
+  it('should render labels from history entries', () => {
     render(<BenchmarkTrendChart benchmarks={mockBenchmarks} />);
     const chart = screen.getByTestId('line-chart');
     const labels = JSON.parse(chart.dataset.labels);
-    expect(labels).toHaveLength(4);
+    expect(labels).toHaveLength(3);
     expect(labels).toContain('2024-Q1');
     expect(labels).toContain('2024-Q3');
   });
