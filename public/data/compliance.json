@@ -7,11 +7,9 @@
       "description": "Financial controls and IT governance for publicly traded companies",
       "category": "Financial",
       "mappedQuestions": [
-        "d1_q4", "d1_q6",
-        "d2_q1", "d2_q2", "d2_q3", "d2_q4",
+        "d1_q3", "d1_q6",
         "d2_q5", "d2_q6", "d2_q7", "d2_q8",
-        "d3_q9", "d3_q10", "d3_q11", "d3_q12",
-        "d4_q9", "d4_q10", "d4_q11", "d4_q12"
+        "d4_q9", "d4_q10", "d4_q11"
       ],
       "threshold": 4.0,
       "color": "#10b981",
@@ -30,8 +28,9 @@
       "description": "Personal data protection and privacy requirements",
       "category": "Privacy",
       "mappedQuestions": [
-        "d1_q4", "d1_q6",
-        "d2_q9", "d2_q10", "d2_q11", "d2_q12"
+        "d1_q3", "d1_q6", "d1_q11",
+        "d2_q5", "d2_q6", "d2_q10", "d2_q11",
+        "d4_q9"
       ],
       "threshold": 4.5,
       "color": "#3b82f6",
@@ -50,8 +49,9 @@
       "description": "Healthcare data security and privacy standards",
       "category": "Healthcare",
       "mappedQuestions": [
-        "d1_q6",
-        "d2_q9", "d2_q10", "d2_q11"
+        "d1_q6", "d1_q11",
+        "d2_q5", "d2_q10", "d2_q11",
+        "d4_q9", "d4_q11", "d4_q12"
       ],
       "threshold": 4.5,
       "color": "#8b5cf6",
@@ -71,8 +71,8 @@
       "category": "Financial",
       "mappedQuestions": [
         "d1_q6",
-        "d2_q5", "d2_q6", "d2_q7",
-        "d2_q10", "d2_q11"
+        "d2_q5", "d2_q6", "d2_q10", "d2_q11",
+        "d4_q9", "d4_q10", "d4_q11"
       ],
       "threshold": 4.0,
       "color": "#f59e0b",
@@ -91,11 +91,10 @@
       "description": "Information security management system standard",
       "category": "Security",
       "mappedQuestions": [
-        "d1_q1", "d1_q2", "d1_q3", "d1_q4", "d1_q5", "d1_q6", "d1_q7", "d1_q8",
-        "d2_q9", "d2_q10", "d2_q11", "d2_q12",
-        "d3_q3", "d3_q7", "d3_q12",
+        "d1_q2", "d1_q6",
+        "d2_q5", "d2_q6", "d2_q10", "d2_q11",
         "d4_q1", "d4_q3",
-        "d4_q9", "d4_q10", "d4_q11"
+        "d4_q9", "d4_q10", "d4_q11", "d4_q12"
       ],
       "threshold": 4.0,
       "color": "#06b6d4",
@@ -114,9 +113,10 @@
       "description": "Cybersecurity risk management framework",
       "category": "Security",
       "mappedQuestions": [
-        "d1_q2",
-        "d3_q1", "d3_q2", "d3_q4", "d3_q12",
-        "d4_q1", "d4_q3", "d4_q11", "d4_q12"
+        "d1_q2", "d1_q8",
+        "d2_q6",
+        "d4_q1", "d4_q2", "d4_q3",
+        "d4_q9", "d4_q11", "d4_q12"
       ],
       "threshold": 3.5,
       "color": "#ec4899",
@@ -136,7 +136,8 @@
       "description": "Federal cloud security authorization program",
       "category": "Government",
       "mappedQuestions": [
-        "d1_q5", "d1_q6", "d1_q7", "d1_q8",
+        "d1_q2", "d1_q5", "d1_q6", "d1_q8",
+        "d2_q5", "d2_q11",
         "d4_q1", "d4_q2", "d4_q3",
         "d4_q9", "d4_q10", "d4_q11", "d4_q12"
       ],
