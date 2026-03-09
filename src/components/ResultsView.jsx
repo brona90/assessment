@@ -4,6 +4,7 @@ import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
 import { BenchmarkTrendChart } from './BenchmarkTrendChart';
+import { BenchmarkSources } from './BenchmarkSources';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
 import { dataService } from '../services/dataService';
 import './ResultsView.css';
@@ -14,7 +15,8 @@ export const ResultsView = ({
   answers,
   progress,
   onBackToAssessment,
-  onLogout
+  onLogout,
+  onExpandChart
 }) => {
   const [activeChart, setActiveChart] = useState('heatmap');
   const [benchmarks, setBenchmarks] = useState(null);
@@ -176,7 +178,8 @@ export const ResultsView = ({
 
         {/* Chart Tabs */}
         <div className="chart-section">
-          <div className="chart-tabs" role="tablist" aria-label="Chart views">
+          <div className="chart-section-header">
+            <div className="chart-tabs" role="tablist" aria-label="Chart views">
             <button
               role="tab"
               aria-selected={activeChart === 'heatmap'}
@@ -218,8 +221,29 @@ export const ResultsView = ({
               📈 Trend
             </button>
           </div>
+          <div className="chart-header-right">
+            {benchmarks?.sources && <BenchmarkSources sources={benchmarks.sources} />}
+            {onExpandChart && (
+              <button
+                className="chart-expand-btn"
+                onClick={() => onExpandChart(activeChart)}
+                data-testid="chart-expand-btn"
+                title="Open full-screen chart"
+                aria-label="Open full-screen chart"
+              >
+                ⤢ Full Screen
+              </button>
+            )}
+          </div>
+          </div>
 
-          <div className="chart-display" role="tabpanel" id="chart-panel">
+          <div
+            className={`chart-display${onExpandChart ? ' chart-display--clickable' : ''}`}
+            role="tabpanel"
+            id="chart-panel"
+            onClick={onExpandChart ? () => onExpandChart(activeChart) : undefined}
+          >
+            {onExpandChart && <span className="chart-expand-hint">⤢ Click to expand</span>}
             {activeChart === 'heatmap' ? (
               <DomainHeatmap domains={filteredDomains} answers={answers} />
             ) : activeChart === 'radar' ? (
@@ -325,5 +349,6 @@ ResultsView.propTypes = {
     percentage: PropTypes.number.isRequired
   }).isRequired,
   onBackToAssessment: PropTypes.func.isRequired,
-  onLogout: PropTypes.func.isRequired
+  onLogout: PropTypes.func.isRequired,
+  onExpandChart: PropTypes.func
 };
