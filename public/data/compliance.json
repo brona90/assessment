@@ -33,7 +33,7 @@
         "d4_q9"
       ],
       "threshold": 4.5,
-      "color": "#3b82f6",
+      "color": "#22d3ee",
       "icon": "PII",
       "requirements": [
         "Data encryption at rest and in transit",

@@ -201,7 +201,7 @@ describe('rowsToDomains', () => {
 const sampleFrameworks = [
   {
     id: 'iso', name: 'ISO 27001', enabled: true,
-    category: 'Security', threshold: 3, color: '#3b82f6',
+    category: 'Security', threshold: 3, color: '#22c55e',
     icon: '🔒', description: 'InfoSec', mappedQuestions: ['q1', 'q2']
   }
 ];

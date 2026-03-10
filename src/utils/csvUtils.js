@@ -273,7 +273,7 @@ export const TEMPLATE_ROWS = {
     { id: 'domain2', title: 'Data Governance & Quality', weight: '0.25' }
   ],
   frameworks: [
-    { id: 'iso27001', name: 'ISO 27001', enabled: 'true', category: 'Security', threshold: '3', color: '#3b82f6', icon: '🔒', description: 'Information security management', mapped_question_ids: 'q1|q2' },
+    { id: 'iso27001', name: 'ISO 27001', enabled: 'true', category: 'Security', threshold: '3', color: '#22c55e', icon: '🔒', description: 'Information security management', mapped_question_ids: 'q1|q2' },
     { id: 'gdpr', name: 'GDPR', enabled: 'false', category: 'Privacy', threshold: '4', color: '#10b981', icon: '🛡️', description: 'EU data protection regulation', mapped_question_ids: '' }
   ]
 };

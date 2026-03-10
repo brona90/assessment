@@ -318,7 +318,7 @@ describe('ScoreCalculator', () => {
   describe('buildQuestionFrameworkMap', () => {
     const mockFrameworks = {
       sox: { id: 'sox', name: 'SOX', color: '#10b981', icon: 'SOX', mappedQuestions: ['q1', 'q2'] },
-      pii: { id: 'pii', name: 'PII/GDPR', color: '#3b82f6', icon: 'PII', mappedQuestions: ['q2', 'q3'] }
+      pii: { id: 'pii', name: 'PII/GDPR', color: '#22c55e', icon: 'PII', mappedQuestions: ['q2', 'q3'] }
     };
 
     it('should build reverse map from framework to questions', () => {

@@ -190,7 +190,7 @@ describe('QuestionCard', () => {
   describe('Compliance Tags', () => {
     const mockTags = [
       { id: 'sox', name: 'SOX', color: '#10b981', icon: 'SOX' },
-      { id: 'pii', name: 'PII/GDPR', color: '#3b82f6', icon: 'PII' }
+      { id: 'pii', name: 'PII/GDPR', color: '#22c55e', icon: 'PII' }
     ];
 
     it('should not render compliance tags section when no tags provided', () => {
