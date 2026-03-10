@@ -31,7 +31,7 @@
 }
 
 .brand-logo {
-  width: 500px;
+  width: min(500px, 90vw);
   height: auto;
   margin-bottom: 1.5rem;
   border-radius: 12px;
@@ -188,5 +188,29 @@
     font-size: 3rem;
     width: 4rem;
     height: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-selection-screen {
+    padding: 1rem;
+  }
+
+  .user-selection-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .user-selection-header p {
+    font-size: 0.9rem;
+  }
+
+  .user-card {
+    padding: 1.25rem;
+  }
+
+  .user-avatar {
+    font-size: 2.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
   }
 }

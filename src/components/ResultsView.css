@@ -438,3 +438,27 @@
     border-bottom-color: transparent;
   }
 }
+
+@media (max-width: 480px) {
+  .score-value {
+    font-size: 2.5rem;
+  }
+
+  .domain-score .score {
+    font-size: 2rem;
+  }
+
+  .overall-score-card h3,
+  .domain-scores h3 {
+    font-size: 1.25rem;
+  }
+
+  .results-tabs {
+    gap: 0;
+  }
+
+  .results-tab {
+    font-size: 0.8rem;
+    padding: 0.625rem 0.75rem;
+  }
+}

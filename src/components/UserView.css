@@ -243,6 +243,32 @@
   }
 }
 
+@media (max-width: 480px) {
+  .user-view-header {
+    padding: 0.75rem;
+  }
+
+  .user-view-main {
+    padding: 0.75rem;
+  }
+
+  .user-profile h2 {
+    font-size: 1.125rem;
+  }
+
+  .questions-intro h3 {
+    font-size: 1.25rem;
+  }
+
+  .domain-title {
+    font-size: 1.1rem;
+  }
+
+  .domain-section {
+    padding: 1rem;
+  }
+}
+
 /* Domain Tabs */
 .domain-tabs {
   display: flex;
