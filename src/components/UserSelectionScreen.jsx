@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import logoUrl from '../assets/fosterthecode-forest.svg';
 import './UserSelectionScreen.css';
 
 export const UserSelectionScreen = ({ users, onSelectUser }) => {
@@ -6,6 +7,7 @@ export const UserSelectionScreen = ({ users, onSelectUser }) => {
     <div className="user-selection-screen" data-testid="user-selection-screen">
       <div className="user-selection-container">
         <div className="user-selection-header">
+          <img src={logoUrl} alt="fosterthecode" className="brand-logo" />
           <h1>Technology Assessment Framework</h1>
           <p>Select your profile to begin</p>
         </div>
