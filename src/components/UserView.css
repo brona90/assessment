@@ -1,10 +1,10 @@
 .user-view {
   min-height: 100vh;
-  background: #0f172a;
+  background: #0c1a10;
 }
 
 .user-view-header {
-  background: #1e293b;
+  background: #132218;
   border-bottom: 1px solid rgba(148, 163, 184, 0.15);
   padding: 1.5rem 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -37,9 +37,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
   border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 6px rgba(22, 163, 74, 0.3);
 }
 
 .user-profile h2 {
@@ -75,18 +75,18 @@
 }
 
 .export-btn {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
   color: white;
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 6px rgba(22, 163, 74, 0.3);
 }
 
 .export-btn:hover {
-  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 12px rgba(22, 163, 74, 0.4);
   transform: translateY(-2px);
 }
 
 .logout-btn {
-  background: #263248;
+  background: #1a2e1f;
   color: #f1f5f9;
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
@@ -129,7 +129,7 @@
 .empty-state {
   text-align: center;
   padding: 3rem;
-  background: #1e293b;
+  background: #132218;
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   max-width: 500px;
@@ -162,7 +162,7 @@
 }
 
 .domain-section {
-  background: #1e293b;
+  background: #132218;
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -173,7 +173,7 @@
   margin: 0 0 1.5rem 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #60a5fa;
+  color: #86efac;
   padding-bottom: 1rem;
   border-bottom: 2px solid rgba(148, 163, 184, 0.15);
 }
@@ -266,19 +266,19 @@
 }
 
 .domain-tab:hover {
-  color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.08);
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.08);
 }
 
 .domain-tab.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  color: #22c55e;
+  border-bottom-color: #22c55e;
   font-weight: 600;
 }
 
 .domain-tab[aria-selected="true"] {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  color: #22c55e;
+  border-bottom-color: #22c55e;
 }
 
 .results-btn {
