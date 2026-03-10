@@ -15,7 +15,7 @@
   flex-direction: column;
   gap: 0.4rem;
   flex: 1;
-  min-width: 180px;
+  min-width: min(180px, 100%);
 }
 
 .compare-file-label {
@@ -138,7 +138,7 @@
   font-weight: 600;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .compare-inputs {
     flex-direction: column;
   }

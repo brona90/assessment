@@ -4,7 +4,7 @@
 
 .csv-entity-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -114,4 +114,23 @@
   background: rgba(239, 68, 68, 0.12);
   color: #fca5a5;
   border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+@media (max-width: 640px) {
+  .csv-entity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .csv-entity-card {
+    padding: 0.75rem;
+  }
+
+  .csv-entity-actions {
+    flex-direction: column;
+  }
+
+  .csv-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
