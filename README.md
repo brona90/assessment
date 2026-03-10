@@ -172,9 +172,12 @@ npm run dev          # http://localhost:5173
 npm test             # 790 unit tests
 npm run test:coverage  # Coverage report (95% minimum)
 npm run cucumber     # BDD/E2E tests
-npm run build        # Production build → dist/
-npm run deploy       # Deploy to GitHub Pages
+npm run build            # Production build → dist/
+npm run build:singlefile # Self-contained single HTML file → dist-singlefile/index.html
+npm run deploy           # Deploy to GitHub Pages
 ```
+
+The single-file build produces one `index.html` (~1.4 MB) with all code, styles, and data embedded. It opens directly from a file system or email attachment — no web server required.
 
 ---
 
