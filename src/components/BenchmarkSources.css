@@ -23,8 +23,8 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.25rem 0.6rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.4);
   border-radius: 999px;
   font-size: 0.8rem;
   text-decoration: none;
@@ -33,12 +33,12 @@
 }
 
 .benchmark-source-chip:hover {
-  background: rgba(59, 130, 246, 0.18);
-  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.45);
 }
 
 .bsc-publisher {
-  color: #60a5fa;
+  color: #86efac;
   font-weight: 600;
 }
 
@@ -55,6 +55,6 @@
 }
 
 .bsc-arrow {
-  color: #60a5fa;
+  color: #86efac;
   font-size: 0.75rem;
 }

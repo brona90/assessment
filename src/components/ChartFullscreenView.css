@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0f172a;
+  background: #0c1a10;
 }
 
 .chart-fullscreen-header {
@@ -10,7 +10,7 @@
   align-items: center;
   gap: 1.5rem;
   padding: 1rem 2rem;
-  background: #1e293b;
+  background: #132218;
   border-bottom: 1px solid rgba(148, 163, 184, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   position: sticky;
@@ -21,8 +21,8 @@
 .chart-fullscreen-back-btn {
   padding: 0.6rem 1.25rem;
   background: transparent;
-  color: #3b82f6;
-  border: 2px solid #3b82f6;
+  color: #22c55e;
+  border: 2px solid #22c55e;
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
@@ -33,7 +33,7 @@
 }
 
 .chart-fullscreen-back-btn:hover {
-  background: #3b82f6;
+  background: #22c55e;
   color: white;
 }
 
@@ -56,7 +56,7 @@
 .cfs-score-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #60a5fa;
+  color: #86efac;
 }
 
 .cfs-score-label {
@@ -71,7 +71,7 @@
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   padding: 0.75rem 2rem;
-  background: #1e293b;
+  background: #132218;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
@@ -111,9 +111,9 @@
 }
 
 .cfs-toggle-btn.active {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #bbf7d0;
 }
 
 .cfs-toggle-btn:hover {
@@ -131,10 +131,10 @@
 
 .cfs-domain-chip {
   padding: 0.25rem 0.6rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.35);
   border-radius: 999px;
-  color: #93c5fd;
+  color: #bbf7d0;
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
@@ -150,7 +150,7 @@
 }
 
 .cfs-domain-chip:hover {
-  border-color: #3b82f6;
+  border-color: #22c55e;
   color: #f1f5f9;
 }
 
