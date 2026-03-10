@@ -241,9 +241,12 @@ body {
 
 .rating-option.selected {
   background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: white;
+  border-color: #86efac;
+  border-width: 2px;
+  color: #0a1a0e;
+  font-weight: 700;
   transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .rating-value {
@@ -427,7 +430,7 @@ textarea:focus-visible {
 
 .compliance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -691,7 +694,7 @@ textarea:focus-visible {
 /* Charts Grid */
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(500px, 100%), 1fr));
   gap: 2rem;
   margin-top: 2rem;
 }
@@ -931,5 +934,27 @@ textarea:focus-visible {
 
   .compliance-grid {
     grid-template-columns: 1fr;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 0.75rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .rating-option {
+    padding: 0.625rem;
+  }
+
+  .score-value {
+    font-size: 2.5rem;
   }
 }
