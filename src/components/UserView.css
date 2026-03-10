@@ -269,6 +269,27 @@
   }
 }
 
+@media (max-width: 640px) {
+  .domain-tabs {
+    display: none;
+  }
+
+  .domain-tab-select {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #1a2e1f;
+    border: 2px solid #22c55e;
+    border-radius: 0.5rem;
+    color: #86efac;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    appearance: auto;
+  }
+}
+
 /* Domain Tabs */
 .domain-tabs {
   display: flex;
@@ -305,6 +326,10 @@
 .domain-tab[aria-selected="true"] {
   color: #22c55e;
   border-bottom-color: #22c55e;
+}
+
+.domain-tab-select {
+  display: none;
 }
 
 .results-btn {

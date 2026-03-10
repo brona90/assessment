@@ -489,4 +489,113 @@ describe('UserView', () => {
 
     expect(screen.getByText('Assessment User')).toBeInTheDocument();
   });
+
+  it('should not render domain tabs when only one domain', () => {
+    render(
+      <UserView
+        user={mockUser}
+        questions={mockQuestions}
+        answers={mockAnswers}
+        evidence={mockEvidence}
+        progress={mockProgress}
+        onAnswerChange={mockOnAnswerChange}
+        onClearAnswer={mockOnClearAnswer}
+        onAddEvidence={mockOnAddEvidence}
+        onExportUserData={mockOnExportUserData}
+        onLogout={mockOnLogout}
+      />
+    );
+
+    // All mockQuestions share domain1 — no tab UI needed
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('domain-tab-select')).not.toBeInTheDocument();
+  });
+
+  describe('multi-domain navigation', () => {
+    const multiDomainQuestions = [
+      {
+        id: 'q-d1',
+        text: 'Domain 1 Question',
+        requiresEvidence: false,
+        domainId: 'domain1',
+        domainTitle: 'Domain One',
+        categoryId: 'cat1',
+        categoryTitle: 'Category A'
+      },
+      {
+        id: 'q-d2',
+        text: 'Domain 2 Question',
+        requiresEvidence: false,
+        domainId: 'domain2',
+        domainTitle: 'Domain Two',
+        categoryId: 'cat2',
+        categoryTitle: 'Category B'
+      }
+    ];
+
+    const multiProps = {
+      user: { id: 'user1', name: 'John Doe', title: 'Test' },
+      questions: multiDomainQuestions,
+      answers: {},
+      evidence: {},
+      progress: { answered: 0, total: 2, percentage: 0 },
+      onAnswerChange: vi.fn(),
+      onClearAnswer: vi.fn(),
+      onCommentChange: vi.fn(),
+      onAddEvidence: vi.fn(),
+      onExportUserData: vi.fn(),
+      onLogout: vi.fn()
+    };
+
+    it('renders domain tab buttons and select when multiple domains exist', () => {
+      render(<UserView {...multiProps} />);
+
+      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      expect(screen.getByTestId('domain-tab-domain1')).toBeInTheDocument();
+      expect(screen.getByTestId('domain-tab-domain2')).toBeInTheDocument();
+      expect(screen.getByTestId('domain-tab-select')).toBeInTheDocument();
+    });
+
+    it('shows first domain questions by default', () => {
+      render(<UserView {...multiProps} />);
+
+      expect(screen.getByTestId('question-card-q-d1')).toBeInTheDocument();
+      expect(screen.queryByTestId('question-card-q-d2')).not.toBeInTheDocument();
+    });
+
+    it('switches domain when tab button is clicked', () => {
+      render(<UserView {...multiProps} />);
+
+      fireEvent.click(screen.getByTestId('domain-tab-domain2'));
+
+      expect(screen.queryByTestId('question-card-q-d1')).not.toBeInTheDocument();
+      expect(screen.getByTestId('question-card-q-d2')).toBeInTheDocument();
+    });
+
+    it('switches domain when select value changes', () => {
+      render(<UserView {...multiProps} />);
+
+      fireEvent.change(screen.getByTestId('domain-tab-select'), {
+        target: { value: 'domain2' }
+      });
+
+      expect(screen.queryByTestId('question-card-q-d1')).not.toBeInTheDocument();
+      expect(screen.getByTestId('question-card-q-d2')).toBeInTheDocument();
+    });
+
+    it('marks the active tab with aria-selected', () => {
+      render(<UserView {...multiProps} />);
+
+      const tab1 = screen.getByTestId('domain-tab-domain1');
+      const tab2 = screen.getByTestId('domain-tab-domain2');
+
+      expect(tab1).toHaveAttribute('aria-selected', 'true');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.click(tab2);
+
+      expect(tab1).toHaveAttribute('aria-selected', 'false');
+      expect(tab2).toHaveAttribute('aria-selected', 'true');
+    });
+  });
 });

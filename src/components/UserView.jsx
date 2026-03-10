@@ -112,22 +112,35 @@ export const UserView = ({
           </div>
         ) : (
           <>
-            {/* Domain Tabs */}
+            {/* Domain Tabs — desktop; dropdown — mobile */}
             {domains.length > 1 && (
-              <div className="domain-tabs" role="tablist">
-                {domains.map((domain) => (
-                  <button
-                    key={domain.id}
-                    role="tab"
-                    aria-selected={activeTab === domain.id}
-                    className={`domain-tab ${activeTab === domain.id ? 'active' : ''}`}
-                    onClick={() => setActiveTab(domain.id)}
-                    data-testid={`domain-tab-${domain.id}`}
-                  >
-                    {domain.title}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="domain-tabs" role="tablist">
+                  {domains.map((domain) => (
+                    <button
+                      key={domain.id}
+                      role="tab"
+                      aria-selected={activeTab === domain.id}
+                      className={`domain-tab ${activeTab === domain.id ? 'active' : ''}`}
+                      onClick={() => setActiveTab(domain.id)}
+                      data-testid={`domain-tab-${domain.id}`}
+                    >
+                      {domain.title}
+                    </button>
+                  ))}
+                </div>
+                <select
+                  className="domain-tab-select"
+                  value={activeTab || ''}
+                  onChange={e => setActiveTab(e.target.value)}
+                  data-testid="domain-tab-select"
+                  aria-label="Select domain"
+                >
+                  {domains.map((domain) => (
+                    <option key={domain.id} value={domain.id}>{domain.title}</option>
+                  ))}
+                </select>
+              </>
             )}
 
             {/* Questions Container */}
