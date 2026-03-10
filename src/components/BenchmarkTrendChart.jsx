@@ -123,7 +123,7 @@ export const BenchmarkTrendChart = ({
   return (
     <div
       className="chart-container"
-      style={{ height: '440px' }}
+      style={{ height: 'clamp(240px, 48vh, 560px)' }}
       data-testid="benchmark-trend-chart"
     >
       <Line ref={onChartReady ? (r) => onChartReady(r) : undefined} data={{ labels, datasets }} options={options} />

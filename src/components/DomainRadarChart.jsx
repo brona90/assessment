@@ -134,7 +134,7 @@ export const DomainRadarChart = ({
   };
 
   return (
-    <div className="chart-container" style={{ height: '460px' }} data-testid="radar-chart">
+    <div className="chart-container" style={{ height: 'clamp(260px, 50vh, 600px)' }} data-testid="radar-chart">
       <Radar ref={onChartReady ? (r) => onChartReady(r) : undefined} data={{ labels: domainNames, datasets }} options={options} />
     </div>
   );

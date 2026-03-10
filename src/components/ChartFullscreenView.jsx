@@ -18,7 +18,7 @@ const CHART_LABELS = {
 
 export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) => {
   const [benchmarks, setBenchmarks] = useState(null);
-  const [toolbarOpen, setToolbarOpen] = useState(true);
+  const [toolbarOpen, setToolbarOpen] = useState(() => window.innerWidth > 640);
 
   // Interactive toolbar state
   const [showIndustryAvg, setShowIndustryAvg] = useState(true);
