@@ -12,6 +12,7 @@ import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { CompareExports } from './CompareExports';
 import { CSVImportExport } from './CSVImportExport';
 import { ChartFullscreenView } from './ChartFullscreenView';
+import logoUrl from '../assets/fosterthecode-forest.svg';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -435,6 +436,7 @@ export const FullScreenAdminView = ({
       {/* Header */}
       <header className="admin-header">
         <div className="admin-header-left">
+          <img src={logoUrl} alt="fosterthecode" className="header-brand-logo" />
           <h1>Administrator Dashboard</h1>
         </div>
         <div className="admin-header-right">

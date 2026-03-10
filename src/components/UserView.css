@@ -17,6 +17,13 @@
   margin-bottom: 1.5rem;
 }
 
+.header-brand-logo {
+  height: 36px;
+  width: auto;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
 .user-profile {
   display: flex;
   align-items: center;

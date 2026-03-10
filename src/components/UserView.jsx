@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
 import { scoreCalculator } from '../utils/scoreCalculator';
+import logoUrl from '../assets/fosterthecode-forest.svg';
 import './UserView.css';
 
 export const UserView = ({
@@ -67,6 +68,7 @@ export const UserView = ({
     <div className="user-view" data-testid="user-view">
       <header className="user-view-header">
         <div className="user-info-bar">
+          <img src={logoUrl} alt="fosterthecode" className="header-brand-logo" />
           <div className="user-profile">
             <span className="user-avatar">👤</span>
             <div>

@@ -19,11 +19,24 @@
   border-bottom: 1px solid rgba(148, 163, 184, 0.15);
 }
 
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .admin-header-left h1 {
   margin: 0;
   font-size: 1.5rem;
   color: #60a5fa;
   font-weight: 700;
+}
+
+.header-brand-logo {
+  height: 36px;
+  width: auto;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .admin-header-right {
