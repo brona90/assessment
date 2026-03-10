@@ -423,23 +423,55 @@
   .score-value {
     font-size: 3rem;
   }
+}
 
+@media (max-width: 640px) {
+  .chart-section {
+    padding: 1rem;
+  }
+
+  /* Keep tabs horizontal on mobile — scrollable, not stacked */
   .chart-tabs {
-    flex-direction: column;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 1;
+    min-width: 0;
   }
 
   .chart-tab {
-    border-bottom: none;
-    border-left: 3px solid transparent;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
   }
 
-  .chart-tab.active {
-    border-left-color: #22c55e;
-    border-bottom-color: transparent;
+  /* Stack header row: tabs on top, expand button below */
+  .chart-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .chart-header-right {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .chart-display {
+    min-height: 300px;
+  }
+
+  .gap-analysis,
+  .recommendations {
+    padding: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
+  .results-main {
+    padding: 0.75rem;
+  }
+
   .score-value {
     font-size: 2.5rem;
   }
@@ -453,12 +485,26 @@
     font-size: 1.25rem;
   }
 
-  .results-tabs {
-    gap: 0;
+  .overall-score-card,
+  .domain-score-card {
+    padding: 1.25rem;
   }
 
-  .results-tab {
+  .chart-tab {
     font-size: 0.8rem;
-    padding: 0.625rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .chart-display {
+    min-height: 260px;
+  }
+
+  /* Priority badge: don't push to far right on wrap — flow naturally */
+  .priority-badge {
+    margin-left: 0;
+  }
+
+  .gap-item-meta {
+    gap: 0.5rem;
   }
 }

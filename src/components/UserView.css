@@ -256,6 +256,12 @@
     font-size: 1.125rem;
   }
 
+  .user-avatar {
+    font-size: 1.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
   .questions-intro h3 {
     font-size: 1.25rem;
   }
