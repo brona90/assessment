@@ -513,6 +513,7 @@ export const FullScreenAdminView = ({
                 {completionStatus.length === 0 ? (
                   <p className="completion-empty">No users found.</p>
                 ) : (
+                  <div className="completion-table-wrap">
                   <table className="completion-table" data-testid="completion-table">
                     <thead>
                       <tr>
@@ -547,6 +548,7 @@ export const FullScreenAdminView = ({
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 )}
               </div>
 

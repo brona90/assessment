@@ -905,8 +905,15 @@
   color: #22c55e;
 }
 
+.completion-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 6px;
+}
+
 .completion-table {
   width: 100%;
+  min-width: 480px;
   border-collapse: collapse;
   font-size: 0.9rem;
 }

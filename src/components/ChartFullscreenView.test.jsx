@@ -119,6 +119,33 @@ describe('ChartFullscreenView', () => {
     expect(screen.getByTestId('cfs-toolbar')).toBeInTheDocument();
   });
 
+  it('renders toolbar toggle button in header', () => {
+    render(
+      <ChartFullscreenView chartType="radar" questions={mockQuestions} answers={mockAnswers} onBack={onBack} />
+    );
+    expect(screen.getByTestId('cfs-toolbar-toggle')).toBeInTheDocument();
+  });
+
+  it('toolbar toggle button hides and shows toolbar', () => {
+    render(
+      <ChartFullscreenView chartType="radar" questions={mockQuestions} answers={mockAnswers} onBack={onBack} />
+    );
+    const toolbar = screen.getByTestId('cfs-toolbar');
+    const toggle = screen.getByTestId('cfs-toolbar-toggle');
+
+    // Starts open — no closed class
+    expect(toolbar).not.toHaveClass('cfs-toolbar--closed');
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(toggle);
+    expect(toolbar).toHaveClass('cfs-toolbar--closed');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(toggle);
+    expect(toolbar).not.toHaveClass('cfs-toolbar--closed');
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('shows benchmark toggles for radar chart', () => {
     render(
       <ChartFullscreenView chartType="radar" questions={mockQuestions} answers={mockAnswers} onBack={onBack} />

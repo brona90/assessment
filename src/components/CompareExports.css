@@ -70,10 +70,13 @@
 /* Comparison table */
 .compare-results {
   margin-top: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .compare-table {
   width: 100%;
+  min-width: 360px;
   border-collapse: collapse;
   font-size: 0.9rem;
 }

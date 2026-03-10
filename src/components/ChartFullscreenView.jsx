@@ -18,6 +18,7 @@ const CHART_LABELS = {
 
 export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) => {
   const [benchmarks, setBenchmarks] = useState(null);
+  const [toolbarOpen, setToolbarOpen] = useState(true);
 
   // Interactive toolbar state
   const [showIndustryAvg, setShowIndustryAvg] = useState(true);
@@ -128,10 +129,19 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
           <span className="cfs-score-label">/ 5.0 — {scoreCalculator.getMaturityLevel(overallScore)}</span>
         </div>
         {benchmarks?.sources && <BenchmarkSources sources={benchmarks.sources} />}
+        <button
+          className="cfs-toolbar-toggle"
+          onClick={() => setToolbarOpen(v => !v)}
+          data-testid="cfs-toolbar-toggle"
+          aria-label={toolbarOpen ? 'Hide controls' : 'Show controls'}
+          aria-expanded={toolbarOpen}
+        >
+          {toolbarOpen ? '▲ Controls' : '▼ Controls'}
+        </button>
       </header>
 
       {/* ── Toolbar ── */}
-      <div className="cfs-toolbar" data-testid="cfs-toolbar">
+      <div className={`cfs-toolbar${toolbarOpen ? '' : ' cfs-toolbar--closed'}`} data-testid="cfs-toolbar">
         {showsBenchmarks && (
           <div className="cfs-toolbar-group">
             <button
