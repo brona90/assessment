@@ -226,31 +226,43 @@ body {
   align-items: center;
   padding: 1rem;
   border: 2px solid var(--border-color);
+  border-left: 4px solid transparent;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
   background: var(--bg-surface-2);
   color: var(--text-primary);
+  position: relative;
 }
 
 .rating-option:hover {
   border-color: var(--primary-color);
-  transform: translateY(-2px);
+  border-left-color: var(--primary-color);
+  transform: translateX(3px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .rating-option.selected {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  border: 2px solid #86efac;
-  color: #052e16;
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0.08) 100%);
+  border-color: #22c55e;
+  border-left: 4px solid #86efac;
+  color: #86efac;
   font-weight: 700;
-  transform: scale(1.02);
-  box-shadow: 0 0 0 4px rgba(134, 239, 172, 0.45), 0 8px 20px rgba(0, 0, 0, 0.45);
+  transform: translateX(4px);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.rating-option.selected::after {
+  content: '✓';
+  margin-left: auto;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #22c55e;
 }
 
 .rating-option.selected .rating-value {
   font-size: 1.5rem;
-  color: #052e16;
+  color: #86efac;
 }
 
 .rating-value {
