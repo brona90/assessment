@@ -76,7 +76,7 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
     }
 
     const availW       = containerW - labelWidth - padding * 2;
-    const cellWidth    = Math.max(50, Math.min(110, availW / uniqueCategories.length));
+    const cellWidth    = Math.max(40, Math.min(110, availW / uniqueCategories.length));
     const cellHeight   = Math.max(32, Math.min(48, 400 / uniqueDomains.length));
 
     canvas.width  = labelWidth + uniqueCategories.length * cellWidth + padding * 2;
