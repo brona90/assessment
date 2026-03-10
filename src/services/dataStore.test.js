@@ -1089,5 +1089,77 @@ describe('DataStore', async () => {
       expect(result).toEqual({});
       expect(dataStore.data.evidence).toEqual({});
     });
+
+    it('should throw when setting evidence to a string', () => {
+      expect(() => dataStore.setEvidence('invalid')).toThrow('Evidence must be an object');
+    });
+
+    it('should throw when setting evidence to a number', () => {
+      expect(() => dataStore.setEvidence(42)).toThrow('Evidence must be an object');
+    });
+
+    it('accepts null as evidence (null passes typeof object check)', () => {
+      // typeof null === 'object' and !Array.isArray(null), so no throw
+      expect(() => dataStore.setEvidence(null)).not.toThrow();
+    });
+  });
+
+  describe('importUserExport', () => {
+    it('merges answers from user export into data', async () => {
+      dataStore.data.answers = { q0: 5 };
+      const userExport = {
+        exportVersion: '1',
+        user: { id: 'u1' },
+        questions: [
+          { id: 'q1', answer: 3, evidence: null },
+          { id: 'q2', answer: 4, evidence: null }
+        ]
+      };
+      const result = await dataStore.importUserExport(userExport);
+      expect(result).toBe(true);
+      expect(dataStore.data.answers).toMatchObject({ q0: 5, q1: 3, q2: 4 });
+    });
+
+    it('merges evidence from user export into data', async () => {
+      dataStore.data.evidence = {};
+      const userExport = {
+        exportVersion: '1',
+        user: { id: 'u1' },
+        questions: [
+          { id: 'q1', answer: 3, evidence: { text: 'proof', photos: [] } }
+        ]
+      };
+      await dataStore.importUserExport(userExport);
+      expect(dataStore.data.evidence).toHaveProperty('q1');
+      expect(dataStore.data.evidence.q1.text).toBe('proof');
+    });
+
+    it('skips questions with null answers', async () => {
+      const userExport = {
+        exportVersion: '1',
+        user: { id: 'u1' },
+        questions: [{ id: 'qNull', answer: null, evidence: null }]
+      };
+      await dataStore.importUserExport(userExport);
+      expect(dataStore.data.answers).not.toHaveProperty('qNull');
+    });
+
+    it('throws prefixed error when questions property is missing', async () => {
+      const badExport = { exportVersion: '1', user: { id: 'u1' } }; // no .questions
+      await expect(dataStore.importUserExport(badExport))
+        .rejects.toThrow('Failed to import user export:');
+    });
+  });
+
+  describe('downloadData error re-throw', () => {
+    it('re-throws when URL.createObjectURL throws', async () => {
+      vi.spyOn(URL, 'createObjectURL').mockImplementation(() => {
+        throw new Error('Blob URL failed');
+      });
+
+      await expect(dataStore.downloadData()).rejects.toThrow('Blob URL failed');
+
+      vi.restoreAllMocks();
+    });
   });
 });

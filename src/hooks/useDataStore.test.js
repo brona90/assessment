@@ -35,6 +35,7 @@ vi.mock('../services/dataStore', () => ({
     importData: vi.fn(),
     downloadData: vi.fn(),
       setAnswers: vi.fn(),
+      clearAnswers: vi.fn(),
       setEvidence: vi.fn(),
       updateEvidence: vi.fn(),
       clearEvidence: vi.fn(),
@@ -888,5 +889,63 @@ describe('useDataStore', () => {
       const response = await result.current.clearAllData();
       expect(response.success).toBe(false);
       expect(response.error).toBe('Clear failed');
+    });
+  });
+
+  describe('clearAnswers', () => {
+    it('returns success when clearAnswers succeeds', async () => {
+      dataStore.initialized = true;
+      dataStore.clearAnswers.mockReturnValue({});
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.clearAnswers();
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual({});
+      expect(dataStore.clearAnswers).toHaveBeenCalled();
+    });
+
+    it('returns failure when clearAnswers throws', async () => {
+      dataStore.initialized = true;
+      dataStore.clearAnswers.mockImplementation(() => {
+        throw new Error('Clear answers failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.clearAnswers();
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Clear answers failed');
+    });
+  });
+
+  describe('setEvidence', () => {
+    it('returns success when setEvidence succeeds', async () => {
+      dataStore.initialized = true;
+      const evidence = { q1: { text: 'proof' } };
+      dataStore.setEvidence.mockReturnValue(evidence);
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.setEvidence(evidence);
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual(evidence);
+    });
+
+    it('returns failure when setEvidence throws', async () => {
+      dataStore.initialized = true;
+      dataStore.setEvidence.mockImplementation(() => {
+        throw new Error('Evidence must be an object');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.setEvidence([]);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Evidence must be an object');
     });
   });
