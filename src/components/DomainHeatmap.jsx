@@ -55,10 +55,11 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
     const LABEL_COLOR = '#94a3b8';
     const HEADER_COLOR = '#64748b';
 
-    const labelWidth   = 200;
     const headerHeight = 140;
     const padding      = 12;
     const containerW   = canvas.parentElement?.clientWidth || 900;
+    // Dynamic label width: 30% of container, clamped between 80px and 200px
+    const labelWidth   = Math.min(200, Math.max(80, Math.floor(containerW * 0.3)));
 
     const uniqueCategories = [...new Set(heatmapData.map(d => d.category))];
     const uniqueDomains    = [...new Set(heatmapData.map(d => d.domain))];
@@ -75,9 +76,10 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
       return;
     }
 
-    const availW       = containerW - labelWidth - padding * 2;
-    const cellWidth    = Math.max(40, Math.min(110, availW / uniqueCategories.length));
-    const cellHeight   = Math.max(32, Math.min(48, 400 / uniqueDomains.length));
+    const availW    = containerW - labelWidth - padding * 2;
+    // Use Math.floor so canvas.width never exceeds containerW
+    const cellWidth  = Math.max(32, Math.min(110, Math.floor(availW / Math.max(1, uniqueCategories.length))));
+    const cellHeight = Math.max(32, Math.min(48, Math.floor(400 / Math.max(1, uniqueDomains.length))));
 
     canvas.width  = labelWidth + uniqueCategories.length * cellWidth + padding * 2;
     canvas.height = headerHeight + uniqueDomains.length * cellHeight + padding * 2;
@@ -120,7 +122,7 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
       // Domain label
       ctx.fillStyle = LABEL_COLOR;
       ctx.textAlign = 'right';
-      ctx.font = 'bold 11px system-ui, sans-serif';
+      ctx.font = `bold ${labelWidth < 120 ? 9 : 11}px system-ui, sans-serif`;
       let domText = domain;
       if (ctx.measureText(domText).width > labelWidth - 12) {
         while (ctx.measureText(domText + '…').width > labelWidth - 12 && domText.length > 2) {
@@ -147,11 +149,14 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
           // Score value
           ctx.fillStyle = text;
           ctx.textAlign = 'center';
-          ctx.font = `bold ${cellHeight > 36 ? 13 : 11}px system-ui, sans-serif`;
-          ctx.fillText(dp.score.toFixed(1), x + cellWidth / 2, y + cellHeight / 2 - 1);
+          const scoreFontSize = cellWidth < 45 ? 10 : cellHeight > 36 ? 13 : 11;
+          ctx.font = `bold ${scoreFontSize}px system-ui, sans-serif`;
+          // For very narrow cells show integer; otherwise one decimal
+          const scoreLabel = cellWidth < 45 ? Math.round(dp.score).toString() : dp.score.toFixed(1);
+          ctx.fillText(scoreLabel, x + cellWidth / 2, y + cellHeight / 2 - (cellHeight >= 36 && cellWidth >= 45 ? 1 : 0));
 
-          // Completion sub-label
-          if (cellHeight >= 36) {
+          // Completion sub-label — only when there's room
+          if (cellHeight >= 36 && cellWidth >= 45) {
             ctx.font = '9px system-ui, sans-serif';
             ctx.fillStyle = text.replace(')', ', 0.65)').replace('rgb', 'rgba');
             ctx.fillText(`${dp.answered}/${dp.total}`, x + cellWidth / 2, y + cellHeight / 2 + 10);
