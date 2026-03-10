@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ResultsView } from './ResultsView';
 
@@ -22,13 +22,13 @@ vi.mock('./BenchmarkTrendChart', () => ({
       data-user-score={userScore}>Trend Chart</div>
   )
 }));
+const mockLoadBenchmarks = vi.fn().mockResolvedValue({
+  current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services', overall: 3.15 },
+  history: [{ date: '2024-Q3', overall: 3.05 }]
+});
+
 vi.mock('../services/dataService', () => ({
-  dataService: {
-    loadBenchmarks: vi.fn().mockResolvedValue({
-      current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services', overall: 3.15 },
-      history: [{ date: '2024-Q3', overall: 3.05 }]
-    })
-  }
+  dataService: { loadBenchmarks: (...args) => mockLoadBenchmarks(...args) }
 }));
 
 describe('ResultsView', () => {
@@ -267,6 +267,105 @@ describe('ResultsView', () => {
       render(<ResultsView {...defaultProps} answers={{ q1: 1 }} />);
       // High priority shows ⚠
       expect(screen.getByTestId('priority-q1').textContent).toContain('⚠');
+    });
+  });
+
+  describe('onExpandChart', () => {
+    it('shows the expand button when onExpandChart is provided', () => {
+      const onExpandChart = vi.fn();
+      render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
+      expect(screen.getByTestId('chart-expand-btn')).toBeInTheDocument();
+    });
+
+    it('does not show expand button without onExpandChart', () => {
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.queryByTestId('chart-expand-btn')).not.toBeInTheDocument();
+    });
+
+    it('calls onExpandChart with active chart type when expand button clicked', () => {
+      const onExpandChart = vi.fn();
+      render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
+      fireEvent.click(screen.getByTestId('chart-expand-btn'));
+      expect(onExpandChart).toHaveBeenCalledWith('heatmap');
+    });
+
+    it('calls onExpandChart with updated chart type after tab switch', () => {
+      const onExpandChart = vi.fn();
+      render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
+      fireEvent.click(screen.getByTestId('radar-chart-tab'));
+      fireEvent.click(screen.getByTestId('chart-expand-btn'));
+      expect(onExpandChart).toHaveBeenCalledWith('radar');
+    });
+
+    it('chart-display has clickable class and fires onExpandChart on click', () => {
+      const onExpandChart = vi.fn();
+      const { container } = render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
+      const chartDisplay = container.querySelector('.chart-display--clickable');
+      expect(chartDisplay).not.toBeNull();
+      fireEvent.click(chartDisplay);
+      expect(onExpandChart).toHaveBeenCalledWith('heatmap');
+    });
+  });
+
+  describe('benchmark load failure', () => {
+    beforeEach(() => {
+      // dataService swallows errors and returns null; component guards with data?.current
+      mockLoadBenchmarks.mockResolvedValue(null);
+    });
+
+    afterEach(() => {
+      mockLoadBenchmarks.mockResolvedValue({
+        current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services', overall: 3.15 },
+        history: [{ date: '2024-Q3', overall: 3.05 }]
+      });
+    });
+
+    it('renders without crashing when loadBenchmarks returns null', async () => {
+      render(<ResultsView {...defaultProps} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('results-view')).toBeInTheDocument();
+      });
+    });
+
+    it('benchmarks stay null (no BenchmarkSources shown) when load returns null', async () => {
+      render(<ResultsView {...defaultProps} />);
+      await waitFor(() => {
+        expect(screen.queryByTestId('benchmark-sources')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('BenchmarkSources display', () => {
+    beforeEach(() => {
+      mockLoadBenchmarks.mockResolvedValue({
+        current: { domain1: 3.2 },
+        history: [],
+        sources: [
+          { id: 's1', publisher: 'DORA', report: 'Accelerate State of DevOps', year: 2023,
+            url: 'https://dora.dev', description: 'DORA report' }
+        ]
+      });
+    });
+
+    afterEach(() => {
+      mockLoadBenchmarks.mockResolvedValue({
+        current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services', overall: 3.15 },
+        history: [{ date: '2024-Q3', overall: 3.05 }]
+      });
+    });
+
+    it('shows BenchmarkSources chips when sources are available', async () => {
+      render(<ResultsView {...defaultProps} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('benchmark-sources')).toBeInTheDocument();
+      });
+    });
+
+    it('shows publisher name in source chip', async () => {
+      render(<ResultsView {...defaultProps} />);
+      await waitFor(() => {
+        expect(screen.getByText('DORA')).toBeInTheDocument();
+      });
     });
   });
 });
