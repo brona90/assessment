@@ -1,8 +1,9 @@
 /* eslint-disable no-undef */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { complianceService } from './complianceService';
+import * as rawDataProvider from './rawDataProvider';
 
-global.fetch = vi.fn();
+vi.mock('./rawDataProvider');
 
 describe('ComplianceService', () => {
   beforeEach(() => {
@@ -18,9 +19,10 @@ describe('ComplianceService', () => {
         }
       };
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockData
+      rawDataProvider.loadRawData.mockResolvedValueOnce({
+        compliance: mockData,
+        questions: {},
+        users: {}
       });
 
       const result = await complianceService.loadCompliance();
@@ -28,15 +30,16 @@ describe('ComplianceService', () => {
     });
 
     it('should return empty object on error', async () => {
-      fetch.mockResolvedValueOnce({ ok: false });
+      rawDataProvider.loadRawData.mockRejectedValueOnce(new Error('failed'));
       const result = await complianceService.loadCompliance();
       expect(result).toEqual({});
     });
 
     it('should return empty object when frameworks is missing', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({})
+      rawDataProvider.loadRawData.mockResolvedValueOnce({
+        compliance: {},
+        questions: {},
+        users: {}
       });
 
       const result = await complianceService.loadCompliance();

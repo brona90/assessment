@@ -1,11 +1,14 @@
 /* eslint-disable no-undef */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { userService } from './userService';
+import * as rawDataProvider from './rawDataProvider';
+
+vi.mock('./rawDataProvider');
 
 describe('UserService', () => {
   beforeEach(() => {
     localStorage.clear();
-    global.fetch = vi.fn();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -19,34 +22,27 @@ describe('UserService', () => {
         { id: 'user1', name: 'User 1', role: 'assessor', assignedQuestions: ['q1'] }
       ];
 
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ users: mockUsers })
+      rawDataProvider.loadRawData.mockResolvedValueOnce({
+        users: { users: mockUsers },
+        questions: {},
+        compliance: {}
       });
 
       const users = await userService.loadUsers();
       expect(users).toEqual(mockUsers);
-      expect(global.fetch).toHaveBeenCalledWith('/assessment/data/users.json');
     });
 
-    it('should return empty array on fetch error', async () => {
-      global.fetch.mockRejectedValueOnce(new Error('Network error'));
-      const users = await userService.loadUsers();
-      expect(users).toEqual([]);
-    });
-
-    it('should return empty array when response is not ok', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: false
-      });
+    it('should return empty array on error', async () => {
+      rawDataProvider.loadRawData.mockRejectedValueOnce(new Error('Network error'));
       const users = await userService.loadUsers();
       expect(users).toEqual([]);
     });
 
     it('should return empty array when users property is missing', async () => {
-      global.fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({})
+      rawDataProvider.loadRawData.mockResolvedValueOnce({
+        users: {},
+        questions: {},
+        compliance: {}
       });
       const users = await userService.loadUsers();
       expect(users).toEqual([]);

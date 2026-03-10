@@ -1,9 +1,9 @@
+import { loadRawData } from './rawDataProvider';
+
 export const complianceService = {
   async loadCompliance() {
     try {
-      const response = await fetch('/assessment/data/compliance.json');
-      if (!response.ok) throw new Error('Failed to load compliance');
-      const data = await response.json();
+      const { compliance: data } = await loadRawData();
       return data.frameworks || {};
     } catch (error) {
       console.error('Error loading compliance:', error);

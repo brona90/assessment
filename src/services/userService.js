@@ -1,9 +1,9 @@
+import { loadRawData } from './rawDataProvider';
+
 export const userService = {
   async loadUsers() {
     try {
-      const response = await fetch('/assessment/data/users.json');
-      if (!response.ok) throw new Error('Failed to load users');
-      const data = await response.json();
+      const { users: data } = await loadRawData();
       return data.users || [];
     } catch (error) {
       console.error('Error loading users:', error);

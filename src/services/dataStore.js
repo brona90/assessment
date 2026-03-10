@@ -1,10 +1,11 @@
 /**
  * In-Memory Data Store
- * 
+ *
  * This service provides CRUD operations for all application data.
  * Data is stored in memory and can be exported/imported for persistence.
  * Designed for GitHub Pages deployment without a backend.
  */
+import { loadRawData } from './rawDataProvider';
 
 import { storageService } from './storageService';
 
@@ -31,11 +32,7 @@ class DataStore {
 
     try {
       // Load initial data from JSON files
-      const [questionsData, usersData, complianceData] = await Promise.all([
-        fetch('/assessment/data/questions.json').then(r => r.json()),
-        fetch('/assessment/data/users.json').then(r => r.json()),
-        fetch('/assessment/data/compliance.json').then(r => r.json())
-      ]);
+      const { questions: questionsData, users: usersData, compliance: complianceData } = await loadRawData();
 
       // Store domains from questions
       this.data.domains = questionsData.domains || {};
