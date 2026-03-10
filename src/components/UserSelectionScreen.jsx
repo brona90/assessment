@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import logoUrl from '../assets/fosterthecode-forest.svg';
+import logoUrl from '../assets/ftc-logo-horizontal.svg';
 import './UserSelectionScreen.css';
 
 export const UserSelectionScreen = ({ users, onSelectUser }) => {

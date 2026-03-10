@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
 import { scoreCalculator } from '../utils/scoreCalculator';
-import logoUrl from '../assets/fosterthecode-forest.svg';
+import logoUrl from '../assets/ftc-logo-transparent-light.svg';
 import './UserView.css';
 
 export const UserView = ({

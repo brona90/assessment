@@ -12,7 +12,7 @@ import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { CompareExports } from './CompareExports';
 import { CSVImportExport } from './CSVImportExport';
 import { ChartFullscreenView } from './ChartFullscreenView';
-import logoUrl from '../assets/fosterthecode-forest.svg';
+import logoUrl from '../assets/ftc-logo-transparent-light.svg';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
