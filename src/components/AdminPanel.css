@@ -455,6 +455,29 @@ button:disabled {
   }
 }
 
+@media (max-width: 480px) {
+  .admin-header {
+    padding: 1rem;
+  }
+
+  .admin-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .admin-content {
+    padding: 1rem;
+  }
+
+  .admin-tabs {
+    padding: 0 0.5rem;
+  }
+
+  .admin-tabs button {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* ==================== LOADING STATES ==================== */
 .loading {
   display: inline-block;
