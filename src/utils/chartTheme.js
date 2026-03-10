@@ -4,10 +4,10 @@
 
 export const CHART_COLORS = {
   userScore: {
-    border: '#3b82f6',
-    fill: 'rgba(59, 130, 246, 0.25)',
-    point: '#60a5fa',
-    pointHover: '#93c5fd'
+    border: '#22c55e',
+    fill: 'rgba(34, 197, 94, 0.25)',
+    point: '#86efac',
+    pointHover: '#bbf7d0'
   },
   industryAvg: {
     border: '#f59e0b',
@@ -35,7 +35,7 @@ export const darkTitleColor = '#94a3b8';
 export const darkLegendColor = '#94a3b8';
 
 export const darkTooltip = {
-  backgroundColor: '#1e293b',
+  backgroundColor: '#132218',
   titleColor: '#f1f5f9',
   bodyColor: '#94a3b8',
   borderColor: 'rgba(148, 163, 184, 0.25)',

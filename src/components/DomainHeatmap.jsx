@@ -7,7 +7,7 @@ function getCellStyle(score) {
   if (score < 1.5) return { bg: 'rgb(153, 27, 27)',  text: '#fca5a5' };  // dark red
   if (score < 2.5) return { bg: 'rgb(146, 64, 14)',  text: '#fed7aa' };  // dark orange
   if (score < 3.0) return { bg: 'rgb(113, 63, 18)',  text: '#fde68a' };  // dark amber
-  if (score < 3.5) return { bg: 'rgb(30,  64, 175)', text: '#93c5fd' };  // dark blue
+  if (score < 3.5) return { bg: 'rgb(20,  83,  45)', text: '#86efac' };  // dark green (approaching target)
   if (score < 4.5) return { bg: 'rgb(6,   78,  59)', text: '#6ee7b7' };  // dark green
   return                  { bg: 'rgb(5,   46,  22)', text: '#86efac' };  // deep green
 }
