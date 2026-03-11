@@ -16,6 +16,9 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
   z-index: 100;
+  /* Never wrap — items compress; title gets flex:1 to soak up space */
+  flex-wrap: nowrap;
+  min-height: 0;
 }
 
 .chart-fullscreen-back-btn {
@@ -43,14 +46,18 @@
   font-weight: 700;
   color: #f1f5f9;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chart-fullscreen-score {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  margin-left: auto;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cfs-score-value {
@@ -64,7 +71,7 @@
   color: #94a3b8;
 }
 
-/* ── Toolbar toggle (mobile only) ── */
+/* ── Toolbar toggle (hidden on wide desktop) ── */
 .cfs-toolbar-toggle {
   display: none;
   padding: 0.3rem 0.65rem;
@@ -85,17 +92,21 @@
   border-color: rgba(148, 163, 184, 0.45);
 }
 
-/* ── Toolbar ── */
+/* ── Toolbar — always a single non-wrapping row that scrolls horizontally ── */
 .cfs-toolbar {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   gap: 0.5rem 1rem;
-  padding: 0.75rem 2rem;
+  padding: 0.625rem 2rem;
   background: #132218;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   flex-shrink: 0;
 }
+.cfs-toolbar::-webkit-scrollbar { display: none; }
 
 .cfs-toolbar--closed {
   display: none !important;
@@ -105,7 +116,8 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  flex-wrap: wrap;
+  flex-shrink: 0;       /* groups never compress — scroll instead */
+  flex-wrap: nowrap;
 }
 
 .cfs-toolbar-label {
@@ -116,8 +128,8 @@
 }
 
 .cfs-toolbar-spacer {
-  flex: 1;
-  min-width: 1rem;
+  flex-shrink: 0;
+  width: 1rem;
 }
 
 .cfs-toggle-btn {
@@ -186,10 +198,11 @@
   gap: 0.5rem;
   color: #94a3b8;
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .cfs-slider {
-  width: clamp(60px, 12vw, 100px);
+  width: clamp(60px, 10vw, 100px);
   accent-color: #a855f7;
   cursor: pointer;
 }
@@ -212,6 +225,7 @@
   border-color: #10b981;
 }
 
+/* ── Main chart area — flex:1 fills whatever's left after header + toolbar ── */
 .chart-fullscreen-main {
   flex: 1;
   min-height: 0;
@@ -253,73 +267,61 @@
   font-size: 1.1rem;
 }
 
-/* ── Tablet ── */
-@media (max-width: 768px) {
-  .chart-fullscreen-header {
-    padding: 0.75rem 1rem;
-    gap: 0.75rem;
-  }
+/* ─────────────────────────────────────────────
+   Responsive breakpoints
+   ───────────────────────────────────────────── */
 
-  .chart-fullscreen-title {
-    font-size: 1.1rem;
-  }
-
-  .chart-fullscreen-main {
-    padding: 1rem;
-  }
-}
-
-/* ── Mobile: toolbar becomes a single horizontal scrollable row ── */
-@media (max-width: 640px) {
-  /* Show the toggle button */
+/* ── Tablet / iPad (≤1024px): show toggle, compact header ── */
+@media (max-width: 1024px) {
   .cfs-toolbar-toggle {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
   }
 
-  /* Header: keep to one compact line */
+  /* Hide benchmark source chips from header — they're in the toolbar when open */
+  .chart-fullscreen-header .benchmark-sources {
+    display: none;
+  }
+
+  .chart-fullscreen-header {
+    gap: 0.875rem;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .chart-fullscreen-title {
+    font-size: 1.2rem;
+  }
+
+  .cfs-toolbar {
+    padding: 0.5rem 1.5rem;
+  }
+
+  .chart-fullscreen-main {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+/* ── Mobile (≤640px): compact everything, toolbar already scrolls ── */
+@media (max-width: 640px) {
   .chart-fullscreen-header {
     padding: 0.625rem 0.875rem;
     gap: 0.5rem;
-    flex-wrap: nowrap;
   }
 
   .chart-fullscreen-title {
     font-size: 1rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
   }
 
-  /* Toolbar: single non-wrapping scrollable row — no more multi-line block */
   .cfs-toolbar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 0.5rem 0.75rem;
     gap: 0.75rem;
-    /* Hide scrollbar but keep scrolling */
-    scrollbar-width: none;
-  }
-  .cfs-toolbar::-webkit-scrollbar { display: none; }
-
-  /* Groups don't shrink or wrap — scroll instead */
-  .cfs-toolbar-group {
-    flex-shrink: 0;
-    flex-wrap: nowrap;
-  }
-
-  .cfs-toolbar-spacer {
-    display: none;
   }
 
   .cfs-toggle-btn,
   .cfs-domain-chip {
     font-size: 0.72rem;
     padding: 0.25rem 0.5rem;
-    white-space: nowrap;
   }
 
   .cfs-slider {
@@ -331,7 +333,7 @@
   }
 }
 
-/* ── Small phones: hide score + sources from header to save height ── */
+/* ── Small phones (≤480px): hide score + sources, even more compact ── */
 @media (max-width: 480px) {
   .chart-fullscreen-score,
   .benchmark-sources {
@@ -366,13 +368,16 @@
   }
 }
 
-/* ── Phone landscape: very short viewport (~375px tall) ── */
+/* ── Phone landscape (very short viewport) ── */
 @media (orientation: landscape) and (max-height: 500px) {
-  /* Strip header to absolute minimum height */
+  .chart-fullscreen-score,
+  .benchmark-sources {
+    display: none;
+  }
+
   .chart-fullscreen-header {
     padding: 0.375rem 0.875rem;
     gap: 0.5rem;
-    flex-wrap: nowrap;
   }
 
   .chart-fullscreen-title {
@@ -384,40 +389,17 @@
     font-size: 0.8rem;
   }
 
-  /* Hide decorative header items — chart space is precious */
-  .chart-fullscreen-score,
-  .benchmark-sources {
-    display: none;
-  }
-
-  /* Always show toggle button in landscape */
   .cfs-toolbar-toggle {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
   }
 
-  /* Toolbar: single compact scrollable row */
   .cfs-toolbar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 0.25rem 0.75rem;
     gap: 0.5rem;
-    scrollbar-width: none;
-  }
-  .cfs-toolbar::-webkit-scrollbar { display: none; }
-
-  .cfs-toolbar-group {
-    flex-shrink: 0;
-    flex-wrap: nowrap;
   }
 
-  .cfs-toolbar-spacer {
-    display: none;
-  }
-
-  /* Minimal chart padding so chart fills the screen */
   .chart-fullscreen-main {
     padding: 0.375rem 0.75rem;
   }

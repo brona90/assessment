@@ -1,7 +1,7 @@
 .full-screen-admin-view {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   width: 100%;
   background: #0c1a10;
   overflow: hidden;
