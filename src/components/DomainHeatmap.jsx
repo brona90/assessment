@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import './DomainHeatmap.css';
 
@@ -14,6 +14,18 @@ function getCellStyle(score) {
 
 export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }) => {
   const canvasRef = useRef(null);
+  const [wrapperWidth, setWrapperWidth] = useState(0);
+
+  // Redraw whenever the wrapper is resized (handles fullscreen transitions and window resizes)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas?.parentElement) return;
+    const observer = new ResizeObserver(entries => {
+      setWrapperWidth(Math.floor(entries[0].contentRect.width));
+    });
+    observer.observe(canvas.parentElement);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (onCanvasReady && canvasRef.current) onCanvasReady(canvasRef.current);
@@ -55,7 +67,7 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
     const LABEL_COLOR = '#94a3b8';
     const HEADER_COLOR = '#64748b';
 
-    const headerHeight = 140;
+    const headerHeight = 56;
     const padding      = 12;
     const containerW   = canvas.parentElement?.clientWidth || 900;
     // Dynamic label width: 30% of container, clamped between 80px and 200px
@@ -92,28 +104,49 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
     ctx.fillStyle = LABEL_BG;
     ctx.fillRect(0, 0, labelWidth, canvas.height);
 
-    // Column headers (categories — rotated)
-    ctx.save();
+    // Column headers (categories — horizontal, two lines if needed)
+    ctx.fillStyle = HEADER_COLOR;
+    ctx.font = '10px system-ui, sans-serif';
+    ctx.textAlign = 'center';
     uniqueCategories.forEach((cat, i) => {
-      const x = labelWidth + i * cellWidth + padding + cellWidth / 2;
-      const y = headerHeight - 10;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(-Math.PI / 4);
-      ctx.fillStyle = HEADER_COLOR;
-      ctx.font = '10px system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      let text = cat;
-      if (ctx.measureText(text).width > cellWidth * 2) {
-        while (ctx.measureText(text + '…').width > cellWidth * 2 && text.length > 2) {
-          text = text.slice(0, -1);
+      const cx = labelWidth + i * cellWidth + padding + cellWidth / 2;
+      const maxW = cellWidth - 6;
+
+      // Try to split into two lines at a word boundary
+      const words = cat.split(/\s+/);
+      let line1 = '';
+      let line2 = '';
+      for (const word of words) {
+        const candidate = line1 ? `${line1} ${word}` : word;
+        if (!line1 || ctx.measureText(candidate).width <= maxW) {
+          line1 = candidate;
+        } else {
+          line2 = line2 ? `${line2} ${word}` : word;
         }
-        text += '…';
       }
-      ctx.fillText(text, 0, 0);
-      ctx.restore();
+      // Truncate line2 if still too wide
+      if (line2 && ctx.measureText(line2).width > maxW) {
+        while (ctx.measureText(line2 + '…').width > maxW && line2.length > 2) {
+          line2 = line2.slice(0, -1);
+        }
+        line2 += '…';
+      }
+
+      if (line2) {
+        ctx.fillText(line1, cx, headerHeight - 26);
+        ctx.fillText(line2, cx, headerHeight - 12);
+      } else {
+        // Single line — truncate if needed
+        let text = line1;
+        if (ctx.measureText(text).width > maxW) {
+          while (ctx.measureText(text + '…').width > maxW && text.length > 2) {
+            text = text.slice(0, -1);
+          }
+          text += '…';
+        }
+        ctx.fillText(text, cx, headerHeight - 16);
+      }
     });
-    ctx.restore();
 
     // Row labels + cells
     uniqueDomains.forEach((domain, row) => {
@@ -162,14 +195,20 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
             ctx.fillText(`${dp.answered}/${dp.total}`, x + cellWidth / 2, y + cellHeight / 2 + 10);
           }
         } else {
-          // Empty cell indicator
-          ctx.fillStyle = 'rgba(148, 163, 184, 0.06)';
-          ctx.fillRect(x + 1, y + 1, cellWidth - 3, cellHeight - 3);
+          // Empty cell — hatched background + "—" label
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.10)';
+          ctx.beginPath();
+          ctx.roundRect?.(x + 1, y + 1, cellWidth - 3, cellHeight - 3, 4);
+          ctx.fill();
+          ctx.fillStyle = '#475569';
+          ctx.font = `${cellHeight >= 36 ? 12 : 10}px system-ui, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillText('—', x + cellWidth / 2, y + cellHeight / 2 + 4);
         }
       });
     });
 
-  }, [domains, answers, hiddenDomains]);
+  }, [domains, answers, hiddenDomains, wrapperWidth]);
 
   if (!domains || Object.keys(domains).length === 0) {
     return (
