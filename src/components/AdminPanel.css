@@ -171,51 +171,9 @@
 }
 
 /* ==================== BUTTONS ==================== */
-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-button:not(.danger):not(.secondary):not(.file-input-label) {
-  background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-}
-
-button:not(.danger):not(.secondary):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
-}
-
-button.secondary {
-  background: #1a2e1f;
-  color: #f1f5f9;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-button.secondary:hover {
-  background: #2d3b52;
-  border-color: rgba(148, 163, 184, 0.35);
-}
-
-button.danger {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-button.danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
-}
+/* NOTE: Only disabled state is global — all button theming is handled by
+   component-specific classes (cfg-btn, danger-btn, export-pdf-btn, etc.)
+   to avoid high-specificity overrides breaking component styles. */
 
 button:disabled {
   opacity: 0.5;
