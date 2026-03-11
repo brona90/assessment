@@ -9,7 +9,6 @@ import { CSVImportExport } from './CSVImportExport';
 import { ChartFullscreenView } from './ChartFullscreenView';
 import logoUrl from '../assets/ftc-icon.svg';
 import './FullScreenAdminView.css';
-import './AdminPanel.css';
 
 export const FullScreenAdminView = ({
   domains,
