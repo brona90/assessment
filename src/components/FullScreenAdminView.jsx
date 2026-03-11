@@ -6,6 +6,7 @@ import { useRouter } from '../hooks/useRouter';
 import { storageService } from '../services/storageService';
 import { CompareExports } from './CompareExports';
 import { CSVImportExport } from './CSVImportExport';
+import { excelExportService } from '../services/excelExportService';
 import { ChartFullscreenView } from './ChartFullscreenView';
 import logoUrl from '../assets/ftc-icon.svg';
 import './FullScreenAdminView.css';
@@ -1168,7 +1169,22 @@ export const FullScreenAdminView = ({
                     onClick={onExportData}
                     data-testid="export-data-button"
                   >
-                    💾 Export All Data
+                    💾 Export All Data (JSON)
+                  </button>
+                  <button
+                    className="export-btn"
+                    onClick={() => {
+                      try {
+                        const wb = excelExportService.generateReport(domains, answers, evidence, frameworks);
+                        excelExportService.downloadReport(wb);
+                      } catch (err) {
+                        console.error('Excel export failed:', err);
+                        alert('Failed to generate Excel report.');
+                      }
+                    }}
+                    data-testid="export-excel-button"
+                  >
+                    📊 Export Report (Excel)
                   </button>
                 </div>
                 <p className="help-text">
