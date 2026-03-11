@@ -183,8 +183,49 @@ describe('EvidenceModal', () => {
     const existingEvidence = {
       text: 'Test text'
     };
-    
+
     render(<EvidenceModal {...mockProps} existingEvidence={existingEvidence} />);
     expect(screen.getByTestId('text-evidence').value).toBe('Test text');
+  });
+
+  describe('Accessibility', () => {
+    it('should have role="dialog" and aria-modal="true"', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const modalContent = screen.getByTestId('evidence-modal').querySelector('.modal-content');
+      expect(modalContent).toHaveAttribute('role', 'dialog');
+      expect(modalContent).toHaveAttribute('aria-modal', 'true');
+    });
+
+    it('should have aria-labelledby pointing to title', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const modalContent = screen.getByTestId('evidence-modal').querySelector('.modal-content');
+      expect(modalContent).toHaveAttribute('aria-labelledby', 'evidence-modal-title');
+      const title = document.getElementById('evidence-modal-title');
+      expect(title).toBeInTheDocument();
+      expect(title.tagName).toBe('H3');
+    });
+
+    it('should close on Escape key press', () => {
+      const onClose = vi.fn();
+      render(<EvidenceModal {...mockProps} onClose={onClose} />);
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    it('close button should have aria-label', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const closeBtn = screen.getByTestId('close-modal');
+      expect(closeBtn).toHaveAttribute('aria-label', 'Close');
+    });
+
+    it('remove image buttons should have aria-label', () => {
+      const existingEvidence = {
+        text: '',
+        images: [{ name: 'screenshot.png', data: 'data:image/png;base64,test' }]
+      };
+      render(<EvidenceModal {...mockProps} existingEvidence={existingEvidence} />);
+      const removeBtn = screen.getByTestId('remove-image-0');
+      expect(removeBtn).toHaveAttribute('aria-label', 'Remove screenshot.png');
+    });
   });
 });

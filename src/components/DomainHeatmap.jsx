@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import './DomainHeatmap.css';
 
 /** Returns cell background color and readable text color for a 0–5 maturity score on dark canvas. */
-function getCellStyle(score) {
+export function getCellStyle(score) {
   if (score < 1.5) return { bg: 'rgb(153, 27, 27)',  text: '#fca5a5' };  // dark red
   if (score < 2.5) return { bg: 'rgb(146, 64, 14)',  text: '#fed7aa' };  // dark orange
   if (score < 3.0) return { bg: 'rgb(113, 63, 18)',  text: '#fde68a' };  // dark amber
