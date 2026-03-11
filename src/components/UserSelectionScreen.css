@@ -1,16 +1,28 @@
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .user-selection-screen {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  background: linear-gradient(160deg, #0c1a10 0%, #0d3318 100%);
-  padding: 2rem;
+  background: linear-gradient(160deg, #0c1a10 0%, #0d2a1a 50%, #0d3318 100%);
+  padding: 3rem 2rem;
 }
 
 .user-selection-container {
   max-width: 1200px;
   width: 100%;
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 @keyframes fadeInUp {
@@ -21,6 +33,21 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-selection-container {
+    animation: none;
+  }
+
+  .user-card {
+    transition: none !important;
+  }
+
+  .user-card:hover,
+  .user-card:active {
+    transform: none !important;
   }
 }
 
@@ -50,11 +77,21 @@
   margin: 0;
 }
 
+.user-selection-main {
+  /* main landmark — layout handled by children */
+}
+
 .user-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  margin-bottom: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+
+.user-grid-item {
+  display: contents; /* button becomes the grid item */
 }
 
 .user-card {
@@ -63,13 +100,14 @@
   border-radius: 1rem;
   padding: 2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
   text-align: center;
+  min-height: 260px;
 }
 
 .user-card:hover {
@@ -82,30 +120,52 @@
   transform: translateY(-4px);
 }
 
+.user-card--selected {
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15), 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Admin card: amber accent instead of green gradient */
 .admin-card {
-  background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
-  border-color: transparent;
+  background: #132218;
+  border-color: rgba(245, 158, 11, 0.35);
 }
 
 .admin-card:hover {
-  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.5);
-  border-color: transparent;
+  border-color: rgba(245, 158, 11, 0.65);
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.12);
 }
 
+.admin-card.user-card--selected {
+  border-color: rgba(245, 158, 11, 0.7);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12), 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Avatar — emoji */
 .user-avatar {
   font-size: 4rem;
   width: 5rem;
   height: 5rem;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(34, 197, 94, 0.15);
-  border-radius: 50%;
-  margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .admin-card .user-avatar {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+/* Info section — badge pushed to bottom */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  width: 100%;
 }
 
 .user-info h3 {
@@ -115,19 +175,21 @@
   color: #f1f5f9;
 }
 
+.admin-card .user-info h3 {
+  color: #f1f5f9;
+}
+
 .user-title {
   margin: 0 0 0.5rem 0;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   color: #94a3b8;
   line-height: 1.4;
+  opacity: 0.9;
 }
 
 .admin-card .user-title {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.admin-card .user-info h3 {
-  color: white;
+  color: #94a3b8;
+  opacity: 0.9;
 }
 
 .user-role {
@@ -137,12 +199,14 @@
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  margin-top: auto;
 }
 
 .admin-badge {
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .user-badge {
@@ -165,8 +229,19 @@
   color: #94a3b8;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* ── Tablet: 2 columns (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .user-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Mobile: 1 column (≤640px) ── */
+@media (max-width: 640px) {
+  .user-selection-screen {
+    padding: 1.5rem 1rem;
+  }
+
   .user-selection-header h1 {
     font-size: 2rem;
   }
@@ -191,6 +266,7 @@
   }
 }
 
+/* ── Small phones ── */
 @media (max-width: 480px) {
   .user-selection-screen {
     padding: 1rem;
