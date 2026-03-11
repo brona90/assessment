@@ -303,3 +303,95 @@
     margin-left: 0;
   }
 }
+
+/* ── Print styles ── */
+@media print {
+  .results-view {
+    background: white !important;
+    min-height: auto;
+  }
+
+  .results-header {
+    position: static;
+    background: white !important;
+    box-shadow: none;
+    border-bottom: 2px solid #333;
+    padding: 0.5rem 0;
+  }
+
+  .results-main {
+    padding: 0;
+    max-width: none;
+  }
+
+  /* Hide interactive elements */
+  .back-btn,
+  .export-btn,
+  .logout-btn,
+  .results-btn,
+  .continue-btn,
+  .chart-expand-hint,
+  .user-actions {
+    display: none !important;
+  }
+
+  /* Readable text on white */
+  .results-score-bar,
+  .gap-analysis,
+  .recommendations,
+  .chart-container,
+  .chart-display {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    color: #111 !important;
+    break-inside: avoid;
+  }
+
+  .results-score-bar h2,
+  .gap-analysis h3,
+  .recommendations h3 {
+    color: #111 !important;
+  }
+
+  .score-value {
+    color: #111 !important;
+  }
+
+  .score-max,
+  .progress-info,
+  .gap-item-domain,
+  .gap-item-score,
+  .user-name,
+  .gap-analysis-subtitle,
+  .recommendations p {
+    color: #555 !important;
+  }
+
+  .maturity-label {
+    background: #eee !important;
+    color: #111 !important;
+  }
+
+  .gap-item {
+    background: #fafafa !important;
+    border-color: #ddd !important;
+  }
+
+  .gap-item-text {
+    color: #111 !important;
+  }
+
+  /* Chart canvases: force white background for readability */
+  canvas {
+    background: white !important;
+  }
+
+  /* Compliance cards */
+  .compliance-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    color: #111 !important;
+    break-inside: avoid;
+  }
+}
