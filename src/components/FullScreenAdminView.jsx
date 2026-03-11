@@ -1,18 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { ComplianceDashboard } from './ComplianceDashboard';
-import { DomainRadarChart } from './DomainRadarChart';
-import { DomainBarChart } from './DomainBarChart';
-import { DomainHeatmap } from './DomainHeatmap';
+import { OverviewDashboard } from './OverviewDashboard';
 import { useDataStore } from '../hooks/useDataStore';
 import { useRouter } from '../hooks/useRouter';
 import { storageService } from '../services/storageService';
-import { dataService } from '../services/dataService';
-import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { CompareExports } from './CompareExports';
 import { CSVImportExport } from './CSVImportExport';
 import { ChartFullscreenView } from './ChartFullscreenView';
-import logoUrl from '../assets/ftc-logo-transparent-light.svg';
+import logoUrl from '../assets/ftc-icon.svg';
 import './FullScreenAdminView.css';
 import './AdminPanel.css';
 
@@ -85,8 +80,9 @@ export const FullScreenAdminView = ({
   const [userAssignments, setUserAssignments] = useState({});
 
   const [completionStatus, setCompletionStatus] = useState([]);
-  const [benchmarks, setBenchmarks] = useState(null);
   const [expandedChart, setExpandedChart] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [questionSearch, setQuestionSearch] = useState('');
 
   // Chart instance refs for PDF capture (populated via onChartReady/onCanvasReady)
   const chartRefs = useRef({});
@@ -114,7 +110,7 @@ export const FullScreenAdminView = ({
     setManagedQuestions(getQuestions());
   }, [getDomains, getFrameworks, getSelectedFrameworks, getUsers, getQuestions]);
 
-  // Load completion status and benchmarks when Overview tab is active
+  // Load completion status when Overview tab is active
   useEffect(() => {
     if (activeTab === 'overview') {
       const users = getUsers();
@@ -128,9 +124,6 @@ export const FullScreenAdminView = ({
       });
       storageService.loadUsersCompletionStatus(users, questionsPerUser)
         .then(setCompletionStatus);
-      dataService.loadBenchmarks().then(data => {
-        if (data && data.current) setBenchmarks(data);
-      });
     }
   }, [activeTab, getUsers, getQuestions, getUserAssignments]);
 
@@ -512,94 +505,101 @@ export const FullScreenAdminView = ({
                 <h3>Participant Completion</h3>
                 {completionStatus.length === 0 ? (
                   <p className="completion-empty">No users found.</p>
-                ) : (
-                  <div className="completion-table-wrap">
-                  <table className="completion-table" data-testid="completion-table">
-                    <thead>
-                      <tr>
-                        <th>Assessor</th>
-                        <th>Assigned</th>
-                        <th>Answered</th>
-                        <th>Progress</th>
-                        <th>Last Active</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {completionStatus.map(s => (
-                        <tr key={s.userId} data-testid={`completion-row-${s.userId}`}>
-                          <td>{s.name}</td>
-                          <td>{s.total}</td>
-                          <td>{s.answered}</td>
-                          <td>
-                            <div className="completion-bar-wrap">
-                              <div
-                                className="completion-bar-fill"
-                                style={{ width: `${s.percentage}%` }}
-                              />
-                              <span className="completion-pct">{s.percentage}%</span>
-                            </div>
-                          </td>
-                          <td className="completion-last-active">
-                            {s.lastActive
-                              ? new Date(s.lastActive).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-                              : '—'}
-                          </td>
+                ) : (() => {
+                  const handleSort = (key) => {
+                    setSortConfig(prev => ({
+                      key,
+                      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+                    }));
+                  };
+                  const sortedStatus = [...completionStatus].sort((a, b) => {
+                    const dir = sortConfig.direction === 'asc' ? 1 : -1;
+                    if (sortConfig.key === 'name') return a.name.localeCompare(b.name) * dir;
+                    if (sortConfig.key === 'percentage') return (a.percentage - b.percentage) * dir;
+                    if (sortConfig.key === 'lastActive') {
+                      const ta = a.lastActive ? new Date(a.lastActive).getTime() : 0;
+                      const tb = b.lastActive ? new Date(b.lastActive).getTime() : 0;
+                      return (ta - tb) * dir;
+                    }
+                    return 0;
+                  });
+                  const SortTh = ({ col, label }) => {
+                    const active = sortConfig.key === col;
+                    return (
+                      <th>
+                        <button
+                          className={`sort-th-btn${active ? ' sort-th-btn--active' : ''}`}
+                          onClick={() => handleSort(col)}
+                          aria-sort={active ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        >
+                          {label}
+                          <span aria-hidden="true" className="sort-indicator">
+                            {active ? (sortConfig.direction === 'asc' ? ' ▲' : ' ▼') : ' ⇅'}
+                          </span>
+                        </button>
+                      </th>
+                    );
+                  };
+                  return (
+                    <div className="completion-table-wrap">
+                    <table className="completion-table" data-testid="completion-table">
+                      <thead>
+                        <tr>
+                          <SortTh col="name" label="Assessor" />
+                          <th>Assigned</th>
+                          <th>Answered</th>
+                          <SortTh col="percentage" label="Progress" />
+                          <SortTh col="lastActive" label="Last Active" />
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  </div>
-                )}
+                      </thead>
+                      <tbody>
+                        {sortedStatus.map(s => {
+                          const userRole = managedUsers.find(u => u.id === s.userId)?.role;
+                          const isAdminUser = userRole === 'admin';
+                          return (
+                            <tr key={s.userId} data-testid={`completion-row-${s.userId}`}>
+                              <td>
+                                {s.name}
+                                {isAdminUser && (
+                                  <span className="completion-admin-label"> (Admin)</span>
+                                )}
+                              </td>
+                              <td>{s.total}</td>
+                              <td>{s.answered}</td>
+                              <td>
+                                {isAdminUser ? (
+                                  <span className="completion-admin-label">N/A</span>
+                                ) : (
+                                  <div className="completion-bar-wrap">
+                                    <div
+                                      className="completion-bar-fill"
+                                      style={{ width: `${s.percentage}%` }}
+                                    />
+                                    <span className="completion-pct">{s.percentage}%</span>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="completion-last-active">
+                                {s.lastActive
+                                  ? new Date(s.lastActive).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                  : '—'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    </div>
+                  );
+                })()}
               </div>
 
-              {/* Heatmap */}
-              <div
-                className="chart-display chart-display--clickable"
-                onClick={() => setExpandedChart('heatmap')}
-                title="Click to expand"
-              >
-                <span className="chart-expand-hint">⤢ Click to expand</span>
-                <DomainHeatmap domains={domains} answers={answers} onCanvasReady={(c) => { chartRefs.current.heatmap = c; }} />
-              </div>
-
-              {/* Charts */}
-              <div className="charts-grid">
-                <div
-                  className="chart-container chart-display--clickable"
-                  onClick={() => setExpandedChart('radar')}
-                  title="Click to expand"
-                >
-                  <span className="chart-expand-hint">⤢ Click to expand</span>
-                  <h3>Domain Scores (Radar)</h3>
-                  <DomainRadarChart domains={domains} answers={answers} benchmarks={benchmarks} onChartReady={(r) => { chartRefs.current.radar = r; }} />
-                </div>
-                <div
-                  className="chart-container chart-display--clickable"
-                  onClick={() => setExpandedChart('bar')}
-                  title="Click to expand"
-                >
-                  <span className="chart-expand-hint">⤢ Click to expand</span>
-                  <h3>Domain Scores (Bar)</h3>
-                  <DomainBarChart domains={domains} answers={answers} benchmarks={benchmarks} onChartReady={(r) => { chartRefs.current.bar = r; }} />
-                </div>
-                {benchmarks && (
-                  <div
-                    className="chart-container chart-display--clickable"
-                    onClick={() => setExpandedChart('trend')}
-                    title="Click to expand"
-                  >
-                    <span className="chart-expand-hint">⤢ Click to expand</span>
-                    <h3>Industry Benchmark Trend</h3>
-                    <BenchmarkTrendChart benchmarks={benchmarks} />
-                  </div>
-                )}
-              </div>
-
-              {/* Compliance Dashboard */}
-              <div className="compliance-section">
-                <h2>Compliance Frameworks</h2>
-                <ComplianceDashboard answers={answers} />
-              </div>
+              <OverviewDashboard
+                domains={domains}
+                answers={answers}
+                onExpandChart={setExpandedChart}
+                onChartReady={(type, ref) => { chartRefs.current[type] = ref; }}
+              />
             </div>
           </div>
         )}
@@ -867,6 +867,7 @@ export const FullScreenAdminView = ({
                           min="0"
                           step="0.1"
                         />
+                        <p className="cfg-field-help">Between 0 and 1 — all domain weights should sum to 1.0.</p>
                       </div>
                     </div>
                     <div className="cfg-form-actions">
@@ -974,9 +975,21 @@ export const FullScreenAdminView = ({
                     </div>
                   </div>
 
-                  <div className="cfg-list-header">Existing Questions ({managedQuestions.length})</div>
+                  <div className="cfg-list-header">
+                    <span>Existing Questions ({managedQuestions.length})</span>
+                    <input
+                      type="search"
+                      className="cfg-search-input"
+                      placeholder="Filter questions…"
+                      value={questionSearch}
+                      onChange={e => setQuestionSearch(e.target.value)}
+                      aria-label="Filter questions"
+                    />
+                  </div>
                   <div className="cfg-list">
-                    {managedQuestions.map(question => (
+                    {managedQuestions
+                      .filter(q => !questionSearch || q.text.toLowerCase().includes(questionSearch.toLowerCase()) || q.domainId.toLowerCase().includes(questionSearch.toLowerCase()) || q.categoryId.toLowerCase().includes(questionSearch.toLowerCase()))
+                      .map(question => (
                       <div key={question.id} className="cfg-item">
                         <div className="cfg-item-body">
                           <span className="cfg-item-title">{question.text}</span>

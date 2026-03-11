@@ -6,6 +6,8 @@ import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
 import { FullScreenAdminView } from './components/FullScreenAdminView';
 import { UserView } from './components/UserView';
+import ResultsView from './components/ResultsView';
+import { ChartFullscreenView } from './components/ChartFullscreenView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
 import { complianceService } from './services/complianceService';
@@ -42,7 +44,7 @@ function App() {
   const [userQuestions, setUserQuestions] = useState([]);
   
   // Use the router hook for navigation
-  const { navigate } = useRouter();
+  const { currentRoute, currentSubRoute, navigate } = useRouter();
   const { frameworks } = useCompliance(answers);
   const {
     getQuestionsForUser,
@@ -122,8 +124,13 @@ function App() {
   const handleLogout = () => {
     selectUser(null);
     setUserQuestions([]);
-    navigate('assessment'); // Reset view on logout
+    navigate('assessment');
   };
+
+  const handleSwitchToResults = () => navigate('results');
+  const handleBackToAssessment = () => navigate('assessment');
+  const handleExpandChart = (chartType) => navigate('results', `chart/${chartType}`);
+  const handleBackFromChart = () => navigate('results');
 
 
   const handleImportData = async (file) => {
@@ -202,7 +209,7 @@ function App() {
       if (!result.success) {
         const validation = result.validation;
         alert(
-          `❌ Export Failed\n\n` +
+          `Export Failed\n\n` +
           `${result.error}\n\n` +
           `You have answered ${validation.totalAnswered} question(s), but ${validation.missingEvidence} of them are missing evidence.\n\n` +
           `Please add evidence (photos/documents) to all answered questions before exporting.`
@@ -242,50 +249,79 @@ function App() {
     );
   }
 
-const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers, evidence);
+  const progress = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers, evidence);
 
-    // Render role-based view
+  // Route: chart fullscreen (non-admin only)
+  if (!isAdmin() && currentRoute === 'results' && currentSubRoute?.startsWith('chart/')) {
+    const chartType = currentSubRoute.slice('chart/'.length);
     return (
-      <>
-        {isAdmin() ? (
-          <FullScreenAdminView
-            domains={domains}
-            answers={adminAnswers}
-            evidence={evidence}
-            frameworks={Object.values(frameworks)}
-            onExportPDF={handleExportPDF}
-              onLogout={handleLogout}
-              onImportData={handleImportData}
-              onExportData={handleExportData}
-              onClearAllData={handleClearAllData}
-          />
-        ) : (
-          <UserView
-            user={currentUser}
-            questions={userQuestions}
-            answers={answers}
-            evidence={evidence}
-            comments={comments}
-            frameworks={frameworks}
-            progress={progress}
-            onAnswerChange={saveAnswer}
-            onClearAnswer={clearAnswer}
-            onCommentChange={saveComment}
-            onAddEvidence={handleOpenEvidence}
-            onExportUserData={handleExportUserData}
-            onLogout={handleLogout}
-          />
-        )}
-  
-        {evidenceModalOpen && (
-          <EvidenceModal
-            questionId={currentQuestionId}
-            existingEvidence={evidence[currentQuestionId]}
-            onSave={handleSaveEvidence}
-            onClose={handleCloseEvidence}
-          />
-        )}
-      </>
+      <ChartFullscreenView
+        chartType={chartType}
+        questions={userQuestions}
+        answers={answers}
+        onBack={handleBackFromChart}
+      />
     );
   }
+
+  // Route: results view (non-admin only)
+  if (!isAdmin() && currentRoute === 'results') {
+    return (
+      <ResultsView
+        user={currentUser}
+        questions={userQuestions}
+        answers={answers}
+        progress={progress}
+        onBackToAssessment={handleBackToAssessment}
+        onLogout={handleLogout}
+        onExpandChart={handleExpandChart}
+      />
+    );
+  }
+
+  // Default: role-based main view
+  return (
+    <>
+      {isAdmin() ? (
+        <FullScreenAdminView
+          domains={domains}
+          answers={adminAnswers}
+          evidence={evidence}
+          frameworks={Object.values(frameworks)}
+          onExportPDF={handleExportPDF}
+          onLogout={handleLogout}
+          onImportData={handleImportData}
+          onExportData={handleExportData}
+          onClearAllData={handleClearAllData}
+        />
+      ) : (
+        <UserView
+          user={currentUser}
+          questions={userQuestions}
+          answers={answers}
+          evidence={evidence}
+          comments={comments}
+          frameworks={frameworks}
+          progress={progress}
+          onAnswerChange={saveAnswer}
+          onClearAnswer={clearAnswer}
+          onCommentChange={saveComment}
+          onAddEvidence={handleOpenEvidence}
+          onExportUserData={handleExportUserData}
+          onSwitchToResults={handleSwitchToResults}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {evidenceModalOpen && (
+        <EvidenceModal
+          questionId={currentQuestionId}
+          existingEvidence={evidence[currentQuestionId]}
+          onSave={handleSaveEvidence}
+          onClose={handleCloseEvidence}
+        />
+      )}
+    </>
+  );
+}
 export default App;

@@ -22,6 +22,10 @@ vi.mock('./BenchmarkTrendChart', () => ({
       data-user-score={userScore}>Trend Chart</div>
   )
 }));
+vi.mock('./ComplianceDashboard', () => ({
+  ComplianceDashboard: () => <div data-testid="compliance-dashboard">Compliance</div>
+}));
+
 const mockLoadBenchmarks = vi.fn().mockResolvedValue({
   current: { domain1: 3.2, domain2: 3.5, industry: 'Financial Services', overall: 3.15 },
   history: [{ date: '2024-Q3', overall: 3.05 }]
@@ -76,13 +80,13 @@ describe('ResultsView', () => {
 
   it('should show next steps section when not 100% complete', () => {
     render(<ResultsView {...defaultProps} />);
-    expect(screen.getByText('📝 Next Steps')).toBeInTheDocument();
+    expect(screen.getByText('Next Steps')).toBeInTheDocument();
     expect(screen.getByText('You have 1 questions remaining.')).toBeInTheDocument();
   });
 
   it('should not show next steps when 100% complete', () => {
     render(<ResultsView {...defaultProps} progress={{ answered: 3, total: 3, percentage: 100 }} />);
-    expect(screen.queryByText('📝 Next Steps')).not.toBeInTheDocument();
+    expect(screen.queryByText('Next Steps')).not.toBeInTheDocument();
   });
 
   it('should call onBackToAssessment when back button is clicked', () => {
@@ -97,44 +101,22 @@ describe('ResultsView', () => {
     expect(mockOnLogout).toHaveBeenCalledTimes(1);
   });
 
-  it('should render heatmap chart by default', () => {
+  it('should render heatmap chart', () => {
     render(<ResultsView {...defaultProps} />);
     expect(screen.getByTestId('domain-heatmap')).toBeInTheDocument();
   });
 
-  it('should switch to radar chart when tab is clicked', () => {
+  it('should render radar chart', () => {
     render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('radar-chart-tab'));
     expect(screen.getByTestId('domain-radar-chart')).toBeInTheDocument();
   });
 
-  it('should switch to bar chart when tab is clicked', () => {
+  it('should render bar chart', () => {
     render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('bar-chart-tab'));
     expect(screen.getByTestId('domain-bar-chart')).toBeInTheDocument();
   });
 
-  it('should display domain scores derived from assigned questions', () => {
-    render(<ResultsView {...defaultProps} />);
-    expect(screen.getAllByText('Test Domain').length).toBeGreaterThan(0);
-  });
-
-  it('should only show domains with assigned questions', () => {
-    const singleDomainQuestions = [
-      { id: 'q1', domainId: 'domain1', domainTitle: 'Only Domain', categoryId: 'cat1', categoryTitle: 'Cat' }
-    ];
-    render(<ResultsView {...defaultProps} questions={singleDomainQuestions} />);
-    expect(screen.getAllByText('Only Domain').length).toBeGreaterThan(0);
-    expect(screen.queryByText('domain2')).not.toBeInTheDocument();
-  });
-
-  it('should call onBackToAssessment when continue button is clicked', () => {
-    render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('continue-assessment'));
-    expect(mockOnBack).toHaveBeenCalled();
-  });
-
-  it('should display overall score', () => {
+  it('should display overall score heading', () => {
     render(<ResultsView {...defaultProps} />);
     expect(screen.getByText('Overall Maturity Score')).toBeInTheDocument();
   });
@@ -160,14 +142,19 @@ describe('ResultsView', () => {
     expect(screen.getByTestId('overall-maturity-label').textContent).toBe('Not Implemented');
   });
 
-  it('should display maturity label for each domain', () => {
+  it('should display domain title from assigned questions', () => {
     render(<ResultsView {...defaultProps} />);
-    expect(screen.getByTestId('maturity-domain1')).toBeInTheDocument();
+    expect(screen.getAllByText('Test Domain').length).toBeGreaterThan(0);
+  });
+
+  it('should call onBackToAssessment when continue button is clicked', () => {
+    render(<ResultsView {...defaultProps} />);
+    fireEvent.click(screen.getByTestId('continue-assessment'));
+    expect(mockOnBack).toHaveBeenCalled();
   });
 
   it('should pass benchmarks to radar chart after load', async () => {
     render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('radar-chart-tab'));
     await waitFor(() => {
       expect(screen.getByTestId('domain-radar-chart').dataset.hasBenchmarks).toBe('true');
     });
@@ -175,15 +162,13 @@ describe('ResultsView', () => {
 
   it('should pass benchmarks to bar chart after load', async () => {
     render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('bar-chart-tab'));
     await waitFor(() => {
       expect(screen.getByTestId('domain-bar-chart').dataset.hasBenchmarks).toBe('true');
     });
   });
 
-  it('should render trend chart when trend tab is clicked', async () => {
+  it('should render trend chart when benchmarks load', async () => {
     render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('trend-chart-tab'));
     await waitFor(() => {
       expect(screen.getByTestId('benchmark-trend-chart')).toBeInTheDocument();
     });
@@ -191,7 +176,6 @@ describe('ResultsView', () => {
 
   it('should pass benchmarks and userScore to trend chart', async () => {
     render(<ResultsView {...defaultProps} />);
-    fireEvent.click(screen.getByTestId('trend-chart-tab'));
     await waitFor(() => {
       const chart = screen.getByTestId('benchmark-trend-chart');
       expect(chart.dataset.hasBenchmarks).toBe('true');
@@ -265,51 +249,46 @@ describe('ResultsView', () => {
 
     it('should include an icon in the priority badge', () => {
       render(<ResultsView {...defaultProps} answers={{ q1: 1 }} />);
-      // High priority shows ⚠
-      expect(screen.getByTestId('priority-q1').textContent).toContain('⚠');
+      expect(screen.getByTestId('priority-q1').querySelector('svg')).toBeTruthy();
     });
   });
 
   describe('onExpandChart', () => {
-    it('shows the expand button when onExpandChart is provided', () => {
+    it('adds clickable class to charts when onExpandChart is provided', () => {
       const onExpandChart = vi.fn();
-      render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
-      expect(screen.getByTestId('chart-expand-btn')).toBeInTheDocument();
+      const { container } = render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
+      expect(container.querySelectorAll('.chart-display--clickable').length).toBeGreaterThan(0);
     });
 
-    it('does not show expand button without onExpandChart', () => {
-      render(<ResultsView {...defaultProps} />);
-      expect(screen.queryByTestId('chart-expand-btn')).not.toBeInTheDocument();
+    it('does not add clickable class without onExpandChart', () => {
+      const { container } = render(<ResultsView {...defaultProps} />);
+      expect(container.querySelectorAll('.chart-display--clickable').length).toBe(0);
     });
 
-    it('calls onExpandChart with active chart type when expand button clicked', () => {
+    it('clicking heatmap fires onExpandChart with heatmap', () => {
       const onExpandChart = vi.fn();
       render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
-      fireEvent.click(screen.getByTestId('chart-expand-btn'));
+      fireEvent.click(screen.getByTestId('overview-heatmap'));
       expect(onExpandChart).toHaveBeenCalledWith('heatmap');
     });
 
-    it('calls onExpandChart with updated chart type after tab switch', () => {
+    it('clicking radar container fires onExpandChart with radar', () => {
       const onExpandChart = vi.fn();
       render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
-      fireEvent.click(screen.getByTestId('radar-chart-tab'));
-      fireEvent.click(screen.getByTestId('chart-expand-btn'));
+      fireEvent.click(screen.getByTestId('overview-radar'));
       expect(onExpandChart).toHaveBeenCalledWith('radar');
     });
 
-    it('chart-display has clickable class and fires onExpandChart on click', () => {
+    it('clicking bar container fires onExpandChart with bar', () => {
       const onExpandChart = vi.fn();
-      const { container } = render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
-      const chartDisplay = container.querySelector('.chart-display--clickable');
-      expect(chartDisplay).not.toBeNull();
-      fireEvent.click(chartDisplay);
-      expect(onExpandChart).toHaveBeenCalledWith('heatmap');
+      render(<ResultsView {...defaultProps} onExpandChart={onExpandChart} />);
+      fireEvent.click(screen.getByTestId('overview-bar'));
+      expect(onExpandChart).toHaveBeenCalledWith('bar');
     });
   });
 
   describe('benchmark load failure', () => {
     beforeEach(() => {
-      // dataService swallows errors and returns null; component guards with data?.current
       mockLoadBenchmarks.mockResolvedValue(null);
     });
 

@@ -225,6 +225,14 @@
   border-color: #10b981;
 }
 
+/* ── Sources bar — always fully visible, wraps naturally ── */
+.cfs-sources-bar {
+  padding: 0.375rem 2rem;
+  background: #0c1a10;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  flex-shrink: 0;
+}
+
 /* ── Main chart area — flex:1 fills whatever's left after header + toolbar ── */
 .chart-fullscreen-main {
   flex: 1;
@@ -245,13 +253,24 @@
 .chart-fullscreen-main [data-testid="benchmark-trend-chart"] {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Make heatmap-container a flex column so the canvas wrapper only takes remaining space */
+.chart-fullscreen-main .heatmap-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-fullscreen-main .heatmap-canvas-wrapper {
   max-height: none;
   flex: 1;
   min-height: 0;
-  height: 100%;
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .chart-fullscreen-main .chart-container {

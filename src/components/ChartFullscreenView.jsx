@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { Flame, Radar, BarChart2, TrendingUp, ArrowLeft, Download, ChevronUp, ChevronDown } from 'lucide-react';
 import { DomainRadarChart } from './DomainRadarChart';
 import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
@@ -10,10 +11,17 @@ import { dataService } from '../services/dataService';
 import './ChartFullscreenView.css';
 
 const CHART_LABELS = {
-  heatmap: '🔥 Heatmap',
-  radar: '📡 Radar Chart',
-  bar: '📊 Bar Chart',
-  trend: '📈 Trend'
+  heatmap: 'Heatmap',
+  radar: 'Radar Chart',
+  bar: 'Bar Chart',
+  trend: 'Trend'
+};
+
+const CHART_ICONS = {
+  heatmap: Flame,
+  radar: Radar,
+  bar: BarChart2,
+  trend: TrendingUp
 };
 
 export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) => {
@@ -75,6 +83,7 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
 
   const domainKeys = Object.keys(filteredDomains);
   const label = CHART_LABELS[chartType] || 'Chart';
+  const LabelIcon = CHART_ICONS[chartType];
 
   function toggleDomain(key) {
     setHiddenDomains(prev => {
@@ -121,9 +130,9 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
           onClick={onBack}
           data-testid="chart-fullscreen-back"
         >
-          ← Back to Results
+          <ArrowLeft size={16} /> Back to Results
         </button>
-        <h2 className="chart-fullscreen-title">{label}</h2>
+        <h2 className="chart-fullscreen-title">{LabelIcon && <LabelIcon size={20} />} {label}</h2>
         <div className="chart-fullscreen-score">
           <span className="cfs-score-value">{overallScore.toFixed(2)}</span>
           <span className="cfs-score-label">/ 5.0 — {scoreCalculator.getMaturityLevel(overallScore)}</span>
@@ -135,7 +144,7 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
           aria-label={toolbarOpen ? 'Hide controls' : 'Show controls'}
           aria-expanded={toolbarOpen}
         >
-          {toolbarOpen ? '▲ Controls' : '▼ Controls'}
+          {toolbarOpen ? <><ChevronUp size={14} /> Controls</> : <><ChevronDown size={14} /> Controls</>}
         </button>
       </header>
 
@@ -229,21 +238,21 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
 
         <div className="cfs-toolbar-spacer" />
 
-        {benchmarks?.sources && (
-          <div className="cfs-toolbar-group">
-            <BenchmarkSources sources={benchmarks.sources} />
-          </div>
-        )}
-
         <button
           className="cfs-export-btn"
           onClick={exportPng}
           data-testid="cfs-export-png"
           title="Export chart as PNG"
         >
-          ⬇ PNG
+          <Download size={14} /> PNG
         </button>
       </div>
+
+      {benchmarks?.sources && (
+        <div className="cfs-sources-bar" data-testid="cfs-sources-bar">
+          <BenchmarkSources sources={benchmarks.sources} />
+        </div>
+      )}
 
       <main className="chart-fullscreen-main" data-testid="chart-fullscreen-main">
         {chartType === 'heatmap' && (
