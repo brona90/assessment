@@ -1,12 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { X, Paperclip } from 'lucide-react';
 
 export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose }) => {
+  const dialogRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
   // Initialize state with existing evidence
-  // Using a function to ensure fresh state on each render
   const [textEvidence, setTextEvidence] = useState(() => existingEvidence?.text || '');
   const [images, setImages] = useState(() => existingEvidence?.images || []);
+
+  // Focus trap and Escape key
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement;
+    dialogRef.current?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab') return;
+      const focusable = dialogRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
+  }, [onClose]);
 
   // Update state when existingEvidence changes (for rerender scenarios)
   useEffect(() => {
@@ -53,10 +80,18 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
 
   return (
     <div className="modal-overlay" onClick={onClose} data-testid="evidence-modal">
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="evidence-modal-title"
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h3>Add Evidence for {questionId?.toUpperCase()}</h3>
-          <button className="modal-close" onClick={onClose} data-testid="close-modal">
+          <h3 id="evidence-modal-title">Add Evidence for {questionId?.toUpperCase()}</h3>
+          <button className="modal-close" onClick={onClose} data-testid="close-modal" aria-label="Close">
             <X size={18} />
           </button>
         </div>
@@ -100,6 +135,7 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
                       className="remove-image"
                       onClick={() => handleRemoveImage(idx)}
                       data-testid={`remove-image-${idx}`}
+                      aria-label={`Remove ${img.name}`}
                     >
                       <X size={14} />
                     </button>

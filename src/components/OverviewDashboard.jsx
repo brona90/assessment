@@ -40,13 +40,20 @@ export const OverviewDashboard = ({ domains, answers, onExpandChart, onChartRead
   })();
 
   const canExpand = !!onExpandChart;
+  const chartClickProps = (type) => canExpand ? {
+    onClick: () => onExpandChart(type),
+    onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onExpandChart(type); } },
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': `Expand ${type} chart to fullscreen`
+  } : {};
 
   return (
     <>
       {/* Heatmap — full width */}
       <div
         className={`chart-display${canExpand ? ' chart-display--clickable' : ''}`}
-        onClick={canExpand ? () => onExpandChart('heatmap') : undefined}
+        {...chartClickProps('heatmap')}
         data-testid="overview-heatmap"
       >
         {canExpand && <span className="chart-expand-hint"><Maximize2 size={12} /> Click to expand</span>}
@@ -61,7 +68,7 @@ export const OverviewDashboard = ({ domains, answers, onExpandChart, onChartRead
       <div className="charts-grid">
         <div
           className={`chart-container${canExpand ? ' chart-display--clickable' : ''}`}
-          onClick={canExpand ? () => onExpandChart('radar') : undefined}
+          {...chartClickProps('radar')}
           data-testid="overview-radar"
         >
           {canExpand && <span className="chart-expand-hint"><Maximize2 size={12} /> Click to expand</span>}
@@ -75,7 +82,7 @@ export const OverviewDashboard = ({ domains, answers, onExpandChart, onChartRead
         </div>
         <div
           className={`chart-container${canExpand ? ' chart-display--clickable' : ''}`}
-          onClick={canExpand ? () => onExpandChart('bar') : undefined}
+          {...chartClickProps('bar')}
           data-testid="overview-bar"
         >
           {canExpand && <span className="chart-expand-hint"><Maximize2 size={12} /> Click to expand</span>}
@@ -90,7 +97,7 @@ export const OverviewDashboard = ({ domains, answers, onExpandChart, onChartRead
         {benchmarks && (
           <div
             className={`chart-container${canExpand ? ' chart-display--clickable' : ''}`}
-            onClick={canExpand ? () => onExpandChart('trend') : undefined}
+            {...chartClickProps('trend')}
             data-testid="overview-trend"
           >
             {canExpand && <span className="chart-expand-hint"><Maximize2 size={12} /> Click to expand</span>}

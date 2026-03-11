@@ -225,7 +225,7 @@ export const DomainHeatmap = ({ domains, answers, hiddenDomains, onCanvasReady }
         <p>Average maturity score per domain &amp; category</p>
       </div>
       <div className="heatmap-canvas-wrapper">
-        <canvas ref={canvasRef} />
+        <canvas ref={canvasRef} role="img" aria-label="Assessment heatmap showing average maturity scores per domain and category" />
       </div>
       <div className="heatmap-legend">
         <span className="legend-label">Score:</span>

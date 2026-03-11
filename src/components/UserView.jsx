@@ -148,6 +148,7 @@ export const UserView = ({
                       key={domain.id}
                       role="tab"
                       aria-selected={activeTab === domain.id}
+                      aria-controls={`domain-panel-${domain.id}`}
                       className={`domain-tab ${activeTab === domain.id ? 'active' : ''}`}
                       onClick={() => setActiveTab(domain.id)}
                       data-testid={`domain-tab-${domain.id}`}
@@ -171,7 +172,7 @@ export const UserView = ({
             )}
 
             {/* Questions Container */}
-            <div className="questions-container">
+            <div className="questions-container" role="tabpanel" id={`domain-panel-${activeTab}`}>
               {activeDomain && (
                 <div key={activeTab} className="domain-section">
                   {domains.length === 1 && <h3 className="domain-title">{activeDomain.title}</h3>}
