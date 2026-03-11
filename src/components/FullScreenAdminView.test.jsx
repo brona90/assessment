@@ -384,6 +384,158 @@ describe('FullScreenAdminView', () => {
     });
   });
 
+  describe('Domain CRUD (Configure > Content)', () => {
+    it('should show domain list when domains exist', () => {
+      datastoreMocks.getDomains.mockReturnValue({
+        d1: { id: 'd1', title: 'Domain 1', description: 'First domain', weight: 0.5, categories: {} }
+      });
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+      fireEvent.click(screen.getByTestId('content-sub-tab'));
+
+      const domainsSection = screen.getByTestId('domains-content');
+      expect(domainsSection).toBeInTheDocument();
+      // Domain title appears both as list item and as <option> in question form select; scope to domains section
+      expect(domainsSection.querySelector('.cfg-item-title').textContent).toBe('Domain 1');
+    });
+
+    it('should add a new domain', async () => {
+      datastoreMocks.addDomain.mockResolvedValue(undefined);
+      datastoreMocks.getDomains
+        .mockReturnValueOnce({})   // initial load
+        .mockReturnValue({ d2: { id: 'd2', title: 'New Domain', description: 'Desc', weight: 0.5, categories: {} } });
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+      fireEvent.click(screen.getByTestId('content-sub-tab'));
+
+      fireEvent.change(screen.getByPlaceholderText('e.g. security'), { target: { value: 'd2' } });
+      fireEvent.change(screen.getByPlaceholderText('Data Governance'), { target: { value: 'New Domain' } });
+      fireEvent.change(screen.getByPlaceholderText('Optional description'), { target: { value: 'Desc' } });
+
+      fireEvent.click(screen.getByText('Add Domain'));
+
+      await waitFor(() => {
+        expect(datastoreMocks.addDomain).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'd2', title: 'New Domain', description: 'Desc' })
+        );
+      });
+    });
+
+    it('should delete a domain', async () => {
+      datastoreMocks.getDomains.mockReturnValue({
+        d1: { id: 'd1', title: 'Domain 1', description: '', weight: 1, categories: {} }
+      });
+      datastoreMocks.deleteDomain.mockResolvedValue(undefined);
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+      fireEvent.click(screen.getByTestId('content-sub-tab'));
+
+      // The domain list has Delete buttons; there may be multiple, so find the one in domains-content
+      const domainsSection = screen.getByTestId('domains-content');
+      const deleteButtons = domainsSection.querySelectorAll('.cfg-btn--danger');
+      fireEvent.click(deleteButtons[0]);
+
+      await waitFor(() => {
+        expect(datastoreMocks.deleteDomain).toHaveBeenCalledWith('d1');
+      });
+
+      window.confirm.mockRestore();
+    });
+  });
+
+  describe('User CRUD (Configure > People)', () => {
+    it('should show user list when users exist', () => {
+      datastoreMocks.getUsers.mockReturnValue([
+        { id: 'u1', name: 'Alice', email: 'alice@test.com', role: 'user' },
+        { id: 'u2', name: 'Bob', email: 'bob@test.com', role: 'admin' }
+      ]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+
+      expect(screen.getByTestId('people-content')).toBeInTheDocument();
+      // User names appear both as list item titles and as <option> in assignment select; scope to users section
+      const usersSection = screen.getByTestId('users-content');
+      const userTitles = usersSection.querySelectorAll('.cfg-item-title');
+      const names = Array.from(userTitles).map(el => el.textContent);
+      expect(names).toContain('Alice');
+      expect(names).toContain('Bob');
+    });
+
+    it('should add a new user', async () => {
+      datastoreMocks.addUser.mockResolvedValue(undefined);
+      datastoreMocks.getUsers
+        .mockReturnValueOnce([])   // initial load
+        .mockReturnValue([{ id: 'u3', name: 'Charlie', email: 'charlie@test.com', role: 'user' }]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+
+      fireEvent.change(screen.getByPlaceholderText('e.g. alice'), { target: { value: 'u3' } });
+      fireEvent.change(screen.getByPlaceholderText('Alice Smith'), { target: { value: 'Charlie' } });
+      fireEvent.change(screen.getByPlaceholderText('alice@example.com'), { target: { value: 'charlie@test.com' } });
+
+      fireEvent.click(screen.getByText('Add User'));
+
+      await waitFor(() => {
+        expect(datastoreMocks.addUser).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'u3', name: 'Charlie', email: 'charlie@test.com', role: 'user' })
+        );
+      });
+    });
+  });
+
+  describe('Question CRUD (Configure > Content)', () => {
+    it('should show questions in Content sub-tab', () => {
+      datastoreMocks.getQuestions.mockReturnValue([
+        { id: 'q1', text: 'How mature is your data pipeline?', domainId: 'domain1', categoryId: 'cat1', requiresEvidence: false },
+        { id: 'q2', text: 'Do you have automated testing?', domainId: 'domain1', categoryId: 'cat2', requiresEvidence: true }
+      ]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+      fireEvent.click(screen.getByTestId('content-sub-tab'));
+
+      expect(screen.getByTestId('questions-content')).toBeInTheDocument();
+      expect(screen.getByText('How mature is your data pipeline?')).toBeInTheDocument();
+      expect(screen.getByText('Do you have automated testing?')).toBeInTheDocument();
+    });
+
+    it('should add a new question', async () => {
+      datastoreMocks.getDomains.mockReturnValue({
+        d1: { id: 'd1', title: 'Domain 1', description: '', weight: 1, categories: {} }
+      });
+      datastoreMocks.addQuestion.mockResolvedValue(undefined);
+      datastoreMocks.getQuestions
+        .mockReturnValueOnce([])   // initial load
+        .mockReturnValue([{ id: 'q-new', text: 'New question text', domainId: 'd1', categoryId: 'newcat', requiresEvidence: false }]);
+
+      render(<FullScreenAdminView {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('configure-tab'));
+      fireEvent.click(screen.getByTestId('content-sub-tab'));
+
+      fireEvent.change(screen.getByPlaceholderText('q-001'), { target: { value: 'q-new' } });
+      fireEvent.change(screen.getByPlaceholderText('How mature is your data pipeline automation?'), { target: { value: 'New question text' } });
+      fireEvent.change(screen.getByPlaceholderText('e.g. pipelines'), { target: { value: 'newcat' } });
+
+      // Select the domain from dropdown
+      const domainSelect = screen.getByDisplayValue('— select domain —');
+      fireEvent.change(domainSelect, { target: { value: 'd1' } });
+
+      fireEvent.click(screen.getByText('Add Question'));
+
+      await waitFor(() => {
+        expect(datastoreMocks.addQuestion).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'q-new', text: 'New question text', domainId: 'd1', categoryId: 'newcat' })
+        );
+      });
+    });
+  });
+
   describe('Compliance Framework Question Mapping', () => {
     beforeEach(() => {
       datastoreMocks.getFrameworks.mockReturnValue([
