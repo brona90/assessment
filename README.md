@@ -204,4 +204,6 @@ features/             Cucumber BDD scenarios
 
 ## License
 
-MIT
+Apache 2.0 + Commons Clause. Free to use internally and for non-commercial purposes. You may not sell or offer this software (or a derivative) as a product or service. See [LICENSE](./LICENSE) for full terms.
+
+"Foster the Code" is a trademark of Foster the Code, LLC.
