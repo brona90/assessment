@@ -304,6 +304,61 @@
   }
 }
 
+/* ── Snapshot History ── */
+.snapshot-history {
+  background: #132218;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.snapshot-history h3 {
+  color: #f1f5f9;
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.snapshot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.snapshot-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 8px;
+  border-left: 3px solid rgba(148, 163, 184, 0.15);
+}
+
+.snapshot-date {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  min-width: 110px;
+}
+
+.snapshot-score {
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.snapshot-score--high { color: #22c55e; }
+.snapshot-score--mid { color: #facc15; }
+.snapshot-score--low { color: #f87171; }
+
+.snapshot-label {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-left: auto;
+}
+
 /* ── Print styles ── */
 @media print {
   .results-view {

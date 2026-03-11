@@ -197,5 +197,37 @@ export const storageService = {
       console.error('Error clearing evidence:', error);
       return false;
     }
+  },
+
+  // ── Assessment Snapshots ──────────────────────────────────────────────────
+
+  saveSnapshot(userId, snapshot) {
+    try {
+      const key = `snapshots_${userId}`;
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push(snapshot);
+      localStorage.setItem(key, JSON.stringify(existing));
+      return true;
+    } catch (error) {
+      console.error('Error saving snapshot:', error);
+      return false;
+    }
+  },
+
+  loadSnapshots(userId) {
+    try {
+      return JSON.parse(localStorage.getItem(`snapshots_${userId}`) || '[]');
+    } catch {
+      return [];
+    }
+  },
+
+  clearSnapshots(userId) {
+    try {
+      localStorage.removeItem(`snapshots_${userId}`);
+      return true;
+    } catch {
+      return false;
+    }
   }
 };

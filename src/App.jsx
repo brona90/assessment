@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAssessment } from './hooks/useAssessment';
 import { useUser } from './hooks/useUser';
 import { useRouter } from './hooks/useRouter';
@@ -56,6 +56,8 @@ function App() {
   } = useDataStore();
 
   const [adminAnswers, setAdminAnswers] = useState({});
+  const [snapshots, setSnapshots] = useState([]);
+  const snapshotSavedRef = useRef(false);
 
   // Load aggregated answers from all users for the admin dashboard
   useEffect(() => {
@@ -64,6 +66,14 @@ function App() {
       storageService.loadAllUsersAnswers(allUserIds).then(setAdminAnswers);
     }
   }, [isAdmin, initialized, getUsers]);
+
+  // Load snapshots for the current user
+  useEffect(() => {
+    if (currentUser && !isAdmin()) {
+      setSnapshots(storageService.loadSnapshots(currentUser.id));
+      snapshotSavedRef.current = false;
+    }
+  }, [currentUser, isAdmin]);
 
   // Hydrate user questions when user changes or data is updated
   useEffect(() => {
@@ -79,7 +89,32 @@ function App() {
     loadUserQuestions();
   }, [currentUser, initialized, getQuestionsForUser]);
 
-  
+  // Auto-save snapshot when assessment reaches 100%
+  useEffect(() => {
+    if (!currentUser || isAdmin() || userQuestions.length === 0) return;
+    const prog = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers, evidence);
+    if (prog.percentage === 100 && !snapshotSavedRef.current) {
+      snapshotSavedRef.current = true;
+      const domainScores = {};
+      userQuestions.forEach(q => {
+        if (!domainScores[q.domainId]) domainScores[q.domainId] = { total: 0, count: 0, title: q.domainTitle };
+        const val = answers[q.id];
+        if (val !== undefined && val !== 0) { domainScores[q.domainId].total += val; domainScores[q.domainId].count++; }
+      });
+      const overallScores = Object.values(domainScores).filter(d => d.count > 0).map(d => d.total / d.count);
+      const overall = overallScores.length > 0 ? overallScores.reduce((a, b) => a + b, 0) / overallScores.length : 0;
+      const snapshot = {
+        timestamp: new Date().toISOString(),
+        overallScore: Math.round(overall * 100) / 100,
+        domainScores: Object.fromEntries(
+          Object.entries(domainScores).map(([id, d]) => [id, d.count > 0 ? Math.round((d.total / d.count) * 100) / 100 : 0])
+        ),
+        percentage: prog.percentage
+      };
+      storageService.saveSnapshot(currentUser.id, snapshot);
+      setSnapshots(prev => [...prev, snapshot]);
+    }
+  }, [currentUser, isAdmin, userQuestions, answers, evidence]);
 
   const handleOpenEvidence = (questionId) => {
     setCurrentQuestionId(questionId);
@@ -272,6 +307,7 @@ function App() {
         questions={userQuestions}
         answers={answers}
         progress={progress}
+        snapshots={snapshots}
         onBackToAssessment={handleBackToAssessment}
         onLogout={handleLogout}
         onExpandChart={handleExpandChart}

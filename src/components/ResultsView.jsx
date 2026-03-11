@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { LogOut, ArrowLeft, BarChart2, AlertTriangle, AlertCircle, Check, FileText, ArrowRight } from 'lucide-react';
+import { LogOut, ArrowLeft, BarChart2, AlertTriangle, AlertCircle, Check, FileText, ArrowRight, History } from 'lucide-react';
 import { OverviewDashboard } from './OverviewDashboard';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
 import './ResultsView.css';
@@ -9,6 +9,7 @@ export const ResultsView = ({
   questions,
   answers,
   progress,
+  snapshots = [],
   onBackToAssessment,
   onLogout,
   onExpandChart
@@ -169,6 +170,31 @@ export const ResultsView = ({
           </div>
         )}
 
+        {/* Assessment History */}
+        {snapshots.length > 0 && (
+          <div className="snapshot-history" data-testid="snapshot-history">
+            <h3><History size={20} /> Assessment History</h3>
+            <div className="snapshot-list">
+              {[...snapshots].reverse().map((snap, i) => {
+                const date = new Date(snap.timestamp);
+                const label = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                const scoreClass = snap.overallScore >= 4 ? 'high' : snap.overallScore >= 2.5 ? 'mid' : 'low';
+                return (
+                  <div key={snap.timestamp + i} className="snapshot-item">
+                    <span className="snapshot-date">{label}</span>
+                    <span className={`snapshot-score snapshot-score--${scoreClass}`}>
+                      {snap.overallScore.toFixed(2)} / 5.0
+                    </span>
+                    <span className="snapshot-label">
+                      {scoreCalculator.getMaturityLevel(snap.overallScore)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Next Steps */}
         {progress.percentage < 100 && (
           <div className="recommendations">
@@ -200,6 +226,10 @@ ResultsView.propTypes = {
     total: PropTypes.number.isRequired,
     percentage: PropTypes.number.isRequired
   }).isRequired,
+  snapshots: PropTypes.arrayOf(PropTypes.shape({
+    timestamp: PropTypes.string.isRequired,
+    overallScore: PropTypes.number.isRequired
+  })),
   onBackToAssessment: PropTypes.func.isRequired,
   onLogout: PropTypes.func.isRequired,
   onExpandChart: PropTypes.func
