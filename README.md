@@ -57,7 +57,7 @@ Once you have answered your questions, click **View Results**. The results scree
 
 - Your overall maturity score and level
 - Domain-by-domain scores compared against the **2025 industry average** and **top-quartile benchmark** from published research (FinOps Foundation, McKinsey, DORA, Gartner, and others)
-- Four interactive charts — radar, bar, heatmap, and trend over time — each expandable to fullscreen with filter and export controls
+- Four interactive charts — radar, bar, heatmap, and trend over time — click any chart or use the expand button to open fullscreen; fullscreen mode has filter toggles, domain chips, target score slider, and PNG export
 - Compliance framework status cards showing how your scores map to frameworks like SOX, ISO 27001, NIST CSF, and GDPR
 
 ### Step 5 — Download the report
@@ -93,7 +93,7 @@ Navigate to the admin dashboard (`#admin`) and go to the **Configure** tab.
 2. Assign questions to each user. You can give everyone the same full set, or scope different domains to different roles (e.g. FinOps questions only to the cloud team).
 
 **Content sub-tab:**
-Review the default question set — 48 questions across four domains and twelve categories. Edit questions or add new ones to fit your organisation's context.
+Review the default question set — 48 questions across four domains and twelve categories. Edit questions or add new ones to fit your organisation's context. Category names edited here become the column headers in the heatmap.
 
 **Frameworks sub-tab:**
 Enable the compliance frameworks relevant to your organisation (SOX, GDPR, HIPAA, PCI DSS, ISO 27001, NIST CSF, FedRAMP). For each framework you can:
@@ -119,14 +119,14 @@ The **Overview** tab shows:
 
 - **Completion table** — each user × each question, colour-coded by score, so you can see at a glance where gaps and unanswered questions are
 - **Domain charts** — radar and bar charts aggregated across all participants against industry benchmarks
-- **Assessment heatmap** — all questions ranked by average score; lowest-scoring questions surface at the bottom
+- **Assessment heatmap** — rows are domains, columns are categories (as defined in `questions.json`); cells show average maturity score per domain–category intersection; update column names via Admin → Configure → Content or via CSV import
 - **Compliance framework cards** — team-level scores against each enabled framework's pass threshold
 
 ### Phase 5 — Export
 
 From the **Data** tab:
 - **Export JSON** — full snapshot of all configuration and answers; use this to back up or hand off to another admin
-- **Export CSV** — separate files for questions, users, domains, and frameworks; useful for editing in a spreadsheet and re-importing
+- **Export CSV** — separate files for questions, users, domains, and frameworks; useful for bulk-editing category names, question text, or user assignments in a spreadsheet then re-importing
 - **Generate PDF** — from the results screen; one report per user, or run as admin to get the aggregated view
 
 ### Phase 6 — Reset for the next cycle
@@ -157,6 +157,7 @@ Historical data covers 2020–2026. Full citations are in `public/data/benchmark
 |--|--|
 | UI | React 19 + Vite |
 | Charts | Chart.js |
+| Icons | Lucide React |
 | Client storage | localStorage + IndexedDB (LocalForage) |
 | PDF | jsPDF |
 | Tests | Vitest + React Testing Library + Cucumber/Playwright |
@@ -169,7 +170,7 @@ Historical data covers 2020–2026. Full citations are in `public/data/benchmark
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 790 unit tests
+npm test             # 829 unit tests
 npm run test:coverage  # Coverage report (95% minimum)
 npm run cucumber     # BDD/E2E tests
 npm run build            # Production build → dist/
