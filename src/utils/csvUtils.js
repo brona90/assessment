@@ -7,7 +7,7 @@
  * Handles quoted fields containing commas or newlines.
  */
 export function parseCsv(text) {
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const rows = splitCsvRows(lines);
   if (rows.length === 0) return [];
   const headers = parseRow(rows[0]);
@@ -74,10 +74,12 @@ function parseRow(row) {
  */
 export function generateCsv(rows, columns) {
   const escape = (v) => {
-    const s = String(v ?? '');
+    let s = String(v ?? '');
+    // Prevent CSV formula injection in spreadsheet applications
+    if (/^[=+\-@\t]/.test(s)) s = "'" + s;
     return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const header = columns.join(',');
+  const header = columns.map(c => escape(c)).join(',');
   const body = rows.map(r => columns.map(c => escape(r[c])).join(',')).join('\n');
   return body ? `${header}\n${body}` : header;
 }

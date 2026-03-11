@@ -39,6 +39,11 @@ describe('parseCsv', () => {
     const result = parseCsv('a,b\r\n1,2\r\n3,4');
     expect(result).toHaveLength(2);
   });
+
+  it('strips UTF-8 BOM from input', () => {
+    const result = parseCsv('\uFEFFa,b\n1,2');
+    expect(result[0]).toHaveProperty('a', '1');
+  });
 });
 
 describe('generateCsv', () => {
@@ -59,6 +64,14 @@ describe('generateCsv', () => {
   it('handles null/undefined values', () => {
     const csv = generateCsv([{ a: null, b: undefined }], ['a', 'b']);
     expect(csv).toBe('a,b\n,');
+  });
+
+  it('prefixes formula-injection characters with single quote', () => {
+    const csv = generateCsv([{ a: '=CMD()', b: '+1', c: '-1', d: '@sum' }], ['a', 'b', 'c', 'd']);
+    expect(csv).toContain("'=CMD()");
+    expect(csv).toContain("'+1");
+    expect(csv).toContain("'-1");
+    expect(csv).toContain("'@sum");
   });
 });
 
