@@ -86,7 +86,7 @@ export const BenchmarkTrendChart = ({
     });
   }
 
-  if (userScore !== undefined && userScore !== null) {
+  if (userScore !== undefined && userScore !== null && userScore > 0) {
     datasets.push({
       label: 'Your Score',
       data: Array(labels.length).fill(userScore),
