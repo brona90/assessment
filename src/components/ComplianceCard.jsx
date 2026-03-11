@@ -5,6 +5,14 @@ import { useDataStore } from '../hooks/useDataStore';
 
 const SCORE_LABELS = ['', 'Not Implemented', 'Initial', 'Defined', 'Managed', 'Optimized'];
 
+const STATUS_ICON = {
+  'Excellent': '✓',
+  'Good': '✓',
+  'Fair': '~',
+  'Needs Improvement': '⚠',
+  'Critical': '✕'
+};
+
 function questionScoreColor(score, threshold) {
   if (score === undefined) return 'var(--text-muted)';
   const pct = (score / 5) * 100;
@@ -64,7 +72,10 @@ export const ComplianceCard = ({ framework, score, answers }) => {
         </div>
         <div className="compliance-header-right">
           <div className="compliance-score" style={{ color }}>{score.toFixed(1)}%</div>
-          <div className="compliance-status" style={{ backgroundColor: color }}>{status}</div>
+          <div className="compliance-status" style={{ backgroundColor: color }}>
+            <span className="compliance-status-icon" aria-hidden="true">{STATUS_ICON[status] || '·'}</span>
+            {status}
+          </div>
           <span className="compliance-expand-caret" aria-hidden="true">
             {expanded ? '▲' : '▼'}
           </span>
@@ -85,7 +96,7 @@ export const ComplianceCard = ({ framework, score, answers }) => {
           />
         </div>
         <span className="compliance-bar-label">
-          {answeredCount}/{totalCount} answered · threshold {thresholdPct.toFixed(0)}%
+          {answeredCount}/{totalCount} answered · threshold {framework.threshold?.toFixed(1)} (score {thresholdPct.toFixed(0)}%)
         </span>
       </div>
 

@@ -65,7 +65,7 @@ describe('ComplianceCard', () => {
 
   it('should show threshold in bar label', () => {
     render(<ComplianceCard framework={mockFramework} score={85} answers={{}} />);
-    expect(screen.getByText(/threshold 80%/)).toBeInTheDocument();
+    expect(screen.getByText(/threshold 4\.0 \(score 80%\)/)).toBeInTheDocument();
   });
 
   it('should start collapsed (description not visible)', () => {
