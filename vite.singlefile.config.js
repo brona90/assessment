@@ -31,6 +31,8 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist-singlefile',
+    // Don't copy public/ — embedded data services inline everything
+    copyPublicDir: false,
     // Inline everything — no size limit warnings
     assetsInlineLimit: 100_000_000,
     cssCodeSplit: false,

@@ -13,7 +13,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "cucumber": "node node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 5",
-    "build:singlefile": "vite build --config vite.singlefile.config.js",
+    "build:singlefile": "vite build --config vite.singlefile.config.js && mv dist-singlefile/index.html dist-singlefile/assessment.html",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
