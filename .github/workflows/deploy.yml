@@ -3,35 +3,42 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main # Trigger on pushes to the main branch
+      - main
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Use the latest checkout action
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Or your preferred Node.js version
+          node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build React app
-        run: npm run build 
+      - name: Lint
+        run: npm run lint
 
-      - name: Print working Dir
-        run: pwd
+      - name: Test
+        run: npm test
 
-      - name: tree dist build directory contents
-        run: tree dist
-      
-      # Use JamesIves/github-pages-deploy-action@v4
+      - name: Build
+        run: npm run build
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages # The branch the action deploys to (it will create this if it doesn't exist)
-          folder: dist     # The folder containing your built assets (Vite's default is 'dist')
+          branch: gh-pages
+          folder: dist
