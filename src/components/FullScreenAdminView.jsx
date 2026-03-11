@@ -10,6 +10,24 @@ import { ChartFullscreenView } from './ChartFullscreenView';
 import logoUrl from '../assets/ftc-icon.svg';
 import './FullScreenAdminView.css';
 
+const SortTh = ({ col, label, sortConfig, onSort }) => {
+  const active = sortConfig.key === col;
+  return (
+    <th>
+      <button
+        className={`sort-th-btn${active ? ' sort-th-btn--active' : ''}`}
+        onClick={() => onSort(col)}
+        aria-sort={active ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+      >
+        {label}
+        <span aria-hidden="true" className="sort-indicator">
+          {active ? (sortConfig.direction === 'asc' ? ' ▲' : ' ▼') : ' ⇅'}
+        </span>
+      </button>
+    </th>
+  );
+};
+
 export const FullScreenAdminView = ({
   domains,
   answers,
@@ -522,33 +540,16 @@ export const FullScreenAdminView = ({
                     }
                     return 0;
                   });
-                  const SortTh = ({ col, label }) => {
-                    const active = sortConfig.key === col;
-                    return (
-                      <th>
-                        <button
-                          className={`sort-th-btn${active ? ' sort-th-btn--active' : ''}`}
-                          onClick={() => handleSort(col)}
-                          aria-sort={active ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
-                        >
-                          {label}
-                          <span aria-hidden="true" className="sort-indicator">
-                            {active ? (sortConfig.direction === 'asc' ? ' ▲' : ' ▼') : ' ⇅'}
-                          </span>
-                        </button>
-                      </th>
-                    );
-                  };
                   return (
                     <div className="completion-table-wrap">
                     <table className="completion-table" data-testid="completion-table">
                       <thead>
                         <tr>
-                          <SortTh col="name" label="Assessor" />
+                          <SortTh col="name" label="Assessor" sortConfig={sortConfig} onSort={handleSort} />
                           <th>Assigned</th>
                           <th>Answered</th>
-                          <SortTh col="percentage" label="Progress" />
-                          <SortTh col="lastActive" label="Last Active" />
+                          <SortTh col="percentage" label="Progress" sortConfig={sortConfig} onSort={handleSort} />
+                          <SortTh col="lastActive" label="Last Active" sortConfig={sortConfig} onSort={handleSort} />
                         </tr>
                       </thead>
                       <tbody>

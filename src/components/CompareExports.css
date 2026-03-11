@@ -34,34 +34,34 @@
 }
 
 .compare-file-badge.before {
-  background: #dbeafe;
-  color: #14532d;
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
 }
 
 .compare-file-badge.after {
-  background: #dcfce7;
-  color: #15803d;
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
 }
 
 .compare-arrow {
   font-size: 1.5rem;
-  color: #9ca3af;
+  color: #64748b;
   align-self: center;
 }
 
 .compare-meta {
   font-size: 0.82rem;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .compare-error {
-  color: #dc2626;
+  color: #ef4444;
   font-size: 0.9rem;
   margin: 0.5rem 0;
 }
 
 .compare-hint {
-  color: #6b7280;
+  color: #64748b;
   font-size: 0.9rem;
   font-style: italic;
   margin-top: 0.5rem;
@@ -85,22 +85,22 @@
 .compare-table td {
   padding: 0.6rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .compare-table th {
-  background: #f9fafb;
+  background: #1a2e1f;
   font-weight: 600;
-  color: #374151;
+  color: #94a3b8;
 }
 
 .compare-domain {
-  color: #1f2937;
+  color: #f1f5f9;
 }
 
 .compare-score {
   text-align: right;
-  color: #374151;
+  color: #94a3b8;
   font-variant-numeric: tabular-nums;
 }
 
@@ -111,20 +111,20 @@
 }
 
 .delta-positive {
-  color: #16a34a;
+  color: #22c55e;
 }
 
 .delta-negative {
-  color: #dc2626;
+  color: #ef4444;
 }
 
 .delta-neutral {
-  color: #6b7280;
+  color: #64748b;
 }
 
 .compare-overall-row td {
-  border-top: 2px solid #d1d5db;
-  background: #f9fafb;
+  border-top: 2px solid rgba(148, 163, 184, 0.25);
+  background: #1a2e1f;
 }
 
 .compare-legend {
@@ -132,7 +132,7 @@
   gap: 1.5rem;
   font-size: 0.82rem;
   margin-top: 0.75rem;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .compare-legend .delta-positive,
