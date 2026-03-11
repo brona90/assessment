@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { User, Check, BarChart2, Download, LogOut, ClipboardList, PartyPopper, ArrowRight } from 'lucide-react';
 import { QuestionCard } from './QuestionCard';
 import { ProgressBar } from './ProgressBar';
 import { scoreCalculator } from '../utils/scoreCalculator';
-import logoUrl from '../assets/ftc-logo-transparent-light.svg';
+import logoUrl from '../assets/ftc-icon.svg';
 import './UserView.css';
 
 export const UserView = ({
@@ -19,6 +20,7 @@ export const UserView = ({
   onCommentChange,
   onAddEvidence,
   onExportUserData,
+  onSwitchToResults,
   onLogout
 }) => {
   // Reverse-map frameworks → per-question compliance tags
@@ -54,6 +56,17 @@ export const UserView = ({
 
   const domains = useMemo(() => Object.values(groupedQuestions), [groupedQuestions]);
   const [activeTab, setActiveTab] = useState(() => domains[0]?.id || null);
+  const [lastSaved, setLastSaved] = useState(null);
+
+  const handleAnswerChange = useCallback((qId, value) => {
+    onAnswerChange(qId, value);
+    setLastSaved(new Date());
+  }, [onAnswerChange]);
+
+  const handleCommentChange = useCallback((qId, text) => {
+    onCommentChange(qId, text);
+    if (text) setLastSaved(new Date());
+  }, [onCommentChange]);
 
   // Set active tab once questions load (domains[0] may not exist on first render)
   useEffect(() => {
@@ -70,26 +83,40 @@ export const UserView = ({
         <div className="user-info-bar">
           <img src={logoUrl} alt="fosterthecode" className="header-brand-logo" />
           <div className="user-profile">
-            <span className="user-avatar">👤</span>
+            <span className="user-avatar"><User size={20} /></span>
             <div>
               <h2>{user.name}</h2>
               <p className="user-role">{user.title || 'Assessment User'}</p>
             </div>
           </div>
           <div className="user-actions">
+            {lastSaved && (
+              <span className="autosave-indicator" aria-live="polite">
+                <Check size={12} /> Saved {lastSaved.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            {onSwitchToResults && (
+              <button
+                className="results-btn"
+                onClick={onSwitchToResults}
+                data-testid="view-results-btn"
+              >
+                <BarChart2 size={16} /> View Results
+              </button>
+            )}
             <button
-              className="export-btn" 
+              className="export-btn"
               onClick={onExportUserData}
               data-testid="export-user-data"
             >
-              💾 Export My Data
+              <Download size={16} /> Export My Data
             </button>
-            <button 
-              className="logout-btn" 
+            <button
+              className="logout-btn"
               onClick={onLogout}
               data-testid="logout-btn"
             >
-              🚪 Logout
+              <LogOut size={16} /> Logout
             </button>
           </div>
         </div>
@@ -105,7 +132,7 @@ export const UserView = ({
         {questions.length === 0 ? (
           <div className="no-questions-message" data-testid="no-questions">
             <div className="empty-state">
-              <span className="empty-icon">📋</span>
+              <span className="empty-icon"><ClipboardList size={48} /></span>
               <h4>No Questions Assigned</h4>
               <p>You don't have any questions assigned yet. Please contact your administrator.</p>
             </div>
@@ -159,9 +186,9 @@ export const UserView = ({
                             answer={answers[question.id]}
                             comment={comments?.[question.id] || ''}
                             complianceTags={questionFrameworkMap[question.id] || []}
-                            onAnswerChange={(value) => onAnswerChange(question.id, value)}
+                            onAnswerChange={(value) => handleAnswerChange(question.id, value)}
                             onClearAnswer={() => onClearAnswer(question.id)}
-                            onCommentChange={(text) => onCommentChange(question.id, text)}
+                            onCommentChange={(text) => handleCommentChange(question.id, text)}
                             onAddEvidence={() => onAddEvidence(question.id)}
                             hasEvidence={!!evidence[question.id]}
                           />
@@ -172,6 +199,22 @@ export const UserView = ({
                 </div>
               )}
             </div>
+
+            {/* Completion Banner */}
+            {progress.percentage === 100 && (
+              <div className="assessment-complete-banner" data-testid="assessment-complete">
+                <span className="complete-banner-icon" aria-hidden="true"><PartyPopper size={40} /></span>
+                <div className="complete-banner-text">
+                  <h4>Assessment Complete!</h4>
+                  <p>You&apos;ve answered all {progress.total} questions.</p>
+                </div>
+                {onSwitchToResults && (
+                  <button className="complete-banner-btn" onClick={onSwitchToResults}>
+                    View Your Results <ArrowRight size={16} />
+                  </button>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>
@@ -200,6 +243,7 @@ UserView.propTypes = {
   onCommentChange: PropTypes.func.isRequired,
   onAddEvidence: PropTypes.func.isRequired,
   onExportUserData: PropTypes.func.isRequired,
+  onSwitchToResults: PropTypes.func,
   onLogout: PropTypes.func.isRequired
 };
 

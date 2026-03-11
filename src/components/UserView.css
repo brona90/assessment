@@ -18,7 +18,7 @@
 }
 
 .header-brand-logo {
-  height: 36px;
+  height: 48px;
   width: auto;
   border-radius: 6px;
   flex-shrink: 0;
@@ -340,7 +340,7 @@
 
 .results-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -352,5 +352,77 @@
 
 .results-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
+/* Auto-save indicator */
+.autosave-indicator {
+  font-size: 0.8rem;
+  color: #86efac;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+/* Assessment completion banner */
+.assessment-complete-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.2) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 1rem;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1);
+}
+
+.complete-banner-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.complete-banner-text {
+  flex: 1;
+}
+
+.complete-banner-text h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6ee7b7;
+}
+
+.complete-banner-text p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+
+.complete-banner-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.complete-banner-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
+@media (max-width: 600px) {
+  .assessment-complete-banner {
+    flex-direction: column;
+    text-align: center;
+  }
 }

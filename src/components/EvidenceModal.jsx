@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { X, Paperclip } from 'lucide-react';
 
 export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose }) => {
   // Initialize state with existing evidence
@@ -56,7 +57,7 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
         <div className="modal-header">
           <h3>Add Evidence for {questionId?.toUpperCase()}</h3>
           <button className="modal-close" onClick={onClose} data-testid="close-modal">
-            ✕
+            <X size={18} />
           </button>
         </div>
 
@@ -74,14 +75,21 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
           </div>
 
           <div className="evidence-section">
-            <label>Image Evidence:</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageUpload}
-              data-testid="image-upload"
-            />
+            <label htmlFor="image-upload">Image Evidence:</label>
+            <label className="file-upload-label" htmlFor="image-upload">
+              <span className="file-upload-icon"><Paperclip size={24} /></span>
+              <span>Choose files or drag &amp; drop</span>
+              <span className="file-upload-hint">PNG, JPG, PDF accepted</span>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                data-testid="image-upload"
+                className="file-upload-input"
+              />
+            </label>
             
             {images.length > 0 && (
               <div className="image-preview-grid" data-testid="image-preview">
@@ -93,7 +101,7 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
                       onClick={() => handleRemoveImage(idx)}
                       data-testid={`remove-image-${idx}`}
                     >
-                      ✕
+                      <X size={14} />
                     </button>
                   </div>
                 ))}

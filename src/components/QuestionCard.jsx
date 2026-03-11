@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Paperclip, X, Check, MessageSquare } from 'lucide-react';
 import { NA_VALUE } from '../utils/scoreCalculator';
 
 const RATING_OPTIONS = [
@@ -64,7 +65,7 @@ export const QuestionCard = ({
       <div className="question-header">
         <span className="question-id">{question.id.toUpperCase()}</span>
         {question.requiresEvidence && (
-          <span className="evidence-required">📎 Evidence Required</span>
+          <span className="evidence-required"><Paperclip size={14} /> Evidence Required</span>
         )}
       </div>
       
@@ -86,10 +87,12 @@ export const QuestionCard = ({
         </div>
       )}
       
-      <div className="rating-scale">
+      <div className="rating-scale" role="radiogroup" aria-label="Maturity level">
         {RATING_OPTIONS.map(option => (
           <button
             key={option.value}
+            role="radio"
+            aria-checked={selectedValue === option.value}
             className={`rating-option ${selectedValue === option.value ? 'selected' : ''}`}
             onClick={() => handleOptionClick(option.value)}
             data-testid={`option-${question.id}-${option.value}`}
@@ -107,7 +110,7 @@ export const QuestionCard = ({
             onClick={() => handleOptionClick(selectedValue)}
             data-testid={`clear-${question.id}`}
           >
-            ✕ Clear Answer
+            <X size={14} /> Clear Answer
           </button>
         )}
 
@@ -117,7 +120,7 @@ export const QuestionCard = ({
           data-testid={`na-${question.id}`}
           title="Mark as Not Applicable — excludes this question from scoring"
         >
-          {selectedValue === NA_VALUE ? '✓ N/A — Not Applicable' : 'N/A'}
+          {selectedValue === NA_VALUE ? <><Check size={14} /> N/A — Not Applicable</> : 'N/A'}
         </button>
 
         <button
@@ -125,7 +128,7 @@ export const QuestionCard = ({
           onClick={onAddEvidence}
           data-testid={`evidence-${question.id}`}
         >
-          📎 {hasEvidence ? 'View Evidence' : 'Add Evidence'}
+          <Paperclip size={14} /> {hasEvidence ? 'View Evidence' : 'Add Evidence'}
         </button>
 
         <button
@@ -134,7 +137,7 @@ export const QuestionCard = ({
           data-testid={`comment-toggle-${question.id}`}
           title="Add a brief note for this question"
         >
-          💬 {commentText ? 'Edit Note' : 'Add Note'}
+          <MessageSquare size={14} /> {commentText ? 'Edit Note' : 'Add Note'}
         </button>
       </div>
 

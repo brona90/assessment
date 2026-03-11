@@ -33,7 +33,7 @@ describe('QuestionCard', () => {
 
   it('should show evidence required badge', () => {
     render(<QuestionCard {...mockProps} />);
-    expect(screen.getByText('📎 Evidence Required')).toBeInTheDocument();
+    expect(screen.getByText('Evidence Required')).toBeInTheDocument();
   });
 
   it('should render all rating options', () => {

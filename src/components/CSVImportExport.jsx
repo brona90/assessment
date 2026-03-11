@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { HelpCircle, Users, FolderOpen, Lock, Download, ClipboardList, Upload } from 'lucide-react';
 import { useDataStore } from '../hooks/useDataStore';
 import {
   downloadCsv,
@@ -12,10 +13,10 @@ import {
 import './CSVImportExport.css';
 
 const ENTITIES = [
-  { key: 'questions', label: 'Questions', icon: '❓', columns: QUESTIONS_COLUMNS },
-  { key: 'users',     label: 'Users',     icon: '👥', columns: USERS_COLUMNS },
-  { key: 'domains',   label: 'Domains',   icon: '🗂️',  columns: DOMAINS_COLUMNS },
-  { key: 'frameworks',label: 'Frameworks',icon: '🔒', columns: FRAMEWORKS_COLUMNS }
+  { key: 'questions', label: 'Questions', Icon: HelpCircle, columns: QUESTIONS_COLUMNS },
+  { key: 'users',     label: 'Users',     Icon: Users,      columns: USERS_COLUMNS },
+  { key: 'domains',   label: 'Domains',   Icon: FolderOpen, columns: DOMAINS_COLUMNS },
+  { key: 'frameworks',label: 'Frameworks',Icon: Lock,       columns: FRAMEWORKS_COLUMNS }
 ];
 
 function useExportHandlers(ds) {
@@ -137,12 +138,12 @@ export const CSVImportExport = () => {
       </p>
 
       <div className="csv-entity-grid">
-        {ENTITIES.map(({ key, label, icon }) => {
+        {ENTITIES.map(({ key, label, Icon }) => {
           const status = importStatus[key];
           return (
             <div key={key} className="csv-entity-card" data-testid={`csv-entity-${key}`}>
               <div className="csv-entity-header">
-                <span className="csv-entity-icon">{icon}</span>
+                <span className="csv-entity-icon"><Icon size={20} /></span>
                 <span className="csv-entity-label">{label}</span>
               </div>
 
@@ -153,7 +154,7 @@ export const CSVImportExport = () => {
                   data-testid={`csv-export-${key}`}
                   title={`Download current ${label} as CSV`}
                 >
-                  ⬇ Export
+                  <Download size={14} /> Export
                 </button>
                 <button
                   className="csv-btn csv-btn--template"
@@ -161,14 +162,14 @@ export const CSVImportExport = () => {
                   data-testid={`csv-template-${key}`}
                   title={`Download example ${label} template`}
                 >
-                  📋 Template
+                  <ClipboardList size={14} /> Template
                 </button>
                 <label
                   className="csv-btn csv-btn--import"
                   title={`Import ${label} from CSV`}
                   data-testid={`csv-import-label-${key}`}
                 >
-                  ⬆ Import
+                  <Upload size={14} /> Import
                   <input
                     type="file"
                     accept=".csv"
