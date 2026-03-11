@@ -9,6 +9,7 @@ node_modules
 
 # Production
 /dist
+/dist-singlefile
 /build
 
 # Misc
