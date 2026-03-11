@@ -82,10 +82,10 @@ describe('useRouter', () => {
       });
       expect(result.current.currentRoute).toBe('results');
 
-      // Simulate browser back button by changing hash
+      // Simulate browser back button
       act(() => {
         window.location.hash = '';
-        window.dispatchEvent(new HashChangeEvent('hashchange'));
+        window.dispatchEvent(new PopStateEvent('popstate'));
       });
 
       expect(result.current.currentRoute).toBe('assessment');
@@ -126,7 +126,7 @@ describe('useRouter', () => {
 
     it('should handle navigation to the same route gracefully', () => {
       const { result } = renderHook(() => useRouter());
-      
+
       // Navigate to assessment (already on assessment)
       act(() => {
         result.current.navigate('assessment');
@@ -135,6 +135,34 @@ describe('useRouter', () => {
       // Should remain on assessment route
       expect(result.current.currentRoute).toBe('assessment');
       expect(window.location.hash).toBe('');
+    });
+
+    it('should use history.pushState instead of setting hash directly', () => {
+      const pushStateSpy = vi.spyOn(history, 'pushState');
+      const { result } = renderHook(() => useRouter());
+
+      act(() => {
+        result.current.navigate('results');
+      });
+
+      expect(pushStateSpy).toHaveBeenCalledWith(null, '', '#results');
+      pushStateSpy.mockRestore();
+    });
+
+    it('should push URL without # when navigating to assessment', () => {
+      window.location.hash = '#results';
+      const pushStateSpy = vi.spyOn(history, 'pushState');
+      const { result } = renderHook(() => useRouter());
+
+      act(() => {
+        result.current.navigate('assessment');
+      });
+
+      // Should push pathname without hash — no trailing #
+      expect(pushStateSpy).toHaveBeenCalledWith(
+        null, '', expect.not.stringContaining('#')
+      );
+      pushStateSpy.mockRestore();
     });
   });
 
@@ -195,7 +223,7 @@ describe('useRouter', () => {
       // Simulate browser back button
       act(() => {
         window.location.hash = '#admin/frameworks';
-        window.dispatchEvent(new HashChangeEvent('hashchange'));
+        window.dispatchEvent(new PopStateEvent('popstate'));
       });
       expect(result.current.currentSubRoute).toBe('frameworks');
     });

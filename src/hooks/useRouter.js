@@ -48,11 +48,15 @@ export const useRouter = () => {
       hash = mainRoute;
     }
     
-    // Update the URL hash, which will trigger the hashchange event
-    if (window.location.hash.slice(1) !== hash) {
-      window.location.hash = hash;
+    // Use pushState to avoid firing popstate/hashchange events (no double update)
+    const current = window.location.hash.slice(1);
+    if (current !== hash) {
+      const url = hash
+        ? `#${hash}`
+        : window.location.pathname + window.location.search;
+      history.pushState(null, '', url);
     }
-    
+
     // Normalise sub-route so state always matches the hash
     const normalizedSub = mainRoute === 'admin' ? (subRoute || 'overview') : subRoute;
     setRoute({ main: mainRoute, sub: normalizedSub });
@@ -64,11 +68,9 @@ export const useRouter = () => {
       setRoute(parseRoute());
     };
 
-    window.addEventListener('hashchange', handlePopState);
     window.addEventListener('popstate', handlePopState);
 
     return () => {
-      window.removeEventListener('hashchange', handlePopState);
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
