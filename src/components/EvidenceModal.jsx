@@ -35,7 +35,7 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
     });
 
     Promise.all(readers).then(newImages => {
-      setImages([...images, ...newImages]);
+      setImages(prev => [...prev, ...newImages]);
     });
   };
 

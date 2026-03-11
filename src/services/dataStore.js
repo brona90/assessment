@@ -22,6 +22,7 @@ class DataStore {
       evidence: {} // Evidence/proof attached to answers
     };
     this.initialized = false;
+    this._initPromise = null;
   }
 
   /**
@@ -29,6 +30,12 @@ class DataStore {
    */
   async initialize() {
     if (this.initialized) return;
+    if (this._initPromise) return this._initPromise;
+    this._initPromise = this._doInit();
+    return this._initPromise;
+  }
+
+  async _doInit() {
 
     try {
       // Load initial data from JSON files
@@ -828,6 +835,7 @@ class DataStore {
       evidence: {}
     };
     this.initialized = false;
+    this._initPromise = null;
   }
 }
 

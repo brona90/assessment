@@ -1,4 +1,5 @@
 import { loadRawData } from './rawDataProvider';
+import { NA_VALUE } from '../utils/scoreCalculator';
 
 export const complianceService = {
   async loadCompliance() {
@@ -24,7 +25,7 @@ export const complianceService = {
     let count = 0;
 
     framework.mappedQuestions.forEach(qId => {
-      if (answers[qId] !== undefined) {
+      if (answers[qId] !== undefined && answers[qId] !== NA_VALUE) {
         total += (answers[qId] / 5) * 100;
         count++;
       }

@@ -59,16 +59,17 @@ export const useAssessment = (userId) => {
   }, [userId]);
 
   const saveEvidenceForQuestion = useCallback(async (questionId, evidenceData) => {
-    const newEvidence = { ...evidence, [questionId]: evidenceData };
-    setEvidence(newEvidence);
+    setEvidence(prev => ({ ...prev, [questionId]: evidenceData }));
     await storageService.saveEvidence(questionId, evidenceData);
-  }, [evidence]);
+  }, []);
 
   const saveComment = useCallback((questionId, text) => {
-    const newComments = { ...comments, [questionId]: text };
-    setComments(newComments);
-    storageService.saveComments(userId, newComments);
-  }, [comments, userId]);
+    setComments(prev => {
+      const updated = { ...prev, [questionId]: text };
+      storageService.saveComments(userId, updated);
+      return updated;
+    });
+  }, [userId]);
 
   const clearAllData = useCallback(async () => {
     setAnswers({});
