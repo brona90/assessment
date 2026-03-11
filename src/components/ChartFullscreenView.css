@@ -279,11 +279,6 @@
     gap: 0.25rem;
   }
 
-  /* Hide benchmark source chips from header — they're in the toolbar when open */
-  .chart-fullscreen-header .benchmark-sources {
-    display: none;
-  }
-
   .chart-fullscreen-header {
     gap: 0.875rem;
     padding: 0.875rem 1.5rem;
@@ -333,10 +328,9 @@
   }
 }
 
-/* ── Small phones (≤480px): hide score + sources, even more compact ── */
+/* ── Small phones (≤480px): hide score, even more compact ── */
 @media (max-width: 480px) {
-  .chart-fullscreen-score,
-  .benchmark-sources {
+  .chart-fullscreen-score {
     display: none;
   }
 
@@ -370,8 +364,7 @@
 
 /* ── Phone landscape (very short viewport) ── */
 @media (orientation: landscape) and (max-height: 500px) {
-  .chart-fullscreen-score,
-  .benchmark-sources {
+  .chart-fullscreen-score {
     display: none;
   }
 

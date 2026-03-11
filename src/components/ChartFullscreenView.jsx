@@ -128,7 +128,6 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
           <span className="cfs-score-value">{overallScore.toFixed(2)}</span>
           <span className="cfs-score-label">/ 5.0 — {scoreCalculator.getMaturityLevel(overallScore)}</span>
         </div>
-        {benchmarks?.sources && <BenchmarkSources sources={benchmarks.sources} />}
         <button
           className="cfs-toolbar-toggle"
           onClick={() => setToolbarOpen(v => !v)}
@@ -229,6 +228,12 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
         )}
 
         <div className="cfs-toolbar-spacer" />
+
+        {benchmarks?.sources && (
+          <div className="cfs-toolbar-group">
+            <BenchmarkSources sources={benchmarks.sources} />
+          </div>
+        )}
 
         <button
           className="cfs-export-btn"
