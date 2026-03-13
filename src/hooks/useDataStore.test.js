@@ -34,12 +34,15 @@ vi.mock('../services/dataStore', () => ({
     exportData: vi.fn(),
     importData: vi.fn(),
     downloadData: vi.fn(),
-      setAnswers: vi.fn(),
-      clearAnswers: vi.fn(),
-      setEvidence: vi.fn(),
-      updateEvidence: vi.fn(),
-      clearEvidence: vi.fn(),
-      clearAllData: vi.fn(),
+    getAnswers: vi.fn(),
+    updateAnswer: vi.fn(),
+    setAnswers: vi.fn(),
+    clearAnswers: vi.fn(),
+    getEvidence: vi.fn(),
+    setEvidence: vi.fn(),
+    updateEvidence: vi.fn(),
+    clearEvidence: vi.fn(),
+    clearAllData: vi.fn(),
   }
 }));
 
@@ -110,6 +113,7 @@ describe('useDataStore', () => {
       const response = result.current.addDomain(newDomain);
       expect(response.success).toBe(true);
       expect(response.data).toEqual(newDomain);
+      expect(dataStore.addDomain).toHaveBeenCalledWith(newDomain);
     });
 
     it('should handle add domain error', async () => {
@@ -139,6 +143,7 @@ describe('useDataStore', () => {
       const response = result.current.updateDomain('domain1', { title: 'Updated' });
       expect(response.success).toBe(true);
       expect(response.data).toEqual(updated);
+      expect(dataStore.updateDomain).toHaveBeenCalledWith('domain1', { title: 'Updated' });
     });
 
     it('should delete domain', async () => {
@@ -151,6 +156,7 @@ describe('useDataStore', () => {
 
       const response = result.current.deleteDomain('domain1');
       expect(response.success).toBe(true);
+      expect(dataStore.deleteDomain).toHaveBeenCalledWith('domain1');
     });
   });
 
@@ -190,6 +196,7 @@ describe('useDataStore', () => {
       const response = result.current.setSelectedFrameworks(['fw1', 'fw2']);
       expect(response.success).toBe(true);
       expect(response.data).toEqual(['fw1', 'fw2']);
+      expect(dataStore.setSelectedFrameworks).toHaveBeenCalledWith(['fw1', 'fw2']);
     });
   });
 
@@ -218,6 +225,7 @@ describe('useDataStore', () => {
       const response = result.current.addUser(newUser);
       expect(response.success).toBe(true);
       expect(response.data).toEqual(newUser);
+      expect(dataStore.addUser).toHaveBeenCalledWith(newUser);
     });
   });
 
@@ -244,6 +252,7 @@ describe('useDataStore', () => {
 
       const questions = result.current.getQuestionsByDomain('domain1');
       expect(questions).toHaveLength(1);
+      expect(dataStore.getQuestionsByDomain).toHaveBeenCalledWith('domain1');
     });
 
     it('should get questions for user', async () => {
@@ -256,6 +265,7 @@ describe('useDataStore', () => {
 
       const questions = result.current.getQuestionsForUser('user1');
       expect(questions).toHaveLength(1);
+      expect(dataStore.getQuestionsForUser).toHaveBeenCalledWith('user1');
     });
   });
 
@@ -270,6 +280,7 @@ describe('useDataStore', () => {
 
       const assignments = result.current.getUserAssignments('user1');
       expect(assignments).toHaveLength(2);
+      expect(dataStore.getUserAssignments).toHaveBeenCalledWith('user1');
     });
 
     it('should assign questions to user', async () => {
@@ -283,11 +294,12 @@ describe('useDataStore', () => {
       const response = result.current.assignQuestionsToUser('user1', ['q1', 'q2']);
       expect(response.success).toBe(true);
       expect(response.data).toHaveLength(2);
+      expect(dataStore.assignQuestionsToUser).toHaveBeenCalledWith('user1', ['q1', 'q2']);
     });
   });
 
   describe('export/import operations', () => {
-    it('should export data', async () => {
+    it('should call downloadData via exportData wrapper', async () => {
       dataStore.initialized = true;
       dataStore.downloadData.mockReturnValue(true);
 
@@ -308,8 +320,10 @@ describe('useDataStore', () => {
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = await result.current.importData('{"data": "test"}');
+      const jsonData = '{"data": "test"}';
+      const response = await result.current.importData(jsonData);
       expect(response.success).toBe(true);
+      expect(dataStore.importData).toHaveBeenCalledWith(jsonData);
     });
 
     it('should handle import error', async () => {
@@ -352,6 +366,7 @@ describe('useDataStore', () => {
       const response = result.current.addQuestionAssignments('user1', ['q1', 'q2']);
       expect(response.success).toBe(true);
       expect(response.data).toEqual({ userId: 'user1', questionIds: ['q1', 'q2'] });
+      expect(dataStore.addQuestionAssignments).toHaveBeenCalledWith('user1', ['q1', 'q2']);
     });
 
     it('should handle add question assignments error', async () => {
@@ -380,6 +395,7 @@ describe('useDataStore', () => {
       const response = result.current.removeQuestionAssignments('user1', ['q1']);
       expect(response.success).toBe(true);
       expect(response.data).toEqual({ userId: 'user1', questionIds: [] });
+      expect(dataStore.removeQuestionAssignments).toHaveBeenCalledWith('user1', ['q1']);
     });
 
     it('should handle remove question assignments error', async () => {
@@ -438,6 +454,7 @@ describe('useDataStore', () => {
       const response = result.current.updateQuestion('q1', { text: 'Updated Question' });
       expect(response.success).toBe(true);
       expect(response.data.text).toBe('Updated Question');
+      expect(dataStore.updateQuestion).toHaveBeenCalledWith('q1', { text: 'Updated Question' });
     });
 
     it('should handle update question error', async () => {
@@ -457,15 +474,17 @@ describe('useDataStore', () => {
 
     it('should add question successfully', async () => {
       dataStore.initialized = true;
-      dataStore.addQuestion.mockReturnValue({ id: 'q2', text: 'New Question' });
+      const newQuestion = { id: 'q2', text: 'New Question' };
+      dataStore.addQuestion.mockReturnValue(newQuestion);
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = result.current.addQuestion({ id: 'q2', text: 'New Question' });
+      const response = result.current.addQuestion(newQuestion);
       expect(response.success).toBe(true);
       expect(response.data.id).toBe('q2');
+      expect(dataStore.addQuestion).toHaveBeenCalledWith(newQuestion);
     });
 
     it('should handle add question error', async () => {
@@ -487,15 +506,17 @@ describe('useDataStore', () => {
   describe('User Management', () => {
     it('should add user successfully', async () => {
       dataStore.initialized = true;
-      dataStore.addUser.mockReturnValue({ id: 'user2', name: 'New User' });
+      const newUser = { id: 'user2', name: 'New User' };
+      dataStore.addUser.mockReturnValue(newUser);
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = result.current.addUser({ id: 'user2', name: 'New User' });
+      const response = result.current.addUser(newUser);
       expect(response.success).toBe(true);
       expect(response.data.name).toBe('New User');
+      expect(dataStore.addUser).toHaveBeenCalledWith(newUser);
     });
 
     it('should handle add user error', async () => {
@@ -523,6 +544,7 @@ describe('useDataStore', () => {
 
       const response = result.current.deleteUser('user1');
       expect(response.success).toBe(true);
+      expect(dataStore.deleteUser).toHaveBeenCalledWith('user1');
     });
 
     it('should handle delete user error', async () => {
@@ -551,6 +573,7 @@ describe('useDataStore', () => {
       const response = result.current.updateUser('user1', { name: 'Updated User' });
       expect(response.success).toBe(true);
       expect(response.data.name).toBe('Updated User');
+      expect(dataStore.updateUser).toHaveBeenCalledWith('user1', { name: 'Updated User' });
     });
 
     it('should handle update user error', async () => {
@@ -580,6 +603,7 @@ describe('useDataStore', () => {
 
       const response = result.current.deleteFramework('f1');
       expect(response.success).toBe(true);
+      expect(dataStore.deleteFramework).toHaveBeenCalledWith('f1');
     });
 
     it('should handle delete framework error', async () => {
@@ -608,6 +632,7 @@ describe('useDataStore', () => {
       const response = result.current.setSelectedFrameworks(['f1', 'f2']);
       expect(response.success).toBe(true);
       expect(response.data).toEqual(['f1', 'f2']);
+      expect(dataStore.setSelectedFrameworks).toHaveBeenCalledWith(['f1', 'f2']);
     });
 
     it('should handle set selected frameworks error', async () => {
@@ -627,15 +652,17 @@ describe('useDataStore', () => {
 
     it('should add framework successfully', async () => {
       dataStore.initialized = true;
-      dataStore.addFramework.mockReturnValue({ id: 'f2', name: 'New Framework' });
+      const newFramework = { id: 'f2', name: 'New Framework' };
+      dataStore.addFramework.mockReturnValue(newFramework);
 
       const { result } = renderHook(() => useDataStore());
 
       await waitFor(() => expect(result.current.initialized).toBe(true));
 
-      const response = result.current.addFramework({ id: 'f2', name: 'New Framework' });
+      const response = result.current.addFramework(newFramework);
       expect(response.success).toBe(true);
       expect(response.data.name).toBe('New Framework');
+      expect(dataStore.addFramework).toHaveBeenCalledWith(newFramework);
     });
 
     it('should handle add framework error', async () => {
@@ -664,6 +691,7 @@ describe('useDataStore', () => {
       const response = result.current.updateFramework('f1', { name: 'Updated Framework' });
       expect(response.success).toBe(true);
       expect(response.data.name).toBe('Updated Framework');
+      expect(dataStore.updateFramework).toHaveBeenCalledWith('f1', { name: 'Updated Framework' });
     });
 
     it('should handle update framework error', async () => {
@@ -694,6 +722,7 @@ describe('useDataStore', () => {
       const response = result.current.updateDomain('d1', { title: 'Updated Domain' });
       expect(response.success).toBe(true);
       expect(response.data.title).toBe('Updated Domain');
+      expect(dataStore.updateDomain).toHaveBeenCalledWith('d1', { title: 'Updated Domain' });
     });
 
     it('should handle update domain error', async () => {
@@ -721,6 +750,7 @@ describe('useDataStore', () => {
 
       const response = result.current.deleteDomain('d1');
       expect(response.success).toBe(true);
+      expect(dataStore.deleteDomain).toHaveBeenCalledWith('d1');
     });
 
     it('should handle delete domain error', async () => {
@@ -738,7 +768,7 @@ describe('useDataStore', () => {
       expect(response.error).toBe('Domain delete failed');
     });
   });
-});
+
   describe('Framework Error Handling', () => {
     it('should handle deleteFramework error', async () => {
       dataStore.initialized = true;
@@ -753,6 +783,7 @@ describe('useDataStore', () => {
       const response = result.current.deleteFramework('fw1');
       expect(response.success).toBe(false);
       expect(response.error).toBe('Framework delete failed');
+      expect(dataStore.deleteFramework).toHaveBeenCalledWith('fw1');
     });
   });
 
@@ -770,6 +801,7 @@ describe('useDataStore', () => {
       const response = result.current.updateEvidence('q1', { images: [] });
       expect(response.success).toBe(false);
       expect(response.error).toBe('Evidence update failed');
+      expect(dataStore.updateEvidence).toHaveBeenCalledWith('q1', { images: [] });
     });
 
     it('should handle clearEvidence error', async () => {
@@ -793,7 +825,7 @@ describe('useDataStore', () => {
       dataStore.initialized = false;
       dataStore.getFrameworks.mockReturnValue([]);
       const { result } = renderHook(() => useDataStore());
-      
+
       const frameworks = result.current.getFrameworks();
       expect(Array.isArray(frameworks)).toBe(true);
     });
@@ -802,7 +834,7 @@ describe('useDataStore', () => {
       dataStore.initialized = false;
       dataStore.getSelectedFrameworks.mockReturnValue([]);
       const { result } = renderHook(() => useDataStore());
-      
+
       const selected = result.current.getSelectedFrameworks();
       expect(Array.isArray(selected)).toBe(true);
     });
@@ -835,13 +867,14 @@ describe('useDataStore', () => {
       const response = result.current.assignQuestionsToUser('user1', ['q1']);
       expect(response.success).toBe(false);
       expect(response.error).toBe('Assignment failed');
+      expect(dataStore.assignQuestionsToUser).toHaveBeenCalledWith('user1', ['q1']);
     });
 
     it('should handle getUserAssignments when not initialized', () => {
       dataStore.initialized = false;
       dataStore.getUserAssignments.mockReturnValue([]);
       const { result } = renderHook(() => useDataStore());
-      
+
       const assignments = result.current.getUserAssignments('user1');
       expect(Array.isArray(assignments)).toBe(true);
     });
@@ -933,6 +966,7 @@ describe('useDataStore', () => {
       const response = result.current.setEvidence(evidence);
       expect(response.success).toBe(true);
       expect(response.data).toEqual(evidence);
+      expect(dataStore.setEvidence).toHaveBeenCalledWith(evidence);
     });
 
     it('returns failure when setEvidence throws', async () => {
@@ -962,6 +996,7 @@ describe('useDataStore', () => {
       const response = result.current.setAnswers(answers);
       expect(response.success).toBe(true);
       expect(response.data).toEqual(answers);
+      expect(dataStore.setAnswers).toHaveBeenCalledWith(answers);
     });
 
     it('returns failure when setAnswers throws', async () => {
@@ -982,7 +1017,7 @@ describe('useDataStore', () => {
   describe('updateAnswer', () => {
     it('returns success when updateAnswer succeeds', async () => {
       dataStore.initialized = true;
-      dataStore.updateAnswer = vi.fn().mockReturnValue({ q1: 4 });
+      dataStore.updateAnswer.mockReturnValue({ q1: 4 });
 
       const { result } = renderHook(() => useDataStore());
       await waitFor(() => expect(result.current.initialized).toBe(true));
@@ -995,7 +1030,7 @@ describe('useDataStore', () => {
 
     it('returns failure when updateAnswer throws', async () => {
       dataStore.initialized = true;
-      dataStore.updateAnswer = vi.fn().mockImplementation(() => {
+      dataStore.updateAnswer.mockImplementation(() => {
         throw new Error('Update answer failed');
       });
 
@@ -1011,7 +1046,7 @@ describe('useDataStore', () => {
   describe('getAnswers', () => {
     it('returns answers from the store', async () => {
       dataStore.initialized = true;
-      dataStore.getAnswers = vi.fn().mockReturnValue({ q1: 3 });
+      dataStore.getAnswers.mockReturnValue({ q1: 3 });
 
       const { result } = renderHook(() => useDataStore());
       await waitFor(() => expect(result.current.initialized).toBe(true));
@@ -1024,7 +1059,7 @@ describe('useDataStore', () => {
   describe('getEvidence', () => {
     it('returns evidence from the store', async () => {
       dataStore.initialized = true;
-      dataStore.getEvidence = vi.fn().mockReturnValue({ q1: { text: 'proof' } });
+      dataStore.getEvidence.mockReturnValue({ q1: { text: 'proof' } });
 
       const { result } = renderHook(() => useDataStore());
       await waitFor(() => expect(result.current.initialized).toBe(true));
@@ -1045,6 +1080,7 @@ describe('useDataStore', () => {
       const response = result.current.updateEvidence('q1', { text: 'updated' });
       expect(response.success).toBe(true);
       expect(response.data).toEqual({ q1: { text: 'updated' } });
+      expect(dataStore.updateEvidence).toHaveBeenCalledWith('q1', { text: 'updated' });
     });
   });
 
@@ -1080,3 +1116,4 @@ describe('useDataStore', () => {
       expect(response.error).toBe('Export failed');
     });
   });
+});
