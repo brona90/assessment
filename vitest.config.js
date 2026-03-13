@@ -11,6 +11,29 @@ export default defineConfig({
       jsdom: {
         url: 'http://localhost/'
       }
+    },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.spec.js',
+        '**/*.spec.jsx',
+        '**/*.test.js',
+        '**/*.test.jsx',
+        '**/*.css',
+        '**/*.svg',
+        'src/main.jsx',
+        'vite.config.js',
+        'vitest.config.js'
+      ],
+      thresholds: {
+        statements: 90,
+        branches: 90,
+        functions: 90,
+        lines: 90
+      }
     }
   }
 })
