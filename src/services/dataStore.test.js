@@ -1162,4 +1162,251 @@ describe('DataStore', async () => {
       vi.restoreAllMocks();
     });
   });
+
+  describe('import with answer validation (lines 718-721)', () => {
+    it('should reject answers with non-number values', async () => {
+      const data = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: { q1: 'invalid' }
+      };
+      await expect(dataStore.importData(data)).rejects.toThrow('Invalid answer value');
+    });
+
+    it('should reject answers with values below 0', async () => {
+      const data = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: { q1: -1 }
+      };
+      await expect(dataStore.importData(data)).rejects.toThrow('Invalid answer value');
+    });
+
+    it('should reject answers with values above 5', async () => {
+      const data = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: { q1: 6 }
+      };
+      await expect(dataStore.importData(data)).rejects.toThrow('Invalid answer value');
+    });
+
+    it('should accept answers with valid number values between 0 and 5', async () => {
+      const data = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: { q1: 0, q2: 2.5, q3: 5 }
+      };
+      const result = await dataStore.importData(data);
+      expect(result).toBe(true);
+      expect(dataStore.data.answers).toEqual({ q1: 0, q2: 2.5, q3: 5 });
+    });
+  });
+
+  describe('import with answers saved to per-user storage (lines 744-754)', () => {
+    it('should save imported answers to per-user storage keys', async () => {
+      const data = {
+        domains: {},
+        users: [{ id: 'u1', name: 'User 1' }, { id: 'u2', name: 'User 2' }],
+        frameworks: [],
+        questions: [{ id: 'q1', text: 'Q1' }, { id: 'q2', text: 'Q2' }],
+        assignments: { u1: ['q1'], u2: ['q2'] },
+        selectedFrameworks: [],
+        answers: { q1: 3, q2: 4 }
+      };
+      const result = await dataStore.importData(data);
+      expect(result).toBe(true);
+
+      // Verify per-user answers were saved to localStorage
+      const u1Data = JSON.parse(localStorage.getItem('assessmentData_u1'));
+      expect(u1Data).toEqual({ q1: 3 });
+      const u2Data = JSON.parse(localStorage.getItem('assessmentData_u2'));
+      expect(u2Data).toEqual({ q2: 4 });
+    });
+
+    it('should skip users with no matching answers in assignments', async () => {
+      const data = {
+        domains: {},
+        users: [{ id: 'u1', name: 'User 1' }],
+        frameworks: [],
+        questions: [{ id: 'q1', text: 'Q1' }],
+        assignments: { u1: ['q1'] },
+        selectedFrameworks: [],
+        answers: { q2: 3 } // q2 is not assigned to u1
+      };
+      const result = await dataStore.importData(data);
+      expect(result).toBe(true);
+
+      // u1 should NOT have data saved since q2 is not in their assignments
+      const u1Data = localStorage.getItem('assessmentData_u1');
+      expect(u1Data).toBeNull();
+    });
+
+    it('should handle import with empty answers object', async () => {
+      const data = {
+        domains: {},
+        users: [{ id: 'u1', name: 'User 1' }],
+        frameworks: [],
+        questions: [],
+        assignments: { u1: [] },
+        selectedFrameworks: [],
+        answers: {}
+      };
+      const result = await dataStore.importData(data);
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('clearAllData', () => {
+    it('should clear all in-memory data and localStorage app keys', async () => {
+      // Set up some data
+      dataStore.data.domains = { d1: { title: 'Test' } };
+      dataStore.data.users = [{ id: 'u1' }];
+      dataStore.initialized = true;
+
+      // Set up some localStorage keys
+      localStorage.setItem('assessmentData_u1', '{"q1":3}');
+      localStorage.setItem('adminAssignments', '{"u1":["q1"]}');
+      localStorage.setItem('frameworkMappings', '{"f1":["q1"]}');
+      localStorage.setItem('comments_u1', '{"q1":"note"}');
+      localStorage.setItem('lastActive_u1', '2025-01-01');
+      localStorage.setItem('snapshots_u1', '[]');
+      localStorage.setItem('unrelatedKey', 'should-remain');
+
+      const result = await dataStore.clearAllData();
+      expect(result).toEqual({ success: true });
+      expect(dataStore.initialized).toBe(false);
+      expect(dataStore._initPromise).toBeNull();
+      expect(dataStore.data.domains).toEqual({});
+      expect(dataStore.data.users).toEqual([]);
+
+      // App keys should be removed
+      expect(localStorage.getItem('assessmentData_u1')).toBeNull();
+      expect(localStorage.getItem('adminAssignments')).toBeNull();
+      expect(localStorage.getItem('frameworkMappings')).toBeNull();
+      expect(localStorage.getItem('comments_u1')).toBeNull();
+      expect(localStorage.getItem('lastActive_u1')).toBeNull();
+      expect(localStorage.getItem('snapshots_u1')).toBeNull();
+
+      // Unrelated key should remain
+      expect(localStorage.getItem('unrelatedKey')).toBe('should-remain');
+    });
+  });
+
+  describe('framework updateFramework persists mappedQuestions', () => {
+    it('should persist framework mappings to localStorage when mappedQuestions is updated', () => {
+      dataStore.data.frameworks = [
+        { id: 'f1', name: 'Framework 1', mappedQuestions: [] },
+        { id: 'f2', name: 'Framework 2', mappedQuestions: ['q1'] }
+      ];
+
+      dataStore.updateFramework('f1', { mappedQuestions: ['q1', 'q2'] });
+
+      const stored = JSON.parse(localStorage.getItem('frameworkMappings'));
+      expect(stored).toEqual({
+        f1: ['q1', 'q2'],
+        f2: ['q1']
+      });
+    });
+  });
+
+  describe('clearAllData error branch', () => {
+    it('should return failure when clearAllEvidence throws', async () => {
+      dataStore.initialized = true;
+      dataStore.data.domains = { d1: { title: 'Test' } };
+
+      // We need to import storageService to mock it
+      const { storageService } = await import('./storageService');
+      const origClear = storageService.clearAllEvidence;
+      storageService.clearAllEvidence = vi.fn().mockRejectedValue(new Error('IndexedDB error'));
+
+      const result = await dataStore.clearAllData();
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('IndexedDB error');
+
+      storageService.clearAllEvidence = origClear;
+    });
+  });
+
+  describe('exportData fallback branch', () => {
+    it('should fall back to exporting config data when loadAllUsersAnswers throws', async () => {
+      dataStore.data = {
+        domains: { d1: { title: 'Test' } },
+        users: [{ id: 'u1', name: 'User 1' }],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: [],
+        answers: {},
+        evidence: {}
+      };
+      dataStore.initialized = true;
+
+      const { storageService } = await import('./storageService');
+      const origLoad = storageService.loadAllUsersAnswers;
+      storageService.loadAllUsersAnswers = vi.fn().mockRejectedValue(new Error('Storage read failed'));
+
+      const result = await dataStore.exportData();
+      const parsed = JSON.parse(result);
+      // Falls back to this.data which has the config but not merged answers
+      expect(parsed.domains).toEqual({ d1: { title: 'Test' } });
+
+      storageService.loadAllUsersAnswers = origLoad;
+    });
+  });
+
+  describe('importData detects user export format', () => {
+    it('should route to importUserExport when data has exportVersion and user and questions', async () => {
+      dataStore.data.answers = {};
+      dataStore.data.evidence = {};
+
+      const userExportJson = {
+        exportVersion: '1.0',
+        user: { id: 'u1', name: 'Test User' },
+        questions: [
+          { id: 'q1', answer: 4, evidence: null },
+          { id: 'q2', answer: 3, evidence: { text: 'proof' } }
+        ]
+      };
+
+      const result = await dataStore.importData(userExportJson);
+      expect(result).toBe(true);
+      expect(dataStore.data.answers.q1).toBe(4);
+      expect(dataStore.data.answers.q2).toBe(3);
+      expect(dataStore.data.evidence.q2.text).toBe('proof');
+    });
+
+    it('should also accept a JSON string for importData', async () => {
+      dataStore.data.answers = {};
+      dataStore.data.evidence = {};
+
+      const validData = {
+        domains: {},
+        users: [],
+        frameworks: [],
+        questions: [],
+        assignments: {},
+        selectedFrameworks: []
+      };
+
+      const result = await dataStore.importData(JSON.stringify(validData));
+      expect(result).toBe(true);
+    });
+  });
 });
