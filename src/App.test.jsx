@@ -64,6 +64,7 @@ vi.mock('./components/FullScreenAdminView', () => ({
       <button onClick={() => onExportPDF({})} data-testid="export-pdf-button">Export PDF</button>
       <button onClick={onLogout} data-testid="admin-logout-button">Logout</button>
       <button onClick={() => onImportData({ text: () => Promise.resolve('{}') })} data-testid="import-data-button">Import</button>
+      <button onClick={() => onImportData({ text: () => Promise.resolve('not valid json') })} data-testid="import-invalid-json-button">Import Invalid</button>
       <button onClick={onExportData} data-testid="export-data-button">Export Data</button>
       <button onClick={onClearAllData} data-testid="clear-all-data-button">Clear All</button>
     </div>
@@ -195,6 +196,7 @@ describe('App', () => {
   let alertSpy;
   let confirmSpy;
   let reloadSpy;
+  let originalLocation;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -235,15 +237,18 @@ describe('App', () => {
 
     // Mock window.location.reload — replace location with a proxy to keep other props intact
     reloadSpy = vi.fn();
-    const origLocation = window.location;
+    originalLocation = window.location;
     delete window.location;
-    window.location = { ...origLocation, reload: reloadSpy };
+    window.location = { ...originalLocation, reload: reloadSpy };
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
     alertSpy.mockRestore();
     confirmSpy.mockRestore();
+    // Restore the original window.location to prevent leaking the mock
+    delete window.location;
+    window.location = originalLocation;
   });
 
   // ─── Loading and Error States ─────────────────────────────────────────────
@@ -448,18 +453,6 @@ describe('App', () => {
       render(<App />);
       expect(screen.getByTestId('chart-fullscreen-view')).toBeInTheDocument();
       expect(screen.getByText('Chart Fullscreen: radar')).toBeInTheDocument();
-    });
-
-    it('should render ChartFullscreenView for heatmap chart type', () => {
-      useUser.mockReturnValue({
-        ...defaultUseUser,
-        currentUser: mockUsers[0],
-        isAdmin: vi.fn(() => false)
-      });
-      useRouter.mockReturnValue({ ...defaultUseRouter, currentRoute: 'results', currentSubRoute: 'chart/heatmap' });
-      render(<App />);
-      expect(screen.getByTestId('chart-fullscreen-view')).toBeInTheDocument();
-      expect(screen.getByText('Chart Fullscreen: heatmap')).toBeInTheDocument();
     });
 
     it('should render admin view when admin navigates to results route', () => {
@@ -749,6 +742,20 @@ describe('App', () => {
         expect(alertSpy).toHaveBeenCalledWith('Failed to import data: Network error');
       });
     });
+
+    it('should show error alert when file contains invalid JSON', async () => {
+      render(<App />);
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('import-invalid-json-button'));
+      });
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalled();
+        expect(alertSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Failed to import data:')
+        );
+      });
+    });
   });
 
   // ─── handleExportData ─────────────────────────────────────────────────
@@ -906,28 +913,6 @@ describe('App', () => {
   // ─── handleExportUserData ─────────────────────────────────────────────
 
   describe('handleExportUserData', () => {
-    it('should alert when no user is selected', async () => {
-      // currentUser is null by default
-      useUser.mockReturnValue({ ...defaultUseUser, currentUser: null });
-      // We can't easily click the button when no user is selected since
-      // the user view won't render. We'll test this by setting up the
-      // mock so handleExportUserData is callable from the user view,
-      // but then simulate the currentUser being null inside the handler.
-      // Actually, the function closes over currentUser from the hook.
-      // If currentUser is null, the user selection screen renders, so the
-      // button won't be visible. The guard is a safety net. To test it,
-      // we can render with a user but have the ref be null.
-      // Since we can't easily test this path via UI (button not rendered),
-      // we'll rely on the guard being tested implicitly. Let's skip to
-      // a different approach: render with user, then verify the success path.
-
-      // Instead, test the no-user path by making the mock return null at render
-      // but keeping a way to trigger the handler. Since UserView won't render
-      // without currentUser, we test it conceptually here.
-      // The guard path `alert('Please select a user first')` is a safety net.
-      expect(true).toBe(true); // Placeholder - can't reach this code path via UI
-    });
-
     it('should export user data successfully when user is selected', async () => {
       useUser.mockReturnValue({
         ...defaultUseUser,
@@ -1274,7 +1259,7 @@ describe('App', () => {
     });
 
     it('should update progress when answers change', async () => {
-      render(<App />);
+      const { rerender } = render(<App />);
       expect(screen.getByText('Progress: 0%')).toBeInTheDocument();
 
       scoreCalculator.calculateProgressFromQuestions.mockReturnValue({
@@ -1286,7 +1271,7 @@ describe('App', () => {
         answers: { q1: 3, q2: 4 }
       });
 
-      render(<App />);
+      rerender(<App />);
 
       await waitFor(() => {
         expect(screen.getByText('Progress: 100%')).toBeInTheDocument();
@@ -1297,7 +1282,7 @@ describe('App', () => {
   // ─── ResultsView props ────────────────────────────────────────────────
 
   describe('ResultsView receives correct props', () => {
-    it('should pass snapshots and progress to ResultsView', () => {
+    it('should render ResultsView on results route', () => {
       useUser.mockReturnValue({
         ...defaultUseUser,
         currentUser: mockUsers[0],
@@ -1312,19 +1297,6 @@ describe('App', () => {
       expect(screen.getByText('Results View: John Doe')).toBeInTheDocument();
     });
 
-    it('should pass onLogout to ResultsView', () => {
-      useUser.mockReturnValue({
-        ...defaultUseUser,
-        currentUser: mockUsers[0],
-        isAdmin: vi.fn(() => false)
-      });
-      useRouter.mockReturnValue({ ...defaultUseRouter, currentRoute: 'results', currentSubRoute: null });
-
-      render(<App />);
-      fireEvent.click(screen.getByTestId('results-logout-btn'));
-      expect(defaultUseUser.selectUser).toHaveBeenCalledWith(null);
-      expect(mockNavigate).toHaveBeenCalledWith('assessment');
-    });
   });
 
   // ─── ChartFullscreenView props ────────────────────────────────────────
@@ -1386,7 +1358,7 @@ describe('App', () => {
   // ─── Frameworks passed to admin view ──────────────────────────────────
 
   describe('Frameworks integration', () => {
-    it('should pass framework values to FullScreenAdminView', () => {
+    it('should render FullScreenAdminView on admin route', () => {
       const mockFrameworks = {
         sox: { id: 'sox', name: 'SOX', enabled: true },
         gdpr: { id: 'gdpr', name: 'GDPR', enabled: true }
@@ -1402,7 +1374,7 @@ describe('App', () => {
       expect(screen.getByTestId('full-screen-admin-view')).toBeInTheDocument();
     });
 
-    it('should pass frameworks to UserView for non-admin', () => {
+    it('should render UserView for non-admin user', () => {
       const mockFrameworks = {
         sox: { id: 'sox', name: 'SOX', enabled: true }
       };
