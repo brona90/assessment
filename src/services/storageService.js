@@ -71,10 +71,9 @@ export const storageService = {
   async loadAllEvidence() {
     try {
       const keys = await this.evidenceDB.keys();
+      const values = await Promise.all(keys.map(key => this.evidenceDB.getItem(key)));
       const evidence = {};
-      for (const key of keys) {
-        evidence[key] = await this.evidenceDB.getItem(key);
-      }
+      keys.forEach((key, i) => { evidence[key] = values[i]; });
       return evidence;
     } catch (error) {
       console.error('Error loading all evidence:', error);
@@ -206,6 +205,10 @@ export const storageService = {
       const key = `snapshots_${userId}`;
       const existing = JSON.parse(localStorage.getItem(key) || '[]');
       existing.push(snapshot);
+      // Keep only the last 20 snapshots
+      while (existing.length > 20) {
+        existing.shift();
+      }
       localStorage.setItem(key, JSON.stringify(existing));
       return true;
     } catch (error) {
