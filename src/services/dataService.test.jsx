@@ -1,16 +1,13 @@
-import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { dataService } from './dataService';
-
-const originalFetch = globalThis.fetch;
-globalThis.fetch = vi.fn();
 
 describe('DataService', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
   });
 
-  afterAll(() => {
-    globalThis.fetch = originalFetch;
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   describe('loadQuestions', () => {
