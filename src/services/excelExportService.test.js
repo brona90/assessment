@@ -1,6 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { excelExportService } from './excelExportService';
 import { NA_VALUE } from '../utils/scoreCalculator';
+
+const writeFileMock = vi.hoisted(() => vi.fn());
+
+vi.mock('xlsx', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    writeFile: writeFileMock
+  };
+});
 
 const mockDomains = {
   d1: {
@@ -100,24 +110,31 @@ describe('excelExportService', () => {
 
   it('downloadReport calls XLSX.writeFile', () => {
     const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
-    // We can't easily mock XLSX.writeFile in ESM, but we verify it doesn't throw
-    // In browser it would trigger a download
-    expect(() => excelExportService.downloadReport(wb, 'test.xlsx')).not.toThrow();
+    excelExportService.downloadReport(wb, 'test.xlsx');
+    expect(writeFileMock).toHaveBeenCalledWith(wb, 'test.xlsx');
   });
 
   // ── Branch coverage: downloadReport default filename ──
 
   describe('downloadReport', () => {
+    beforeEach(() => {
+      writeFileMock.mockClear();
+    });
+
     it('uses a default date-based filename when none is provided', () => {
       const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
-      // Should not throw when filename is omitted (uses default)
-      expect(() => excelExportService.downloadReport(wb)).not.toThrow();
+      excelExportService.downloadReport(wb);
+      expect(writeFileMock).toHaveBeenCalledTimes(1);
+      const calledFilename = writeFileMock.mock.calls[0][1];
+      expect(calledFilename).toMatch(/^assessment-report-\d{4}-\d{2}-\d{2}\.xlsx$/);
     });
 
     it('uses a default filename when filename is empty string', () => {
       const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
-      // Empty string is falsy, so default should kick in
-      expect(() => excelExportService.downloadReport(wb, '')).not.toThrow();
+      excelExportService.downloadReport(wb, '');
+      expect(writeFileMock).toHaveBeenCalledTimes(1);
+      const calledFilename = writeFileMock.mock.calls[0][1];
+      expect(calledFilename).toMatch(/^assessment-report-\d{4}-\d{2}-\d{2}\.xlsx$/);
     });
   });
 
