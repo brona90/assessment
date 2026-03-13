@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { dataStore } from './dataStore';
 
-describe('DataStore', async () => {
+describe('DataStore', () => {
   beforeEach(() => {
     dataStore.reset();
   });
 
-  describe('initialization', async () => {
+  describe('initialization', () => {
     it('should initialize with empty data', async () => {
       expect(dataStore.data.domains).toEqual({});
       expect(dataStore.data.users).toEqual([]);
@@ -91,7 +91,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('domain operations', async () => {
+  describe('domain operations', () => {
     beforeEach(() => {
       dataStore.data.domains = {
         domain1: { id: 'domain1', title: 'Domain 1', categories: {} }
@@ -123,16 +123,16 @@ describe('DataStore', async () => {
       expect(Object.keys(dataStore.data.domains)).toHaveLength(2);
     });
 
-    it('should throw error when adding domain without id', async () => {
-      expect(async () => {
+    it('should throw error when adding domain without id', () => {
+      expect(() => {
         dataStore.addDomain({ title: 'No ID' });
-      }).rejects.toThrow('Domain must have an id');
+      }).toThrow('Domain must have an id');
     });
 
-    it('should throw error when adding duplicate domain', async () => {
-      expect(async () => {
+    it('should throw error when adding duplicate domain', () => {
+      expect(() => {
         dataStore.addDomain({ id: 'domain1', title: 'Duplicate' });
-      }).rejects.toThrow('already exists');
+      }).toThrow('already exists');
     });
 
     it('should update an existing domain', async () => {
@@ -141,10 +141,10 @@ describe('DataStore', async () => {
       expect(updated.id).toBe('domain1');
     });
 
-    it('should throw error when updating non-existent domain', async () => {
-      expect(async () => {
+    it('should throw error when updating non-existent domain', () => {
+      expect(() => {
         dataStore.updateDomain('nonexistent', { title: 'Test' });
-      }).rejects.toThrow('not found');
+      }).toThrow('not found');
     });
 
     it('should delete a domain', async () => {
@@ -153,14 +153,14 @@ describe('DataStore', async () => {
       expect(dataStore.data.domains.domain1).toBeUndefined();
     });
 
-    it('should throw error when deleting non-existent domain', async () => {
-      expect(async () => {
+    it('should throw error when deleting non-existent domain', () => {
+      expect(() => {
         dataStore.deleteDomain('nonexistent');
-      }).rejects.toThrow('not found');
+      }).toThrow('not found');
     });
   });
 
-  describe('framework operations', async () => {
+  describe('framework operations', () => {
     beforeEach(() => {
       dataStore.data.frameworks = [
         { id: 'fw1', name: 'Framework 1' },
@@ -189,10 +189,10 @@ describe('DataStore', async () => {
       expect(dataStore.data.frameworks).toHaveLength(3);
     });
 
-    it('should throw error when adding framework without id', async () => {
-      expect(async () => {
+    it('should throw error when adding framework without id', () => {
+      expect(() => {
         dataStore.addFramework({ name: 'No ID' });
-      }).rejects.toThrow('Framework must have an id');
+      }).toThrow('Framework must have an id');
     });
 
     it('should update an existing framework', async () => {
@@ -213,14 +213,14 @@ describe('DataStore', async () => {
       expect(dataStore.data.selectedFrameworks).toEqual(['fw1', 'fw2']);
     });
 
-    it('should throw error when setting invalid framework IDs', async () => {
-      expect(async () => {
+    it('should throw error when setting invalid framework IDs', () => {
+      expect(() => {
         dataStore.setSelectedFrameworks(['nonexistent']);
-      }).rejects.toThrow('not found');
+      }).toThrow('not found');
     });
   });
 
-  describe('user operations', async () => {
+  describe('user operations', () => {
     beforeEach(() => {
       dataStore.data.users = [
         { id: 'user1', name: 'User 1', role: 'user' }
@@ -248,10 +248,10 @@ describe('DataStore', async () => {
       expect(dataStore.data.assignments.user2).toEqual([]);
     });
 
-    it('should throw error when adding user without id', async () => {
-      expect(async () => {
+    it('should throw error when adding user without id', () => {
+      expect(() => {
         dataStore.addUser({ name: 'No ID' });
-      }).rejects.toThrow('User must have an id');
+      }).toThrow('User must have an id');
     });
 
     it('should update an existing user', async () => {
@@ -268,7 +268,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('question operations', async () => {
+  describe('question operations', () => {
     beforeEach(() => {
       dataStore.data.domains = {
         domain1: {
@@ -319,18 +319,18 @@ describe('DataStore', async () => {
       expect(dataStore.data.questions).toHaveLength(2);
     });
 
-    it('should throw error when adding question without required fields', async () => {
-      expect(async () => {
+    it('should throw error when adding question without required fields', () => {
+      expect(() => {
         dataStore.addQuestion({ text: 'No ID' });
-      }).rejects.toThrow('Question must have an id');
+      }).toThrow('Question must have an id');
 
-      expect(async () => {
+      expect(() => {
         dataStore.addQuestion({ id: 'q2', text: 'No domain' });
-      }).rejects.toThrow('Question must have a domainId');
+      }).toThrow('Question must have a domainId');
 
-      expect(async () => {
+      expect(() => {
         dataStore.addQuestion({ id: 'q2', text: 'No category', domainId: 'domain1' });
-      }).rejects.toThrow('Question must have a categoryId');
+      }).toThrow('Question must have a categoryId');
     });
 
     it('should update an existing question', async () => {
@@ -347,7 +347,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('assignment operations', async () => {
+  describe('assignment operations', () => {
     beforeEach(() => {
       dataStore.data.users = [
         { id: 'user1', name: 'User 1' }
@@ -372,10 +372,10 @@ describe('DataStore', async () => {
       expect(assigned).toContain('q2');
     });
 
-    it('should throw error when assigning to non-existent user', async () => {
-      expect(async () => {
+    it('should throw error when assigning to non-existent user', () => {
+      expect(() => {
         dataStore.assignQuestionsToUser('nonexistent', ['q1']);
-      }).rejects.toThrow('not found');
+      }).toThrow('not found');
     });
 
     it('should add question assignments', async () => {
@@ -404,7 +404,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('export/import operations', async () => {
+  describe('export/import operations', () => {
     beforeEach(() => {
       dataStore.data = {
         domains: { domain1: { id: 'domain1', title: 'Domain 1' } },
@@ -457,17 +457,17 @@ describe('DataStore', async () => {
     });
 
     it('should throw error when importing invalid data', async () => {
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData('invalid json');
       }).rejects.toThrow();
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData({ invalid: 'structure' });
       }).rejects.toThrow('Invalid data structure');
     });
   });
 
-  describe('extractQuestionsFromDomains', async () => {
+  describe('extractQuestionsFromDomains', () => {
     it('should extract all questions from domains', async () => {
       const domains = {
         domain1: {
@@ -512,7 +512,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('Domain Management', async () => {
+  describe('Domain Management', () => {
     it('should delete domain and its questions', async () => {
       dataStore.data.domains = {
         domain1: { title: 'Domain 1', categories: {} },
@@ -526,17 +526,17 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('User Assignment Validation', async () => {
-    it('should throw error when assigning to non-existent user', async () => {
+  describe('User Assignment Validation', () => {
+    it('should throw error when assigning to non-existent user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.assignQuestionsToUser('nonexistent', ['q1']);
-      }).rejects.toThrow('User with id nonexistent not found');
+      }).toThrow('User with id nonexistent not found');
     });
   });
 
-  describe('Data Download', async () => {
+  describe('Data Download', () => {
     it('should download data as JSON file', async () => {
       // Mock DOM APIs
       const mockLink = {
@@ -576,50 +576,50 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('Question Error Handling', async () => {
-    it('should throw error when deleting non-existent question', async () => {
+  describe('Question Error Handling', () => {
+    it('should throw error when deleting non-existent question', () => {
       dataStore.data.questions = [{ id: 'q1', text: 'Question 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.deleteQuestion('nonexistent');
-      }).rejects.toThrow('Question with id nonexistent not found');
+      }).toThrow('Question with id nonexistent not found');
     });
 
-    it('should throw error when assigning non-existent question to user', async () => {
+    it('should throw error when assigning non-existent question to user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
       dataStore.data.questions = [{ id: 'q1', text: 'Question 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.assignQuestionsToUser('user1', ['nonexistent']);
-      }).rejects.toThrow('Question with id nonexistent not found');
+      }).toThrow('Question with id nonexistent not found');
     });
   });
 
-  describe('User Assignment Error Handling', async () => {
-    it('should throw error when adding assignments to non-existent user', async () => {
+  describe('User Assignment Error Handling', () => {
+    it('should throw error when adding assignments to non-existent user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.addQuestionAssignments('nonexistent', ['q1']);
-      }).rejects.toThrow('User with id nonexistent not found');
+      }).toThrow('User with id nonexistent not found');
     });
 
-    it('should throw error when removing assignments from non-existent user', async () => {
+    it('should throw error when removing assignments from non-existent user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.removeQuestionAssignments('nonexistent', ['q1']);
-      }).rejects.toThrow('User with id nonexistent not found');
+      }).toThrow('User with id nonexistent not found');
     });
   });
 
-  describe('Question Addition Edge Cases', async () => {
-    it('should throw error when adding duplicate question', async () => {
+  describe('Question Addition Edge Cases', () => {
+    it('should throw error when adding duplicate question', () => {
       dataStore.data.questions = [{ id: 'q1', text: 'Question 1', domainId: 'd1', categoryId: 'c1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.addQuestion({ id: 'q1', text: 'Duplicate', domainId: 'd1', categoryId: 'c1' });
-      }).rejects.toThrow('Question with id q1 already exists');
+      }).toThrow('Question with id q1 already exists');
     });
 
     it('should create category if it does not exist when adding question', async () => {
@@ -668,68 +668,68 @@ describe('DataStore', async () => {
       expect(dataStore.data.domains.domain1.categories.cat1.questions).toContain(question);
     });
 
-    it('should throw error when updating non-existent question', async () => {
+    it('should throw error when updating non-existent question', () => {
       dataStore.data.questions = [{ id: 'q1', text: 'Question 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.updateQuestion('nonexistent', { text: 'Updated' });
-      }).rejects.toThrow('Question with id nonexistent not found');
+      }).toThrow('Question with id nonexistent not found');
     });
   });
 
-  describe('Framework Management Error Handling', async () => {
-    it('should throw error when deleting non-existent framework', async () => {
+  describe('Framework Management Error Handling', () => {
+    it('should throw error when deleting non-existent framework', () => {
       dataStore.data.frameworks = [{ id: 'f1', name: 'Framework 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.deleteFramework('nonexistent');
-      }).rejects.toThrow('Framework with id nonexistent not found');
+      }).toThrow('Framework with id nonexistent not found');
     });
 
-    it('should throw error when adding duplicate framework', async () => {
+    it('should throw error when adding duplicate framework', () => {
       dataStore.data.frameworks = [{ id: 'f1', name: 'Framework 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.addFramework({ id: 'f1', name: 'Duplicate' });
-      }).rejects.toThrow('Framework with id f1 already exists');
+      }).toThrow('Framework with id f1 already exists');
     });
 
-    it('should throw error when updating non-existent framework', async () => {
+    it('should throw error when updating non-existent framework', () => {
       dataStore.data.frameworks = [{ id: 'f1', name: 'Framework 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.updateFramework('nonexistent', { name: 'Updated' });
-      }).rejects.toThrow('Framework with id nonexistent not found');
+      }).toThrow('Framework with id nonexistent not found');
     });
   });
 
-  describe('User Management Error Handling', async () => {
-    it('should throw error when adding duplicate user', async () => {
+  describe('User Management Error Handling', () => {
+    it('should throw error when adding duplicate user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1', email: 'user1@test.com' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.addUser({ id: 'user1', name: 'Duplicate', email: 'dup@test.com' });
-      }).rejects.toThrow('User with id user1 already exists');
+      }).toThrow('User with id user1 already exists');
     });
 
-    it('should throw error when updating non-existent user', async () => {
+    it('should throw error when updating non-existent user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.updateUser('nonexistent', { name: 'Updated' });
-      }).rejects.toThrow('User with id nonexistent not found');
+      }).toThrow('User with id nonexistent not found');
     });
 
-    it('should throw error when deleting non-existent user', async () => {
+    it('should throw error when deleting non-existent user', () => {
       dataStore.data.users = [{ id: 'user1', name: 'User 1' }];
-      
-      expect(async () => {
+
+      expect(() => {
         dataStore.deleteUser('nonexistent');
-      }).rejects.toThrow('User with id nonexistent not found');
+      }).toThrow('User with id nonexistent not found');
     });
   });
 
-  describe('Enhanced Import Validation', async () => {
+  describe('Enhanced Import Validation', () => {
     it('should provide detailed error for missing domains', async () => {
       const invalidData = {
         users: [],
@@ -739,7 +739,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Missing required field: domains');
     });
@@ -754,7 +754,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid domains: must be an object');
     });
@@ -768,7 +768,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Missing required field: users');
     });
@@ -783,7 +783,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid users: must be an array');
     });
@@ -797,7 +797,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Missing required field: frameworks');
     });
@@ -812,7 +812,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid frameworks: must be an array');
     });
@@ -826,7 +826,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Missing required field: questions');
     });
@@ -841,7 +841,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid questions: must be an array');
     });
@@ -855,7 +855,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Missing required field: assignments');
     });
@@ -870,7 +870,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid assignments: must be an object');
     });
@@ -884,7 +884,7 @@ describe('DataStore', async () => {
         assignments: {}
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Missing required field: selectedFrameworks');
     });
@@ -899,7 +899,7 @@ describe('DataStore', async () => {
         selectedFrameworks: {}
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid selectedFrameworks: must be an array');
     });
@@ -914,7 +914,7 @@ describe('DataStore', async () => {
         selectedFrameworks: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow(/Invalid domains.*Invalid users/);
     });
@@ -977,7 +977,7 @@ describe('DataStore', async () => {
         answers: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid answers: must be an object');
     });
@@ -993,7 +993,7 @@ describe('DataStore', async () => {
         evidence: []
       };
 
-      expect(async () => {
+      await expect(async () => {
         await dataStore.importData(invalidData);
       }).rejects.toThrow('Invalid evidence: must be an object');
     });
@@ -1015,7 +1015,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('Answers Operations', async () => {
+  describe('Answers Operations', () => {
     beforeEach(() => {
       dataStore.data.answers = {};
     });
@@ -1033,10 +1033,10 @@ describe('DataStore', async () => {
       expect(dataStore.data.answers).toEqual(newAnswers);
     });
 
-    it('should throw error when setting invalid answers type', async () => {
-      expect(async () => {
+    it('should throw error when setting invalid answers type', () => {
+      expect(() => {
         dataStore.setAnswers([]);
-      }).rejects.toThrow('Answers must be an object');
+      }).toThrow('Answers must be an object');
     });
 
     it('should update a single answer', async () => {
@@ -1053,7 +1053,7 @@ describe('DataStore', async () => {
     });
   });
 
-  describe('Evidence Operations', async () => {
+  describe('Evidence Operations', () => {
     beforeEach(() => {
       dataStore.data.evidence = {};
     });
@@ -1071,10 +1071,10 @@ describe('DataStore', async () => {
       expect(dataStore.data.evidence).toEqual(newEvidence);
     });
 
-    it('should throw error when setting invalid evidence type', async () => {
-      expect(async () => {
+    it('should throw error when setting invalid evidence type', () => {
+      expect(() => {
         dataStore.setEvidence([]);
-      }).rejects.toThrow('Evidence must be an object');
+      }).toThrow('Evidence must be an object');
     });
 
     it('should update evidence for a question', async () => {
