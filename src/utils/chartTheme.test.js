@@ -13,11 +13,12 @@ import {
 } from './chartTheme';
 
 describe('chartTheme', () => {
-  it('should export CHART_COLORS with all expected keys', () => {
-    expect(CHART_COLORS).toHaveProperty('userScore');
-    expect(CHART_COLORS).toHaveProperty('industryAvg');
-    expect(CHART_COLORS).toHaveProperty('topQuartile');
-    expect(CHART_COLORS).toHaveProperty('target');
+  it('should export CHART_COLORS with correct color values', () => {
+    expect(CHART_COLORS.userScore.border).toBe('#22c55e');
+    expect(CHART_COLORS.userScore.fill).toBe('rgba(34, 197, 94, 0.25)');
+    expect(CHART_COLORS.industryAvg.border).toBe('#f59e0b');
+    expect(CHART_COLORS.topQuartile.border).toBe('#10b981');
+    expect(CHART_COLORS.target.border).toBe('rgba(168, 85, 247, 0.65)');
   });
 
   it('should export color constants as strings', () => {
@@ -29,7 +30,7 @@ describe('chartTheme', () => {
 
   it('should export darkLegend with bottom position', () => {
     expect(darkLegend.position).toBe('bottom');
-    expect(darkLegend.labels).toBeDefined();
+    expect(darkLegend.labels.color).toBe(darkLegendColor);
   });
 
   describe('darkTooltip callback', () => {
