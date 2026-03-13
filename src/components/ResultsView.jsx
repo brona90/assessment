@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { LogOut, ArrowLeft, BarChart2, AlertTriangle, AlertCircle, Check, FileText, ArrowRight, History } from 'lucide-react';
 import { OverviewDashboard } from './OverviewDashboard';
@@ -14,40 +15,8 @@ export const ResultsView = ({
   onLogout,
   onExpandChart
 }) => {
-  // Build domain structure from the user's assigned questions only
-  const filteredDomains = {};
-  questions.forEach(q => {
-    if (!filteredDomains[q.domainId]) {
-      filteredDomains[q.domainId] = {
-        title: q.domainTitle || q.domainId,
-        weight: 1,
-        categories: {}
-      };
-    }
-    if (!filteredDomains[q.domainId].categories[q.categoryId]) {
-      filteredDomains[q.domainId].categories[q.categoryId] = {
-        title: q.categoryTitle || q.categoryId,
-        questions: []
-      };
-    }
-    filteredDomains[q.domainId].categories[q.categoryId].questions.push(q);
-  });
-
-  // Overall score: average of per-domain averages (only domains with answers)
-  const domainAvgs = Object.values(filteredDomains).map(domain => {
-    let total = 0, count = 0;
-    Object.values(domain.categories || {}).forEach(cat => {
-      (cat.questions || []).forEach(q => {
-        const val = answers[q.id];
-        if (val !== undefined && val !== NA_VALUE) { total += val; count++; }
-      });
-    });
-    return count > 0 ? total / count : null;
-  }).filter(s => s !== null);
-
-  const overallScore = domainAvgs.length > 0
-    ? domainAvgs.reduce((a, b) => a + b, 0) / domainAvgs.length
-    : 0;
+  const filteredDomains = useMemo(() => scoreCalculator.buildDomainsFromQuestions(questions), [questions]);
+  const overallScore = useMemo(() => scoreCalculator.calculateOverallScore(filteredDomains, answers), [filteredDomains, answers]);
 
   return (
     <div className="results-view" data-testid="results-view">
@@ -234,5 +203,3 @@ ResultsView.propTypes = {
   onLogout: PropTypes.func.isRequired,
   onExpandChart: PropTypes.func
 };
-
-export default ResultsView;
