@@ -170,6 +170,31 @@ describe('ScoreCalculator', () => {
       expect(scoreCalculator.getMaturityLevel(2)).toBe('Initial');
       expect(scoreCalculator.getMaturityLevel(1)).toBe('Not Implemented');
     });
+
+    it('should handle boundary values correctly', () => {
+      expect(scoreCalculator.getMaturityLevel(4.5)).toBe('Optimized');
+      expect(scoreCalculator.getMaturityLevel(4.49)).toBe('Managed');
+      expect(scoreCalculator.getMaturityLevel(3.5)).toBe('Managed');
+      expect(scoreCalculator.getMaturityLevel(3.49)).toBe('Defined');
+      expect(scoreCalculator.getMaturityLevel(2.5)).toBe('Defined');
+      expect(scoreCalculator.getMaturityLevel(2.49)).toBe('Initial');
+      expect(scoreCalculator.getMaturityLevel(1.5)).toBe('Initial');
+      expect(scoreCalculator.getMaturityLevel(1.49)).toBe('Not Implemented');
+      expect(scoreCalculator.getMaturityLevel(0)).toBe('Not Implemented');
+    });
+  });
+
+  describe('calculateOverallScore zero-score exclusion', () => {
+    it('should exclude zero-score domains from weighted average', () => {
+      const domains = {
+        d1: { weight: 0.5, categories: { c1: { questions: [{ id: 'q1' }] } } },
+        d2: { weight: 0.5, categories: { c2: { questions: [{ id: 'q2' }] } } }
+      };
+      // d1 has answer, d2 has no answers → domainScore=0 → excluded
+      const answers = { q1: 4 };
+      const score = scoreCalculator.calculateOverallScore(domains, answers);
+      expect(score).toBe(4); // only d1 counted, not (4*0.5 + 0*0.5)/1
+    });
   });
 
   describe('getComplianceStatus', () => {
@@ -271,8 +296,8 @@ describe('ScoreCalculator', () => {
   });
 
   describe('N/A (NA_VALUE) handling', () => {
-    it('NA_VALUE should be exported as a number', () => {
-      expect(typeof NA_VALUE).toBe('number');
+    it('NA_VALUE should be 0', () => {
+      expect(NA_VALUE).toBe(0);
     });
 
     it('calculateDomainScore should exclude NA_VALUE answers from average', () => {
