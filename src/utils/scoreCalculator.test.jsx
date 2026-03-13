@@ -129,35 +129,35 @@ describe('ScoreCalculator', () => {
 
     it('should calculate compliance score as percentage', () => {
       const answers = { q1: 4, q2: 5, q3: 3 };
-      const score = scoreCalculator.calculateComplianceScore(mockFramework, null, answers);
+      const score = scoreCalculator.calculateComplianceScore(mockFramework, answers);
       expect(score).toBe(80);
     });
 
     it('should return 0 for framework without mapped questions', () => {
-      const score = scoreCalculator.calculateComplianceScore({}, null, mockAnswers);
+      const score = scoreCalculator.calculateComplianceScore({}, mockAnswers);
       expect(score).toBe(0);
     });
 
     it('should return 0 when no questions are answered', () => {
-      const score = scoreCalculator.calculateComplianceScore(mockFramework, null, {});
+      const score = scoreCalculator.calculateComplianceScore(mockFramework, {});
       expect(score).toBe(0);
     });
 
     it('should handle partial answers', () => {
       const answers = { q1: 5 };
-      const score = scoreCalculator.calculateComplianceScore(mockFramework, null, answers);
+      const score = scoreCalculator.calculateComplianceScore(mockFramework, answers);
       expect(score).toBe(100);
     });
 
     it('should return 0 for null mappedQuestions', () => {
       const framework = { mappedQuestions: null };
-      const score = scoreCalculator.calculateComplianceScore(framework, null, mockAnswers);
+      const score = scoreCalculator.calculateComplianceScore(framework, mockAnswers);
       expect(score).toBe(0);
     });
 
     it('should return 0 for empty mappedQuestions array', () => {
       const framework = { mappedQuestions: [] };
-      const score = scoreCalculator.calculateComplianceScore(framework, null, mockAnswers);
+      const score = scoreCalculator.calculateComplianceScore(framework, mockAnswers);
       expect(score).toBe(0);
     });
   });
@@ -292,7 +292,7 @@ describe('ScoreCalculator', () => {
     it('calculateComplianceScore should exclude NA_VALUE from compliance average', () => {
       const framework = { mappedQuestions: ['q1', 'q2', 'q3'] };
       const answers = { q1: 5, q2: NA_VALUE, q3: 5 };
-      const score = scoreCalculator.calculateComplianceScore(framework, null, answers);
+      const score = scoreCalculator.calculateComplianceScore(framework, answers);
       expect(score).toBe(100); // only q1 and q3 counted
     });
   });
