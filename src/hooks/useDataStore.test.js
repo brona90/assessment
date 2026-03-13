@@ -949,3 +949,134 @@ describe('useDataStore', () => {
       expect(response.error).toBe('Evidence must be an object');
     });
   });
+
+  describe('setAnswers', () => {
+    it('returns success when setAnswers succeeds', async () => {
+      dataStore.initialized = true;
+      const answers = { q1: 4, q2: 3 };
+      dataStore.setAnswers.mockReturnValue(answers);
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.setAnswers(answers);
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual(answers);
+    });
+
+    it('returns failure when setAnswers throws', async () => {
+      dataStore.initialized = true;
+      dataStore.setAnswers.mockImplementation(() => {
+        throw new Error('Answers must be an object');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.setAnswers([]);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Answers must be an object');
+    });
+  });
+
+  describe('updateAnswer', () => {
+    it('returns success when updateAnswer succeeds', async () => {
+      dataStore.initialized = true;
+      dataStore.updateAnswer = vi.fn().mockReturnValue({ q1: 4 });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateAnswer('q1', 4);
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual({ q1: 4 });
+      expect(dataStore.updateAnswer).toHaveBeenCalledWith('q1', 4);
+    });
+
+    it('returns failure when updateAnswer throws', async () => {
+      dataStore.initialized = true;
+      dataStore.updateAnswer = vi.fn().mockImplementation(() => {
+        throw new Error('Update answer failed');
+      });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateAnswer('q1', 4);
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Update answer failed');
+    });
+  });
+
+  describe('getAnswers', () => {
+    it('returns answers from the store', async () => {
+      dataStore.initialized = true;
+      dataStore.getAnswers = vi.fn().mockReturnValue({ q1: 3 });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const answers = result.current.getAnswers();
+      expect(answers).toEqual({ q1: 3 });
+    });
+  });
+
+  describe('getEvidence', () => {
+    it('returns evidence from the store', async () => {
+      dataStore.initialized = true;
+      dataStore.getEvidence = vi.fn().mockReturnValue({ q1: { text: 'proof' } });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const evidence = result.current.getEvidence();
+      expect(evidence).toEqual({ q1: { text: 'proof' } });
+    });
+  });
+
+  describe('updateEvidence success', () => {
+    it('returns success when updateEvidence succeeds', async () => {
+      dataStore.initialized = true;
+      dataStore.updateEvidence.mockReturnValue({ q1: { text: 'updated' } });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = result.current.updateEvidence('q1', { text: 'updated' });
+      expect(response.success).toBe(true);
+      expect(response.data).toEqual({ q1: { text: 'updated' } });
+    });
+  });
+
+  describe('clearAllData success', () => {
+    it('resets initialized state on successful clearAllData', async () => {
+      dataStore.initialized = true;
+      dataStore.clearAllData.mockResolvedValue({ success: true });
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      let response;
+      await waitFor(async () => {
+        response = await result.current.clearAllData();
+      });
+      expect(response.success).toBe(true);
+      await waitFor(() => {
+        expect(result.current.initialized).toBe(false);
+      });
+    });
+  });
+
+  describe('exportData error', () => {
+    it('returns failure when downloadData rejects', async () => {
+      dataStore.initialized = true;
+      dataStore.downloadData.mockRejectedValue(new Error('Export failed'));
+
+      const { result } = renderHook(() => useDataStore());
+      await waitFor(() => expect(result.current.initialized).toBe(true));
+
+      const response = await result.current.exportData();
+      expect(response.success).toBe(false);
+      expect(response.error).toBe('Export failed');
+    });
+  });
