@@ -340,12 +340,13 @@ describe('OverviewDashboard', () => {
       expect(onChartReady).toHaveBeenCalledWith('bar', 'bar-chart-ref');
     });
 
-    it('does not pass onCanvasReady/onChartReady to charts when onChartReady prop is absent', () => {
-      const onChartReady = vi.fn();
-      // Render without onChartReady — the mocks only call back if the prop is truthy
+    it('does not crash when onChartReady prop is absent', () => {
+      // Render without onChartReady — the wrapper guards prevent errors
       render(<OverviewDashboard domains={domains} answers={answers} />);
-      // onChartReady was never passed, so no callbacks should fire
-      expect(onChartReady).not.toHaveBeenCalled();
+      // All chart sections should still render
+      expect(screen.getByTestId('domain-heatmap')).toBeInTheDocument();
+      expect(screen.getByTestId('domain-radar-chart')).toBeInTheDocument();
+      expect(screen.getByTestId('domain-bar-chart')).toBeInTheDocument();
     });
   });
 
