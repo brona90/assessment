@@ -1,11 +1,16 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import { dataService } from './dataService';
 
+const originalFetch = globalThis.fetch;
 globalThis.fetch = vi.fn();
 
 describe('DataService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterAll(() => {
+    globalThis.fetch = originalFetch;
   });
 
   describe('loadQuestions', () => {
@@ -23,6 +28,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadQuestions();
       expect(result).toEqual(mockData.domains);
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/questions.json'));
     });
 
     it('should return null on error', async () => {
@@ -32,6 +38,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadQuestions();
       expect(result).toBeNull();
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/questions.json'));
     });
   });
 
@@ -46,6 +53,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadUsers();
       expect(result).toEqual(mockUsers);
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/users.json'));
     });
 
     it('should return empty array on error', async () => {
@@ -55,6 +63,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadUsers();
       expect(result).toEqual([]);
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/users.json'));
     });
   });
 
@@ -69,6 +78,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadCompliance();
       expect(result).toEqual(mockCompliance);
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/compliance.json'));
     });
 
     it('should return default structure on error', async () => {
@@ -78,6 +88,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadCompliance();
       expect(result).toEqual({ frameworks: [] });
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/compliance.json'));
     });
   });
 
@@ -92,6 +103,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadBenchmarks();
       expect(result).toEqual(mockBenchmarks);
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/benchmarks.json'));
     });
 
     it('should return empty object on error', async () => {
@@ -101,6 +113,7 @@ describe('DataService', () => {
 
       const result = await dataService.loadBenchmarks();
       expect(result).toEqual({});
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining('data/benchmarks.json'));
     });
   });
 });
