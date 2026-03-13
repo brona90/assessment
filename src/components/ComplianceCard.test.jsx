@@ -178,4 +178,85 @@ describe('ComplianceCard', () => {
     expect(rows[1]).toHaveAttribute('data-testid', 'cq-row-d2_q6');
     expect(rows[2]).toHaveAttribute('data-testid', 'cq-row-d4_q9');
   });
+
+  it('should color question score amber when close to threshold (within 20%)', () => {
+    // threshold is 4.0, so threshold pct = 80%. Amber range: score pct >= 60% (3/5=60%)
+    const answers = { 'd2_q5': 3, 'd2_q6': 3, 'd4_q9': 3 };
+    render(<ComplianceCard framework={mockFramework} score={60} answers={answers} />);
+    fireEvent.click(screen.getByTestId('compliance-sox'));
+    const scoreElements = screen.getAllByText('3/5');
+    // Score of 3 gives 60% which is >= (80-20)=60%, so amber color #f59e0b
+    scoreElements.forEach(el => {
+      expect(el.style.color).toBe('rgb(245, 158, 11)');
+    });
+  });
+
+  it('should color question score red when well below threshold', () => {
+    // threshold is 4.0 (80%), score of 1 gives 20% which is < 60%
+    const answers = { 'd2_q5': 1 };
+    render(<ComplianceCard framework={mockFramework} score={20} answers={answers} />);
+    fireEvent.click(screen.getByTestId('compliance-sox'));
+    const scoreEl = screen.getByText('1/5');
+    expect(scoreEl.style.color).toBe('rgb(239, 68, 68)');
+  });
+
+  it('should color question score green when at or above threshold', () => {
+    // threshold is 4.0 (80%), score of 4 gives 80% which is >= 80%
+    const answers = { 'd2_q5': 4 };
+    render(<ComplianceCard framework={mockFramework} score={80} answers={answers} />);
+    fireEvent.click(screen.getByTestId('compliance-sox'));
+    const scoreEl = screen.getByText('4/5');
+    expect(scoreEl.style.color).toBe('rgb(16, 185, 129)');
+  });
+
+  it('should color unanswered question with muted text', () => {
+    render(<ComplianceCard framework={mockFramework} score={0} answers={{}} />);
+    fireEvent.click(screen.getByTestId('compliance-sox'));
+    // unanswered questions show "—" with muted color
+    const dashes = screen.getAllByText('—');
+    dashes.forEach(el => {
+      expect(el.style.color).toBe('var(--text-muted)');
+    });
+  });
+
+  it('should stop propagation on detail click so card does not collapse', () => {
+    render(<ComplianceCard framework={mockFramework} score={85} answers={{}} />);
+    fireEvent.click(screen.getByTestId('compliance-sox'));
+    // Click inside the detail section
+    const detail = screen.getByTestId('compliance-detail-sox');
+    fireEvent.click(detail);
+    // Card should still be expanded
+    expect(screen.getByText('Financial controls and IT governance')).toBeInTheDocument();
+  });
+
+  it('should show status icon for unknown status', () => {
+    // Score of 65 gives "Needs Improvement"
+    render(<ComplianceCard framework={mockFramework} score={65} answers={{}} />);
+    expect(screen.getByText('Needs Improvement')).toBeInTheDocument();
+  });
+
+  it('should handle framework without threshold', () => {
+    const noThresholdFw = { ...mockFramework, threshold: undefined };
+    render(<ComplianceCard framework={noThresholdFw} score={85} answers={{}} />);
+    expect(screen.getByText('SOX Compliance')).toBeInTheDocument();
+  });
+
+  it('should not expand on non-Enter/Space keyDown', () => {
+    render(<ComplianceCard framework={mockFramework} score={85} answers={{}} />);
+    const card = screen.getByTestId('compliance-sox');
+    fireEvent.keyDown(card, { key: 'Tab' });
+    // Should still be collapsed
+    expect(screen.queryByText('Financial controls and IT governance')).not.toBeInTheDocument();
+  });
+
+  it('should handle mappedQuestions with question IDs not in the question store', () => {
+    const fwWithUnknownQ = {
+      ...mockFramework,
+      mappedQuestions: ['unknown_q1', 'd2_q5']
+    };
+    render(<ComplianceCard framework={fwWithUnknownQ} score={50} answers={{}} />);
+    fireEvent.click(screen.getByTestId('compliance-sox'));
+    // Unknown question should fall back to showing its ID as text
+    expect(screen.getByText('unknown_q1')).toBeInTheDocument();
+  });
 });
