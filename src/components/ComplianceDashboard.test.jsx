@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { ComplianceDashboard } from './ComplianceDashboard';
 import { useCompliance } from '../hooks/useCompliance';
 
@@ -117,5 +118,31 @@ describe('ComplianceDashboard', () => {
 
     render(<ComplianceDashboard />);
     expect(useCompliance).toHaveBeenCalledWith({});
+  });
+
+  describe('accessibility', () => {
+    it('should have no a11y violations when loading', async () => {
+      useCompliance.mockReturnValue({
+        frameworks: {},
+        loading: true,
+        error: null,
+        getEnabledFrameworks: () => [],
+        getFrameworkScore: () => 0
+      });
+      const { container } = render(<ComplianceDashboard answers={{}} />);
+      expect(await axe(container)).toHaveNoViolations();
+    });
+
+    it('should have no a11y violations with frameworks', async () => {
+      useCompliance.mockReturnValue({
+        frameworks: mockFrameworks,
+        loading: false,
+        error: null,
+        getEnabledFrameworks: () => Object.values(mockFrameworks),
+        getFrameworkScore: (id) => id === 'sox' ? 85 : 70
+      });
+      const { container } = render(<ComplianceDashboard answers={{ q1: 4 }} />);
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 });
