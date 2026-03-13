@@ -197,9 +197,9 @@ describe('CompareExports', () => {
 
     await waitFor(() => {
       const deltaCells = screen.getAllByTestId('delta-cell');
-      // Should have negative deltas
       const negativeCell = deltaCells.find(cell => cell.classList.contains('delta-negative'));
-      expect(negativeCell).toBeDefined();
+      expect(negativeCell).not.toBeNull();
+      expect(negativeCell.textContent).toMatch(/-/);
     });
   });
 
@@ -214,7 +214,8 @@ describe('CompareExports', () => {
     await waitFor(() => {
       const deltaCells = screen.getAllByTestId('delta-cell');
       const neutralCell = deltaCells.find(cell => cell.classList.contains('delta-neutral'));
-      expect(neutralCell).toBeDefined();
+      expect(neutralCell).not.toBeNull();
+      expect(neutralCell.textContent).toMatch(/0\.00/);
     });
   });
 
