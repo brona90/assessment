@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { FullScreenAdminView } from './FullScreenAdminView';
 
@@ -123,6 +123,10 @@ describe('FullScreenAdminView', () => {
     datastoreMocks.getQuestions.mockReturnValue([]);
     datastoreMocks.getUserAssignments.mockReturnValue([]);
     datastoreMocks.setSelectedFrameworks.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Component Rendering', () => {
