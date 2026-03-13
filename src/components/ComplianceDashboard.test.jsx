@@ -116,6 +116,6 @@ describe('ComplianceDashboard', () => {
     });
 
     render(<ComplianceDashboard />);
-    expect(useCompliance).toHaveBeenCalledWith(undefined);
+    expect(useCompliance).toHaveBeenCalledWith({});
   });
 });
