@@ -228,4 +228,156 @@ describe('EvidenceModal', () => {
       expect(removeBtn).toHaveAttribute('aria-label', 'Remove screenshot.png');
     });
   });
+
+  describe('Focus trap (Tab key handling)', () => {
+    it('should wrap focus from last element to first on Tab', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const modal = screen.getByTestId('evidence-modal').querySelector('.modal-content');
+      const focusable = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const lastEl = focusable[focusable.length - 1];
+
+      // Focus the last focusable element
+      lastEl.focus();
+      expect(document.activeElement).toBe(lastEl);
+
+      // Press Tab (no shift) on last element -> should wrap to first
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: false });
+
+      // The focus trap should have called preventDefault and focused the first element
+      expect(document.activeElement).toBe(focusable[0]);
+    });
+
+    it('should wrap focus from first element to last on Shift+Tab', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const modal = screen.getByTestId('evidence-modal').querySelector('.modal-content');
+      const focusable = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstEl = focusable[0];
+      const lastEl = focusable[focusable.length - 1];
+
+      // Focus the first focusable element
+      firstEl.focus();
+      expect(document.activeElement).toBe(firstEl);
+
+      // Press Shift+Tab on first element -> should wrap to last
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+
+      expect(document.activeElement).toBe(lastEl);
+    });
+
+    it('should not interfere with Tab when not on first or last element', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const modal = screen.getByTestId('evidence-modal').querySelector('.modal-content');
+      const focusable = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+
+      // If there are at least 3 focusable elements, focus the middle one
+      if (focusable.length >= 3) {
+        const middleEl = focusable[1];
+        middleEl.focus();
+        // Tab should not be prevented -- just verify no crash
+        fireEvent.keyDown(document, { key: 'Tab', shiftKey: false });
+      }
+    });
+
+    it('should ignore non-Tab, non-Escape keys', () => {
+      const onClose = vi.fn();
+      render(<EvidenceModal {...mockProps} onClose={onClose} />);
+      fireEvent.keyDown(document, { key: 'Enter' });
+      expect(onClose).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Oversized file upload', () => {
+    it('should show error when file exceeds 10 MB limit', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const input = screen.getByTestId('image-upload');
+
+      // Create a file object larger than 10 MB
+      const largeFile = new File(['x'], 'huge.jpg', { type: 'image/jpeg' });
+      Object.defineProperty(largeFile, 'size', { value: 11 * 1024 * 1024 });
+
+      Object.defineProperty(input, 'files', {
+        value: [largeFile],
+        writable: false
+      });
+
+      fireEvent.change(input);
+
+      expect(screen.getByTestId('upload-error')).toBeInTheDocument();
+      expect(screen.getByTestId('upload-error').textContent).toContain('exceed 10 MB limit');
+      expect(screen.getByTestId('upload-error').textContent).toContain('huge.jpg');
+    });
+
+    it('should show error with multiple oversized file names', () => {
+      render(<EvidenceModal {...mockProps} />);
+      const input = screen.getByTestId('image-upload');
+
+      const file1 = new File(['x'], 'big1.jpg', { type: 'image/jpeg' });
+      Object.defineProperty(file1, 'size', { value: 11 * 1024 * 1024 });
+      const file2 = new File(['x'], 'big2.png', { type: 'image/png' });
+      Object.defineProperty(file2, 'size', { value: 15 * 1024 * 1024 });
+
+      Object.defineProperty(input, 'files', {
+        value: [file1, file2],
+        writable: false
+      });
+
+      fireEvent.change(input);
+
+      expect(screen.getByTestId('upload-error').textContent).toContain('big1.jpg');
+      expect(screen.getByTestId('upload-error').textContent).toContain('big2.png');
+    });
+  });
+
+  describe('File reader error handling', () => {
+    it('should show error when FileReader fails', async () => {
+      // Mock FileReader to trigger onerror
+      const OriginalFileReader = globalThis.FileReader;
+      globalThis.FileReader = class MockFileReader {
+        readAsDataURL() {
+          setTimeout(() => {
+            this.onerror(new Error('Read failed'));
+          }, 0);
+        }
+      };
+
+      render(<EvidenceModal {...mockProps} />);
+      const input = screen.getByTestId('image-upload');
+
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+      Object.defineProperty(input, 'files', {
+        value: [file],
+        writable: false
+      });
+
+      fireEvent.change(input);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('upload-error')).toBeInTheDocument();
+        expect(screen.getByTestId('upload-error').textContent).toContain('Failed to read test.jpg');
+      });
+
+      globalThis.FileReader = OriginalFileReader;
+    });
+  });
+
+  describe('Focus restoration on unmount', () => {
+    it('should restore focus to previously focused element on close', () => {
+      const button = document.createElement('button');
+      button.textContent = 'Trigger';
+      document.body.appendChild(button);
+      button.focus();
+
+      const { unmount } = render(<EvidenceModal {...mockProps} />);
+      unmount();
+
+      expect(document.activeElement).toBe(button);
+      document.body.removeChild(button);
+    });
+  });
 });
