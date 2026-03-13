@@ -1,9 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { dataStore } from './dataStore';
 
 describe('DataStore', () => {
+  const originalFetch = globalThis.fetch;
+
   beforeEach(() => {
     dataStore.reset();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
   });
 
   describe('initialization', () => {
@@ -16,8 +22,7 @@ describe('DataStore', () => {
     });
 
     it('should initialize from JSON files', async () => {
-      // eslint-disable-next-line no-undef
-    global.fetch = vi.fn()
+      globalThis.fetch = vi.fn()
         .mockResolvedValueOnce({
           json: async () => ({
             domains: {
@@ -60,8 +65,7 @@ describe('DataStore', () => {
     });
 
     it('should add domainTitle and categoryTitle to extracted questions', async () => {
-      // eslint-disable-next-line no-undef
-      global.fetch = vi.fn()
+      globalThis.fetch = vi.fn()
         .mockResolvedValueOnce({
           json: async () => ({
             domains: {
