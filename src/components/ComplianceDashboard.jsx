@@ -2,7 +2,7 @@ import { useCompliance } from '../hooks/useCompliance';
 import { ComplianceCard } from './ComplianceCard';
 import PropTypes from 'prop-types';
 
-export const ComplianceDashboard = ({ answers }) => {
+export const ComplianceDashboard = ({ answers = {} }) => {
   const { loading, error, getEnabledFrameworks, getFrameworkScore } = useCompliance(answers);
 
   if (loading) {
@@ -53,6 +53,3 @@ ComplianceDashboard.propTypes = {
   answers: PropTypes.object
 };
 
-ComplianceDashboard.defaultProps = {
-  answers: {}
-};
