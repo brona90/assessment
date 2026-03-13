@@ -4,7 +4,7 @@ import { UserView } from './UserView';
 
 // Mock the child components
 vi.mock('./QuestionCard', () => ({
-  QuestionCard: ({ question, answer, onAnswerChange, onClearAnswer, onAddEvidence, hasEvidence }) => (
+  QuestionCard: ({ question, answer, onAnswerChange, onClearAnswer, onAddEvidence, onCommentChange, hasEvidence }) => (
     <div data-testid={`question-card-${question.id}`}>
       <p>{question.text}</p>
       <button onClick={() => onAnswerChange(3)} data-testid={`answer-${question.id}`}>
@@ -15,6 +15,12 @@ vi.mock('./QuestionCard', () => ({
       </button>
       <button onClick={onAddEvidence} data-testid={`evidence-${question.id}`}>
         Add Evidence
+      </button>
+      <button onClick={() => onCommentChange('some comment')} data-testid={`comment-${question.id}`}>
+        Comment
+      </button>
+      <button onClick={() => onCommentChange('')} data-testid={`comment-empty-${question.id}`}>
+        Clear Comment
       </button>
       {answer && <span data-testid={`answer-value-${question.id}`}>Answer: {answer}</span>}
       {hasEvidence && <span data-testid={`has-evidence-${question.id}`}>Has Evidence</span>}
@@ -597,5 +603,148 @@ describe('UserView', () => {
       expect(tab1).toHaveAttribute('aria-selected', 'false');
       expect(tab2).toHaveAttribute('aria-selected', 'true');
     });
+  });
+
+  describe('handleCommentChange branch coverage', () => {
+    const mockOnCommentChange = vi.fn();
+
+    it('should call onCommentChange and set lastSaved when comment text is non-empty', () => {
+      render(
+        <UserView
+          user={mockUser}
+          questions={mockQuestions}
+          answers={mockAnswers}
+          evidence={mockEvidence}
+          comments={{}}
+          progress={mockProgress}
+          onAnswerChange={mockOnAnswerChange}
+          onClearAnswer={mockOnClearAnswer}
+          onCommentChange={mockOnCommentChange}
+          onAddEvidence={mockOnAddEvidence}
+          onExportUserData={mockOnExportUserData}
+          onLogout={mockOnLogout}
+        />
+      );
+
+      fireEvent.click(screen.getByTestId('comment-q1'));
+      expect(mockOnCommentChange).toHaveBeenCalledWith('q1', 'some comment');
+      // After a non-empty comment, lastSaved should be set, shown as autosave indicator
+      expect(screen.getByText(/Saved/)).toBeInTheDocument();
+    });
+
+    it('should call onCommentChange but NOT update lastSaved when comment text is empty', () => {
+      render(
+        <UserView
+          user={mockUser}
+          questions={mockQuestions}
+          answers={mockAnswers}
+          evidence={mockEvidence}
+          comments={{}}
+          progress={mockProgress}
+          onAnswerChange={mockOnAnswerChange}
+          onClearAnswer={mockOnClearAnswer}
+          onCommentChange={mockOnCommentChange}
+          onAddEvidence={mockOnAddEvidence}
+          onExportUserData={mockOnExportUserData}
+          onLogout={mockOnLogout}
+        />
+      );
+
+      // Initially no autosave indicator
+      expect(screen.queryByText(/Saved/)).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('comment-empty-q1'));
+      expect(mockOnCommentChange).toHaveBeenCalledWith('q1', '');
+      // Empty comment should not trigger autosave indicator
+      expect(screen.queryByText(/Saved/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('completion banner', () => {
+    it('should show assessment complete banner at 100% progress', () => {
+      render(
+        <UserView
+          user={mockUser}
+          questions={mockQuestions}
+          answers={{ q1: 3, q2: 4, q3: 5 }}
+          evidence={mockEvidence}
+          progress={{ answered: 3, total: 3, percentage: 100 }}
+          onAnswerChange={mockOnAnswerChange}
+          onClearAnswer={mockOnClearAnswer}
+          onCommentChange={vi.fn()}
+          onAddEvidence={mockOnAddEvidence}
+          onExportUserData={mockOnExportUserData}
+          onSwitchToResults={vi.fn()}
+          onLogout={mockOnLogout}
+        />
+      );
+
+      expect(screen.getByTestId('assessment-complete')).toBeInTheDocument();
+      expect(screen.getByText('Assessment Complete!')).toBeInTheDocument();
+    });
+
+    it('should show View Results button in banner when onSwitchToResults is provided', () => {
+      const mockOnSwitchToResults = vi.fn();
+      render(
+        <UserView
+          user={mockUser}
+          questions={mockQuestions}
+          answers={{ q1: 3, q2: 4, q3: 5 }}
+          evidence={mockEvidence}
+          progress={{ answered: 3, total: 3, percentage: 100 }}
+          onAnswerChange={mockOnAnswerChange}
+          onClearAnswer={mockOnClearAnswer}
+          onCommentChange={vi.fn()}
+          onAddEvidence={mockOnAddEvidence}
+          onExportUserData={mockOnExportUserData}
+          onSwitchToResults={mockOnSwitchToResults}
+          onLogout={mockOnLogout}
+        />
+      );
+
+      expect(screen.getByText(/View Your Results/)).toBeInTheDocument();
+    });
+
+    it('should not show View Results button in banner when onSwitchToResults is not provided', () => {
+      render(
+        <UserView
+          user={mockUser}
+          questions={mockQuestions}
+          answers={{ q1: 3, q2: 4, q3: 5 }}
+          evidence={mockEvidence}
+          progress={{ answered: 3, total: 3, percentage: 100 }}
+          onAnswerChange={mockOnAnswerChange}
+          onClearAnswer={mockOnClearAnswer}
+          onCommentChange={vi.fn()}
+          onAddEvidence={mockOnAddEvidence}
+          onExportUserData={mockOnExportUserData}
+          onLogout={mockOnLogout}
+        />
+      );
+
+      expect(screen.getByTestId('assessment-complete')).toBeInTheDocument();
+      expect(screen.queryByText(/View Your Results/)).not.toBeInTheDocument();
+    });
+  });
+
+  it('should fall back to "Assessment User" when user.title is not provided', () => {
+    const userNoTitle = { id: 'user1', name: 'John Doe' };
+    render(
+      <UserView
+        user={userNoTitle}
+        questions={mockQuestions}
+        answers={mockAnswers}
+        evidence={mockEvidence}
+        progress={mockProgress}
+        onAnswerChange={mockOnAnswerChange}
+        onClearAnswer={mockOnClearAnswer}
+        onCommentChange={vi.fn()}
+        onAddEvidence={mockOnAddEvidence}
+        onExportUserData={mockOnExportUserData}
+        onLogout={mockOnLogout}
+      />
+    );
+
+    expect(screen.getByText('Assessment User')).toBeInTheDocument();
   });
 });
