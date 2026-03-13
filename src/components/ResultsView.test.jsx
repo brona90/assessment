@@ -3,17 +3,27 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ResultsView } from './ResultsView';
 
 vi.mock('./DomainRadarChart', () => ({
-  DomainRadarChart: ({ benchmarks }) => (
-    <div data-testid="domain-radar-chart" data-has-benchmarks={!!benchmarks}>Radar Chart</div>
+  DomainRadarChart: ({ benchmarks, domains, answers }) => (
+    <div data-testid="domain-radar-chart"
+      data-has-benchmarks={!!benchmarks}
+      data-domain-count={domains ? Object.keys(domains).length : 0}
+      data-answer-count={answers ? Object.keys(answers).length : 0}>Radar Chart</div>
   )
 }));
 vi.mock('./DomainBarChart', () => ({
-  DomainBarChart: ({ benchmarks }) => (
-    <div data-testid="domain-bar-chart" data-has-benchmarks={!!benchmarks}>Bar Chart</div>
+  DomainBarChart: ({ benchmarks, domains, answers }) => (
+    <div data-testid="domain-bar-chart"
+      data-has-benchmarks={!!benchmarks}
+      data-domain-count={domains ? Object.keys(domains).length : 0}
+      data-answer-count={answers ? Object.keys(answers).length : 0}>Bar Chart</div>
   )
 }));
 vi.mock('./DomainHeatmap', () => ({
-  DomainHeatmap: () => <div data-testid="domain-heatmap">Heatmap</div>
+  DomainHeatmap: ({ domains, answers }) => (
+    <div data-testid="domain-heatmap"
+      data-domain-count={domains ? Object.keys(domains).length : 0}
+      data-answer-count={answers ? Object.keys(answers).length : 0}>Heatmap</div>
+  )
 }));
 vi.mock('./BenchmarkTrendChart', () => ({
   BenchmarkTrendChart: ({ benchmarks, userScore }) => (
@@ -101,19 +111,28 @@ describe('ResultsView', () => {
     expect(mockOnLogout).toHaveBeenCalledTimes(1);
   });
 
-  it('should render heatmap chart', () => {
+  it('should render heatmap chart with correct domain and answer counts', () => {
     render(<ResultsView {...defaultProps} />);
-    expect(screen.getByTestId('domain-heatmap')).toBeInTheDocument();
+    const heatmap = screen.getByTestId('domain-heatmap');
+    expect(heatmap).toBeInTheDocument();
+    expect(Number(heatmap.dataset.domainCount)).toBe(1);
+    expect(Number(heatmap.dataset.answerCount)).toBe(2);
   });
 
-  it('should render radar chart', () => {
+  it('should render radar chart with correct domain and answer counts', () => {
     render(<ResultsView {...defaultProps} />);
-    expect(screen.getByTestId('domain-radar-chart')).toBeInTheDocument();
+    const radar = screen.getByTestId('domain-radar-chart');
+    expect(radar).toBeInTheDocument();
+    expect(Number(radar.dataset.domainCount)).toBe(1);
+    expect(Number(radar.dataset.answerCount)).toBe(2);
   });
 
-  it('should render bar chart', () => {
+  it('should render bar chart with correct domain and answer counts', () => {
     render(<ResultsView {...defaultProps} />);
-    expect(screen.getByTestId('domain-bar-chart')).toBeInTheDocument();
+    const bar = screen.getByTestId('domain-bar-chart');
+    expect(bar).toBeInTheDocument();
+    expect(Number(bar.dataset.domainCount)).toBe(1);
+    expect(Number(bar.dataset.answerCount)).toBe(2);
   });
 
   it('should display overall score heading', () => {
