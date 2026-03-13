@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { userExportService } from './userExportService';
 
 describe('userExportService', () => {
@@ -320,6 +320,8 @@ describe('userExportService', () => {
   });
 
   describe('downloadUserExport', () => {
+    const originalCreateElement = document.createElement.bind(document);
+
     beforeEach(() => {
       /* eslint-disable no-undef */
       // Mock DOM APIs
@@ -331,7 +333,7 @@ describe('userExportService', () => {
           this.options = options;
         }
       };
-      
+
       const mockLink = {
         href: '',
         download: '',
@@ -340,6 +342,9 @@ describe('userExportService', () => {
       global.document.createElement = vi.fn(() => mockLink);
     });
 
+    afterEach(() => {
+      global.document.createElement = originalCreateElement;
+    });
 
     it('should trigger download', () => {
       userExportService.downloadUserExport(
@@ -357,12 +362,14 @@ describe('userExportService', () => {
   });
 
   describe('downloadMergedReport', () => {
+    const originalCreateElement = document.createElement.bind(document);
+
     beforeEach(() => {
       /* eslint-disable no-undef */
       global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
       global.URL.revokeObjectURL = vi.fn();
       global.Blob = class MockBlob { constructor(content, options) { this.content = content; this.options = options; } };
-      
+
       const mockLink = {
         href: '',
         download: '',
@@ -371,6 +378,9 @@ describe('userExportService', () => {
       global.document.createElement = vi.fn(() => mockLink);
     });
 
+    afterEach(() => {
+      global.document.createElement = originalCreateElement;
+    });
 
     it('should download merged report', () => {
       const mergedData = {
