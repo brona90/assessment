@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { UserView } from './UserView';
 
 // Mock the child components
@@ -817,5 +818,29 @@ describe('UserView', () => {
     );
 
     expect(screen.getByText('Assessment User')).toBeInTheDocument();
+  });
+
+  describe('accessibility', () => {
+    it('should have no a11y violations', async () => {
+      const { container } = render(
+        <UserView
+          user={mockUser}
+          questions={mockQuestions}
+          answers={{}}
+          evidence={{}}
+          comments={{}}
+          frameworks={{}}
+          progress={{ answered: 0, total: 2, percentage: 0 }}
+          onAnswerChange={vi.fn()}
+          onClearAnswer={vi.fn()}
+          onCommentChange={vi.fn()}
+          onAddEvidence={vi.fn()}
+          onExportUserData={vi.fn()}
+          onSwitchToResults={vi.fn()}
+          onLogout={mockOnLogout}
+        />
+      );
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 });
