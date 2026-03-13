@@ -29,8 +29,9 @@ export const scoreCalculator = {
       const domainScore = this.calculateDomainScore(questions, answers);
       
       if (domainScore > 0) {
-        weightedSum += domainScore * domain.weight;
-        totalWeight += domain.weight;
+        const w = domain.weight || 1;
+        weightedSum += domainScore * w;
+        totalWeight += w;
       }
     });
     
@@ -63,7 +64,7 @@ export const scoreCalculator = {
     };
   },
 
-  calculateComplianceScore(framework, questions, answers) {
+  calculateComplianceScore(framework, answers) {
     if (!framework.mappedQuestions || framework.mappedQuestions.length === 0) {
       return 0;
     }
@@ -80,6 +81,32 @@ export const scoreCalculator = {
     });
 
     return count > 0 ? (total / count) : 0;
+  },
+
+  buildDomainsFromQuestions(questions) {
+    const domains = {};
+    questions.forEach(q => {
+      if (!domains[q.domainId]) {
+        domains[q.domainId] = {
+          title: q.domainTitle || q.domainId,
+          weight: 1,
+          categories: {}
+        };
+      }
+      if (!domains[q.domainId].categories[q.categoryId]) {
+        domains[q.domainId].categories[q.categoryId] = {
+          title: q.categoryTitle || q.categoryId,
+          questions: []
+        };
+      }
+      domains[q.domainId].categories[q.categoryId].questions.push(q);
+    });
+    return domains;
+  },
+
+  calculateOverallScoreFromQuestions(questions, answers) {
+    const domains = this.buildDomainsFromQuestions(questions);
+    return this.calculateOverallScore(domains, answers);
   },
 
   getMaturityLevel(score) {
