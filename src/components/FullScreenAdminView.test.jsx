@@ -31,23 +31,12 @@ vi.mock('./CSVImportExport', () => ({
   CSVImportExport: () => <div data-testid="csv-import-export-stub">CSV Import Export</div>
 }));
 
-vi.mock('../hooks/useRouter', () => {
-  const { useState, useCallback } = require('react');
-  return {
-    useRouter: () => {
-      const [subRoute, setSubRoute] = useState(null);
-      const navigate = useCallback((route, sub) => {
-        setSubRoute(sub || null);
-      }, []);
-      return {
-        currentSubRoute: subRoute,
-        navigate,
-        currentRoute: 'admin',
-        isRoute: vi.fn()
-      };
-    }
-  };
-});
+vi.mock('./OverviewDashboard', () => ({
+  OverviewDashboard: () => <div data-testid="overview-dashboard">Overview Dashboard</div>
+}));
+
+// useRouter is NOT mocked — the real hook is used so tab clicks trigger re-renders.
+// Test isolation is handled by setup.js resetting window.location.hash after each test.
 
 // Stable mock references for useDataStore (avoids infinite useEffect loops)
 const datastoreMocks = vi.hoisted(() => ({
@@ -277,61 +266,9 @@ describe('FullScreenAdminView', () => {
   });
 
   describe('Overview Tab', () => {
-    it('should render charts in Overview tab', () => {
+    it('should render OverviewDashboard in Overview tab', () => {
       render(<FullScreenAdminView {...defaultProps} />);
-      expect(screen.getByTestId('domain-radar-chart')).toBeInTheDocument();
-      expect(screen.getByTestId('domain-bar-chart')).toBeInTheDocument();
-    });
-
-    it('should render compliance dashboard in Overview tab', () => {
-      render(<FullScreenAdminView {...defaultProps} />);
-      expect(screen.getByTestId('compliance-dashboard')).toBeInTheDocument();
-    });
-
-    it('should render heatmap in Overview tab', () => {
-      render(<FullScreenAdminView {...defaultProps} />);
-      expect(screen.getByTestId('domain-heatmap')).toBeInTheDocument();
-    });
-  });
-
-  describe('Participant Completion', () => {
-    it('should show completion section in Overview tab', async () => {
-      const { storageService } = await import('../services/storageService');
-      storageService.loadUsersCompletionStatus.mockResolvedValue([]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('completion-section')).toBeInTheDocument();
-      });
-    });
-
-    it('should show completion table rows for each user', async () => {
-      const { storageService } = await import('../services/storageService');
-      storageService.loadUsersCompletionStatus.mockResolvedValue([
-        { userId: 'u1', name: 'Alice', total: 10, answered: 7, percentage: 70, lastActive: null },
-        { userId: 'u2', name: 'Bob', total: 8, answered: 8, percentage: 100, lastActive: '2024-01-15T10:00:00.000Z' }
-      ]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('completion-row-u1')).toBeInTheDocument();
-        expect(screen.getByTestId('completion-row-u2')).toBeInTheDocument();
-      });
-    });
-
-    it('should show "—" for users with no last active timestamp', async () => {
-      const { storageService } = await import('../services/storageService');
-      storageService.loadUsersCompletionStatus.mockResolvedValue([
-        { userId: 'u1', name: 'Alice', total: 10, answered: 0, percentage: 0, lastActive: null }
-      ]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByText('—')).toBeInTheDocument();
-      });
+      expect(screen.getByTestId('overview-dashboard')).toBeInTheDocument();
     });
   });
 
@@ -357,7 +294,7 @@ describe('FullScreenAdminView', () => {
 
     it('should handle empty frameworks gracefully', () => {
       render(<FullScreenAdminView {...defaultProps} frameworks={[]} />);
-      expect(screen.getByTestId('compliance-dashboard')).toBeInTheDocument();
+      expect(screen.getByTestId('overview-dashboard')).toBeInTheDocument();
     });
   });
 
@@ -1728,108 +1665,8 @@ describe('FullScreenAdminView', () => {
     });
   });
 
-  describe('Sorting (Participant Completion)', () => {
-    it('should sort by name ascending then descending on repeated click', async () => {
-      const { storageService } = await import('../services/storageService');
-      storageService.loadUsersCompletionStatus.mockResolvedValue([
-        { userId: 'u1', name: 'Charlie', total: 10, answered: 5, percentage: 50, lastActive: null },
-        { userId: 'u2', name: 'Alice', total: 10, answered: 10, percentage: 100, lastActive: '2024-01-15T10:00:00.000Z' }
-      ]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('completion-table')).toBeInTheDocument();
-      });
-
-      // Default sort is name asc: Alice first
-      const rows = screen.getAllByTestId(/^completion-row-/);
-      expect(rows[0]).toHaveAttribute('data-testid', 'completion-row-u2');
-      expect(rows[1]).toHaveAttribute('data-testid', 'completion-row-u1');
-
-      // Click name header to toggle to desc
-      const nameHeader = screen.getByText('Assessor');
-      fireEvent.click(nameHeader);
-
-      // Now desc: Charlie first
-      const rowsAfter = screen.getAllByTestId(/^completion-row-/);
-      expect(rowsAfter[0]).toHaveAttribute('data-testid', 'completion-row-u1');
-      expect(rowsAfter[1]).toHaveAttribute('data-testid', 'completion-row-u2');
-    });
-
-    it('should sort by progress percentage', async () => {
-      const { storageService } = await import('../services/storageService');
-      storageService.loadUsersCompletionStatus.mockResolvedValue([
-        { userId: 'u1', name: 'Alice', total: 10, answered: 5, percentage: 50, lastActive: null },
-        { userId: 'u2', name: 'Bob', total: 10, answered: 10, percentage: 100, lastActive: null }
-      ]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('completion-table')).toBeInTheDocument();
-      });
-
-      // Click Progress header
-      const progressHeader = screen.getByText('Progress');
-      fireEvent.click(progressHeader);
-
-      // Ascending: 50 first
-      const rowsAsc = screen.getAllByTestId(/^completion-row-/);
-      expect(rowsAsc[0]).toHaveAttribute('data-testid', 'completion-row-u1');
-
-      // Click again for descending
-      fireEvent.click(progressHeader);
-      const rowsDesc = screen.getAllByTestId(/^completion-row-/);
-      expect(rowsDesc[0]).toHaveAttribute('data-testid', 'completion-row-u2');
-    });
-
-    it('should sort by last active date', async () => {
-      const { storageService } = await import('../services/storageService');
-      storageService.loadUsersCompletionStatus.mockResolvedValue([
-        { userId: 'u1', name: 'Alice', total: 10, answered: 5, percentage: 50, lastActive: '2024-01-20T10:00:00.000Z' },
-        { userId: 'u2', name: 'Bob', total: 10, answered: 10, percentage: 100, lastActive: '2024-01-10T10:00:00.000Z' }
-      ]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('completion-table')).toBeInTheDocument();
-      });
-
-      // Click Last Active header
-      const lastActiveHeader = screen.getByText('Last Active');
-      fireEvent.click(lastActiveHeader);
-
-      // Ascending: earlier date (Bob) first
-      const rowsAsc = screen.getAllByTestId(/^completion-row-/);
-      expect(rowsAsc[0]).toHaveAttribute('data-testid', 'completion-row-u2');
-    });
-
-    it('should show admin label and N/A progress for admin users', async () => {
-      const { storageService } = await import('../services/storageService');
-      datastoreMocks.getUsers.mockReturnValue([
-        { id: 'u1', name: 'Admin User', email: 'admin@test.com', role: 'admin' }
-      ]);
-      storageService.loadUsersCompletionStatus.mockResolvedValue([
-        { userId: 'u1', name: 'Admin User', total: 0, answered: 0, percentage: 0, lastActive: null }
-      ]);
-
-      render(<FullScreenAdminView {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('completion-row-u1')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText('(Admin)')).toBeInTheDocument();
-      expect(screen.getByText('N/A')).toBeInTheDocument();
-    });
-
-    it('should show "No users found." when completion status is empty', () => {
-      render(<FullScreenAdminView {...defaultProps} />);
-      expect(screen.getByText('No users found.')).toBeInTheDocument();
-    });
-  });
+  // Participant Completion and Sorting tests are in OverviewDashboard.test.jsx
+  // since OverviewDashboard owns the completion table rendering.
 
   describe('Excel Export', () => {
     it('should call excelExportService on export button click', async () => {
