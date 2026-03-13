@@ -92,6 +92,7 @@ describe('UserView', () => {
   const mockOnAnswerChange = vi.fn();
   const mockOnClearAnswer = vi.fn();
   const mockOnAddEvidence = vi.fn();
+  const mockOnCommentChange = vi.fn();
   const mockOnExportUserData = vi.fn();
   const mockOnLogout = vi.fn();
 
@@ -110,6 +111,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -129,6 +133,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -149,6 +156,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -170,6 +180,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -191,6 +204,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -210,6 +226,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -229,6 +248,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -251,6 +273,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -273,6 +298,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -297,6 +325,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -319,6 +350,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -341,6 +375,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -363,6 +400,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -383,6 +423,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -402,6 +445,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -421,6 +467,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -440,6 +489,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -461,6 +513,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -488,6 +543,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -507,6 +565,9 @@ describe('UserView', () => {
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
         onAddEvidence={mockOnAddEvidence}
+        onCommentChange={mockOnCommentChange}
+        comments={{}}
+        frameworks={{}}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
       />
@@ -544,6 +605,8 @@ describe('UserView', () => {
       questions: multiDomainQuestions,
       answers: {},
       evidence: {},
+      comments: {},
+      frameworks: {},
       progress: { answered: 0, total: 2, percentage: 0 },
       onAnswerChange: vi.fn(),
       onClearAnswer: vi.fn(),
@@ -606,8 +669,6 @@ describe('UserView', () => {
   });
 
   describe('handleCommentChange branch coverage', () => {
-    const mockOnCommentChange = vi.fn();
-
     it('should call onCommentChange and set lastSaved when comment text is non-empty', () => {
       render(
         <UserView
@@ -616,6 +677,7 @@ describe('UserView', () => {
           answers={mockAnswers}
           evidence={mockEvidence}
           comments={{}}
+          frameworks={{}}
           progress={mockProgress}
           onAnswerChange={mockOnAnswerChange}
           onClearAnswer={mockOnClearAnswer}
@@ -640,6 +702,7 @@ describe('UserView', () => {
           answers={mockAnswers}
           evidence={mockEvidence}
           comments={{}}
+          frameworks={{}}
           progress={mockProgress}
           onAnswerChange={mockOnAnswerChange}
           onClearAnswer={mockOnClearAnswer}
@@ -668,10 +731,12 @@ describe('UserView', () => {
           questions={mockQuestions}
           answers={{ q1: 3, q2: 4, q3: 5 }}
           evidence={mockEvidence}
+          comments={{}}
+          frameworks={{}}
           progress={{ answered: 3, total: 3, percentage: 100 }}
           onAnswerChange={mockOnAnswerChange}
           onClearAnswer={mockOnClearAnswer}
-          onCommentChange={vi.fn()}
+          onCommentChange={mockOnCommentChange}
           onAddEvidence={mockOnAddEvidence}
           onExportUserData={mockOnExportUserData}
           onSwitchToResults={vi.fn()}
@@ -691,10 +756,12 @@ describe('UserView', () => {
           questions={mockQuestions}
           answers={{ q1: 3, q2: 4, q3: 5 }}
           evidence={mockEvidence}
+          comments={{}}
+          frameworks={{}}
           progress={{ answered: 3, total: 3, percentage: 100 }}
           onAnswerChange={mockOnAnswerChange}
           onClearAnswer={mockOnClearAnswer}
-          onCommentChange={vi.fn()}
+          onCommentChange={mockOnCommentChange}
           onAddEvidence={mockOnAddEvidence}
           onExportUserData={mockOnExportUserData}
           onSwitchToResults={mockOnSwitchToResults}
@@ -712,10 +779,12 @@ describe('UserView', () => {
           questions={mockQuestions}
           answers={{ q1: 3, q2: 4, q3: 5 }}
           evidence={mockEvidence}
+          comments={{}}
+          frameworks={{}}
           progress={{ answered: 3, total: 3, percentage: 100 }}
           onAnswerChange={mockOnAnswerChange}
           onClearAnswer={mockOnClearAnswer}
-          onCommentChange={vi.fn()}
+          onCommentChange={mockOnCommentChange}
           onAddEvidence={mockOnAddEvidence}
           onExportUserData={mockOnExportUserData}
           onLogout={mockOnLogout}
@@ -735,10 +804,12 @@ describe('UserView', () => {
         questions={mockQuestions}
         answers={mockAnswers}
         evidence={mockEvidence}
+        comments={{}}
+        frameworks={{}}
         progress={mockProgress}
         onAnswerChange={mockOnAnswerChange}
         onClearAnswer={mockOnClearAnswer}
-        onCommentChange={vi.fn()}
+        onCommentChange={mockOnCommentChange}
         onAddEvidence={mockOnAddEvidence}
         onExportUserData={mockOnExportUserData}
         onLogout={mockOnLogout}
