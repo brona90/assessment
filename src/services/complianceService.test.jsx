@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { complianceService } from './complianceService';
 import * as rawDataProvider from './rawDataProvider';
