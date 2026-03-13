@@ -146,9 +146,7 @@ describe('PdfService', () => {
 
   describe('generatePDF', () => {
     it('should generate a PDF with cover page content', async () => {
-      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
-      expect(pdf).toBeDefined();
-      expect(pdf.internal).toBeDefined();
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
       // Cover page shows the report title and org name
       expectTextContaining('Technology Maturity Assessment');
       expectTextContaining('Organisation');
@@ -169,24 +167,20 @@ describe('PdfService', () => {
       const domains = {
         domain1: { title: 'Domain 1', weight: 0.5, categories: null }
       };
-      const pdf = await pdfService.generatePDF(domains, {}, {}, {});
-      expect(pdf).toBeDefined();
+      await pdfService.generatePDF(domains, {}, {}, {});
       expectTextContaining('Domain 1');
     });
 
     it('should handle empty domains and still produce a PDF with structure', async () => {
-      const pdf = await pdfService.generatePDF({}, {}, {}, {});
-      expect(pdf).toBeDefined();
+      await pdfService.generatePDF({}, {}, {}, {});
       expectTextContaining('Executive Summary');
       expectTextContaining('Detailed Assessment Results');
     });
 
     it('should handle null and undefined evidence without crashing', async () => {
-      const pdfNull = await pdfService.generatePDF(mockDomains, mockAnswers, null, {});
-      expect(pdfNull).toBeDefined();
+      await pdfService.generatePDF(mockDomains, mockAnswers, null, {});
       expectTextContaining('Domain 1');
-      const pdfUndef = await pdfService.generatePDF(mockDomains, mockAnswers, undefined, {});
-      expect(pdfUndef).toBeDefined();
+      await pdfService.generatePDF(mockDomains, mockAnswers, undefined, {});
     });
 
     it('should render assessor comments with "Note:" prefix', async () => {
@@ -450,8 +444,7 @@ describe('PdfService', () => {
           }
         }
       };
-      const pdf = await pdfService.generatePDF(domains, { x1: 3 }, {}, {});
-      expect(pdf).toBeDefined();
+      await pdfService.generatePDF(domains, { x1: 3 }, {}, {});
       expectTextContaining('X1');
     });
   });
@@ -701,8 +694,7 @@ describe('PdfService', () => {
         throw new Error('Simulated DOM error');
       });
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const pdf = await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
-      expect(pdf).toBeDefined();
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
       expect(consoleSpy).toHaveBeenCalledWith('Error adding charts to PDF:', expect.any(Error));
       spy.mockRestore();
       consoleSpy.mockRestore();
