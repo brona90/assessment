@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { EvidenceModal } from './EvidenceModal';
 
 describe('EvidenceModal', () => {
@@ -380,6 +381,13 @@ describe('EvidenceModal', () => {
 
       expect(document.activeElement).toBe(button);
       document.body.removeChild(button);
+    });
+  });
+
+  describe('accessibility', () => {
+    it('should have no a11y violations', async () => {
+      const { container } = render(<EvidenceModal {...mockProps} />);
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
