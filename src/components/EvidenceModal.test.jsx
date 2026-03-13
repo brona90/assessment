@@ -50,11 +50,9 @@ describe('EvidenceModal', () => {
     const onClose = vi.fn();
     render(<EvidenceModal {...mockProps} onClose={onClose} />);
     const modalContent = screen.getByTestId('evidence-modal').querySelector('.modal-content');
-    
-    // Create a synthetic event that doesn't bubble
-    const event = new MouseEvent('click', { bubbles: false });
-    modalContent.dispatchEvent(event);
-    
+
+    fireEvent.click(modalContent);
+
     expect(onClose).not.toHaveBeenCalled();
   });
 
