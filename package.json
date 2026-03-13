@@ -15,8 +15,17 @@
     "cucumber": "node node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 5",
     "build:singlefile": "vite build --config vite.singlefile.config.js && mv dist-singlefile/index.html dist-singlefile/assessment.html",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "size": "size-limit",
+    "size:check": "size-limit --limit"
   },
+  "size-limit": [
+    {
+      "path": "dist/**/*.js",
+      "limit": "450 kB",
+      "gzip": true
+    }
+  ],
   "dependencies": {
     "chart.js": "^4.5.1",
     "jspdf": "^4.2.0",
@@ -32,9 +41,13 @@
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
     "@babel/register": "^7.28.3",
+    "@commitlint/cli": "^20.4.4",
+    "@commitlint/config-conventional": "^20.4.4",
     "@cucumber/cucumber": "^12.2.0",
     "@eslint/js": "^9.39.1",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.56.1",
+    "@size-limit/preset-app": "^12.0.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -49,8 +62,10 @@
     "globals": "^16.5.0",
     "jsdom": "^27.2.0",
     "playwright": "^1.56.1",
+    "size-limit": "^12.0.1",
     "vite": "^7.2.2",
     "vite-plugin-singlefile": "^2.3.0",
-    "vitest": "^4.0.9"
+    "vitest": "^4.0.9",
+    "vitest-axe": "^0.1.0"
   }
 }
