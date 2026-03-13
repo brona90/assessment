@@ -2,9 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { storageService } from './storageService';
 
 describe('StorageService', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
     vi.clearAllMocks();
+    await storageService.clearAllEvidence();
   });
 
   describe('Assessment Data', () => {
