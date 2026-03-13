@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { X, Paperclip } from 'lucide-react';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose }) => {
   const dialogRef = useRef(null);
@@ -9,6 +11,7 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
   // Initialize state with existing evidence
   const [textEvidence, setTextEvidence] = useState(() => existingEvidence?.text || '');
   const [images, setImages] = useState(() => existingEvidence?.images || []);
+  const [uploadError, setUploadError] = useState(null);
 
   // Focus trap and Escape key
   useEffect(() => {
@@ -47,8 +50,16 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    setUploadError(null);
+
+    const oversized = files.filter(f => f.size > MAX_FILE_SIZE);
+    if (oversized.length > 0) {
+      setUploadError(`File(s) exceed 10 MB limit: ${oversized.map(f => f.name).join(', ')}`);
+      return;
+    }
+
     const readers = files.map(file => {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (event) => {
           resolve({
@@ -57,12 +68,15 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
             size: file.size
           });
         };
+        reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
         reader.readAsDataURL(file);
       });
     });
 
     Promise.all(readers).then(newImages => {
       setImages(prev => [...prev, ...newImages]);
+    }).catch(err => {
+      setUploadError(err.message);
     });
   };
 
@@ -75,7 +89,6 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
       text: textEvidence,
       images: images
     });
-    onClose();
   };
 
   return (
@@ -126,6 +139,11 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
               />
             </label>
             
+            {uploadError && (
+              <p className="upload-error" role="alert" data-testid="upload-error" style={{ color: 'var(--danger-color)', marginTop: '0.5rem' }}>
+                {uploadError}
+              </p>
+            )}
             {images.length > 0 && (
               <div className="image-preview-grid" data-testid="image-preview">
                 {images.map((img, idx) => (
