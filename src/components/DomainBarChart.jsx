@@ -9,6 +9,7 @@ import {
   Legend
 } from 'chart.js';
 import PropTypes from 'prop-types';
+import { scoreCalculator } from '../utils/scoreCalculator';
 import {
   CHART_COLORS,
   darkLegend,
@@ -26,26 +27,8 @@ ChartJS.register(
   Legend
 );
 
-function computeDomainScores(domains, answers) {
-  return Object.keys(domains).map(domainKey => {
-    const domain = domains[domainKey];
-    const questions = [];
-    Object.values(domain.categories || {}).forEach(cat => {
-      if (cat.questions) questions.push(...cat.questions);
-    });
-    if (questions.length === 0) return 0;
-    let total = 0;
-    let count = 0;
-    questions.forEach(q => {
-      const val = answers[q.id];
-      if (val !== undefined && val !== 0) { total += val; count++; }
-    });
-    return count > 0 ? total / count : 0;
-  });
-}
-
 export const DomainBarChart = ({
-  domains, answers, benchmarks,
+  domains = {}, answers = {}, benchmarks = null,
   showIndustryAvg, showTopQuartile, hiddenDomains, targetScore, onChartReady
 }) => {
   if (!domains || Object.keys(domains).length === 0) {
@@ -58,7 +41,10 @@ export const DomainBarChart = ({
     : allDomainKeys;
   const visibleDomains = visibleKeys.reduce((acc, k) => { acc[k] = domains[k]; return acc; }, {});
   const domainNames = visibleKeys.map(k => domains[k].title);
-  const domainScores = computeDomainScores(visibleDomains, answers);
+  const domainScores = visibleKeys.map(key => {
+    const questions = scoreCalculator.getAllQuestionsFromDomain(visibleDomains[key]);
+    return scoreCalculator.calculateDomainScore(questions, answers);
+  });
 
   const hasCurrent = showIndustryAvg !== false && benchmarks?.current;
   const hasTopQ = showTopQuartile !== false && benchmarks?.topQuartile;
@@ -99,7 +85,7 @@ export const DomainBarChart = ({
     });
   }
 
-  if (targetScore != null) {
+  if (targetScore !== null && targetScore !== undefined) {
     datasets.push({
       label: `Target (${Number(targetScore).toFixed(1)})`,
       data: Array(visibleKeys.length).fill(targetScore),
@@ -150,8 +136,3 @@ DomainBarChart.propTypes = {
   onChartReady: PropTypes.func
 };
 
-DomainBarChart.defaultProps = {
-  domains: {},
-  answers: {},
-  benchmarks: null
-};
