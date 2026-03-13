@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { User, Check, BarChart2, Download, LogOut, ClipboardList, PartyPopper, ArrowRight } from 'lucide-react';
 import { QuestionCard } from './QuestionCard';
@@ -55,8 +55,11 @@ export const UserView = ({
   }, {}), [questions]);
 
   const domains = useMemo(() => Object.values(groupedQuestions), [groupedQuestions]);
-  const [activeTab, setActiveTab] = useState(() => domains[0]?.id || null);
+  const [activeTab, setActiveTab] = useState(null);
   const [lastSaved, setLastSaved] = useState(null);
+
+  // Derive effective tab: use activeTab if valid, otherwise first domain
+  const effectiveTab = (activeTab && groupedQuestions[activeTab]) ? activeTab : (domains[0]?.id || null);
 
   const handleAnswerChange = useCallback((qId, value) => {
     onAnswerChange(qId, value);
@@ -68,14 +71,7 @@ export const UserView = ({
     if (text) setLastSaved(new Date());
   }, [onCommentChange]);
 
-  // Set active tab once questions load (domains[0] may not exist on first render)
-  useEffect(() => {
-    if (domains.length > 0 && !activeTab) {
-      setActiveTab(domains[0].id);
-    }
-  }, [domains, activeTab]);
-
-  const activeDomain = groupedQuestions[activeTab];
+  const activeDomain = groupedQuestions[effectiveTab];
 
   return (
     <div className="user-view" data-testid="user-view">
@@ -147,9 +143,9 @@ export const UserView = ({
                     <button
                       key={domain.id}
                       role="tab"
-                      aria-selected={activeTab === domain.id}
+                      aria-selected={effectiveTab === domain.id}
                       aria-controls={`domain-panel-${domain.id}`}
-                      className={`domain-tab ${activeTab === domain.id ? 'active' : ''}`}
+                      className={`domain-tab ${effectiveTab === domain.id ? 'active' : ''}`}
                       onClick={() => setActiveTab(domain.id)}
                       data-testid={`domain-tab-${domain.id}`}
                     >
@@ -159,7 +155,7 @@ export const UserView = ({
                 </div>
                 <select
                   className="domain-tab-select"
-                  value={activeTab || ''}
+                  value={effectiveTab || ''}
                   onChange={e => setActiveTab(e.target.value)}
                   data-testid="domain-tab-select"
                   aria-label="Select domain"
@@ -172,9 +168,9 @@ export const UserView = ({
             )}
 
             {/* Questions Container */}
-            <div className="questions-container" role="tabpanel" id={`domain-panel-${activeTab}`}>
+            <div className="questions-container" role="tabpanel" id={`domain-panel-${effectiveTab}`}>
               {activeDomain && (
-                <div key={activeTab} className="domain-section">
+                <div key={effectiveTab} className="domain-section">
                   {domains.length === 1 && <h3 className="domain-title">{activeDomain.title}</h3>}
                   {Object.entries(activeDomain.categories).map(([categoryId, category]) => (
                     <div key={categoryId} className="category-section">
@@ -248,4 +244,3 @@ UserView.propTypes = {
   onLogout: PropTypes.func.isRequired
 };
 
-export default UserView;
