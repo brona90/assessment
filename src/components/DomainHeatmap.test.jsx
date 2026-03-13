@@ -166,28 +166,48 @@ describe('DomainHeatmap', () => {
   });
 
   describe('hiddenDomains filtering', () => {
-    it('should filter out hidden domains', () => {
+    function renderHeatmapWithFillText(domains, answers, extras = {}) {
+      const fillTextCalls = [];
+      const mockCtx = {
+        fillRect: vi.fn(), clearRect: vi.fn(), save: vi.fn(), restore: vi.fn(),
+        beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), closePath: vi.fn(),
+        stroke: vi.fn(), fill: vi.fn(),
+        fillText: vi.fn((...args) => fillTextCalls.push(args)),
+        measureText: vi.fn(() => ({ width: 50 })),
+        roundRect: vi.fn(), textAlign: '', fillStyle: '', font: '',
+      };
+      const origGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCtx);
+      try {
+        render(<DomainHeatmap domains={domains} answers={answers} {...extras} />);
+      } finally {
+        HTMLCanvasElement.prototype.getContext = origGetContext;
+      }
+      return fillTextCalls;
+    }
+
+    it('should not render hidden domain labels on canvas', () => {
       const hidden = new Set(['domain1']);
-      render(
-        <DomainHeatmap
-          domains={makeDomains()}
-          answers={{ q1: 3, q2: 4, q3: 2, q4: 5 }}
-          hiddenDomains={hidden}
-        />
+      const fillTextCalls = renderHeatmapWithFillText(
+        makeDomains(),
+        { q1: 3, q2: 4, q3: 2, q4: 5 },
+        { hiddenDomains: hidden }
       );
-      expect(screen.getByTestId('domain-heatmap')).toBeInTheDocument();
+      const texts = fillTextCalls.map(([text]) => text);
+      expect(texts).not.toContain('Data Governance');
+      expect(texts.some(t => typeof t === 'string' && t.includes('Architecture'))).toBe(true);
     });
 
-    it('should show all domains when hiddenDomains is an empty set', () => {
+    it('should render all domain labels when hiddenDomains is an empty set', () => {
       const hidden = new Set();
-      render(
-        <DomainHeatmap
-          domains={makeDomains()}
-          answers={{ q1: 3, q2: 4, q3: 2, q4: 5 }}
-          hiddenDomains={hidden}
-        />
+      const fillTextCalls = renderHeatmapWithFillText(
+        makeDomains(),
+        { q1: 3, q2: 4, q3: 2, q4: 5 },
+        { hiddenDomains: hidden }
       );
-      expect(screen.getByTestId('domain-heatmap')).toBeInTheDocument();
+      const texts = fillTextCalls.map(([text]) => text);
+      expect(texts.some(t => typeof t === 'string' && t.includes('Governance'))).toBe(true);
+      expect(texts.some(t => typeof t === 'string' && t.includes('Architecture'))).toBe(true);
     });
   });
 
