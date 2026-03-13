@@ -399,4 +399,100 @@ describe('StorageService', () => {
       expect(storageService.loadComments('user1')).toEqual({ q1: 'updated' });
     });
   });
+
+  describe('Assessment Snapshots', () => {
+    it('should save a snapshot for a user', () => {
+      const snapshot = { timestamp: '2025-01-15T10:00:00Z', overallScore: 3.5 };
+      const result = storageService.saveSnapshot('user1', snapshot);
+      expect(result).toBe(true);
+
+      const stored = JSON.parse(localStorage.getItem('snapshots_user1'));
+      expect(stored).toHaveLength(1);
+      expect(stored[0]).toEqual(snapshot);
+    });
+
+    it('should append to existing snapshots', () => {
+      const snap1 = { timestamp: '2025-01-01T00:00:00Z', overallScore: 2.0 };
+      const snap2 = { timestamp: '2025-02-01T00:00:00Z', overallScore: 3.5 };
+      storageService.saveSnapshot('user1', snap1);
+      storageService.saveSnapshot('user1', snap2);
+
+      const stored = JSON.parse(localStorage.getItem('snapshots_user1'));
+      expect(stored).toHaveLength(2);
+      expect(stored[0]).toEqual(snap1);
+      expect(stored[1]).toEqual(snap2);
+    });
+
+    it('should keep only the last 20 snapshots', () => {
+      for (let i = 0; i < 25; i++) {
+        storageService.saveSnapshot('user1', {
+          timestamp: `2025-01-${String(i + 1).padStart(2, '0')}T00:00:00Z`,
+          overallScore: i * 0.2
+        });
+      }
+      const stored = JSON.parse(localStorage.getItem('snapshots_user1'));
+      expect(stored).toHaveLength(20);
+      // The first 5 should have been shifted out
+      expect(stored[0].overallScore).toBeCloseTo(1.0); // i=5
+    });
+
+    it('should return false on save error', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('Storage full');
+      });
+
+      const result = storageService.saveSnapshot('user1', { timestamp: 'x', overallScore: 1 });
+      expect(result).toBe(false);
+
+      setItemSpy.mockRestore();
+      consoleSpy.mockRestore();
+    });
+
+    it('should load snapshots for a user', () => {
+      const snapshots = [
+        { timestamp: '2025-01-01T00:00:00Z', overallScore: 2.0 },
+        { timestamp: '2025-02-01T00:00:00Z', overallScore: 3.5 }
+      ];
+      localStorage.setItem('snapshots_user1', JSON.stringify(snapshots));
+
+      const loaded = storageService.loadSnapshots('user1');
+      expect(loaded).toEqual(snapshots);
+    });
+
+    it('should return empty array when no snapshots exist', () => {
+      const loaded = storageService.loadSnapshots('user1');
+      expect(loaded).toEqual([]);
+    });
+
+    it('should return empty array on load error (corrupted JSON)', () => {
+      localStorage.setItem('snapshots_user1', 'not-valid-json');
+      // JSON.parse will throw SyntaxError
+      const loaded = storageService.loadSnapshots('user1');
+      expect(loaded).toEqual([]);
+    });
+
+    it('should clear snapshots for a user', () => {
+      localStorage.setItem('snapshots_user1', JSON.stringify([{ timestamp: 'x', overallScore: 1 }]));
+      const result = storageService.clearSnapshots('user1');
+      expect(result).toBe(true);
+      expect(localStorage.getItem('snapshots_user1')).toBeNull();
+    });
+
+    it('should return true when clearing snapshots that do not exist', () => {
+      const result = storageService.clearSnapshots('ghost');
+      expect(result).toBe(true);
+    });
+
+    it('should return false on clear error', () => {
+      const removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        throw new Error('Storage error');
+      });
+
+      const result = storageService.clearSnapshots('user1');
+      expect(result).toBe(false);
+
+      removeItemSpy.mockRestore();
+    });
+  });
 });
