@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { QuestionCard } from './QuestionCard';
 import { NA_VALUE } from '../utils/scoreCalculator';
 
@@ -235,6 +236,18 @@ describe('QuestionCard', () => {
     it('should use the framework name as title attribute', () => {
       render(<QuestionCard {...mockProps} complianceTags={[mockTags[0]]} />);
       expect(screen.getByTestId('compliance-tag-q1-sox')).toHaveAttribute('title', 'SOX');
+    });
+  });
+
+  describe('accessibility', () => {
+    it('should have no a11y violations', async () => {
+      const { container } = render(<QuestionCard {...mockProps} />);
+      expect(await axe(container)).toHaveNoViolations();
+    });
+
+    it('should have no a11y violations when answered', async () => {
+      const { container } = render(<QuestionCard {...mockProps} answer={3} />);
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
