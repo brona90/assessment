@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QuestionCard } from './QuestionCard';
 import { NA_VALUE } from '../utils/scoreCalculator';
@@ -20,6 +20,10 @@ describe('QuestionCard', () => {
     onAddEvidence: vi.fn(),
     hasEvidence: false
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render question text', () => {
     render(<QuestionCard {...mockProps} />);
