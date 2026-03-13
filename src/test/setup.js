@@ -2,6 +2,9 @@
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import * as matchers from 'vitest-axe/matchers';
+
+expect.extend(matchers);
 
 // jsdom 27 + vitest 4 + Node.js 22+: the jsdom Storage Proxy is completely
 // non-functional (all methods undefined, ownKeys empty) due to Symbol identity
