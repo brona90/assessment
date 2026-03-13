@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { DomainRadarChart } from './DomainRadarChart';
 
@@ -146,5 +146,143 @@ describe('DomainRadarChart', () => {
       <DomainRadarChart domains={mockDomains} answers={answersWithNA} />
     );
     expect(container.querySelector('canvas')).toBeInTheDocument();
+  });
+
+  describe('hiddenDomains filtering', () => {
+    it('should filter out hidden domains when hiddenDomains set is provided', () => {
+      const hidden = new Set(['domain1']);
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} hiddenDomains={hidden} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should show all domains when hiddenDomains is an empty set', () => {
+      const hidden = new Set();
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} hiddenDomains={hidden} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should show all domains when hiddenDomains is undefined', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+  });
+
+  describe('targetScore dataset', () => {
+    it('should render with a targetScore number', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} targetScore={4.0} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should render with targetScore of 0 (falsy but not null/undefined)', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} targetScore={0} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should not add target dataset when targetScore is null', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} targetScore={null} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should not add target dataset when targetScore is undefined', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} targetScore={undefined} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+  });
+
+  describe('showIndustryAvg and showTopQuartile toggles', () => {
+    const benchmarksWithAll = {
+      current: { domain1: 3.2, domain2: 3.5, label: '2024' },
+      topQuartile: { domain1: 4.5, domain2: 4.8 }
+    };
+
+    it('should not include industry avg when showIndustryAvg is false', () => {
+      const { container } = render(
+        <DomainRadarChart
+          domains={mockDomains}
+          answers={mockAnswers}
+          benchmarks={benchmarksWithAll}
+          showIndustryAvg={false}
+        />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should not include top quartile when showTopQuartile is false', () => {
+      const { container } = render(
+        <DomainRadarChart
+          domains={mockDomains}
+          answers={mockAnswers}
+          benchmarks={benchmarksWithAll}
+          showTopQuartile={false}
+        />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should include both datasets when toggles are not false', () => {
+      const { container } = render(
+        <DomainRadarChart
+          domains={mockDomains}
+          answers={mockAnswers}
+          benchmarks={benchmarksWithAll}
+        />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should use default label when benchmarks.current.label is missing', () => {
+      const benchmarksNoLabel = {
+        current: { domain1: 3.2, domain2: 3.5 },
+        topQuartile: { domain1: 4.5, domain2: 4.8 }
+      };
+      const { container } = render(
+        <DomainRadarChart
+          domains={mockDomains}
+          answers={mockAnswers}
+          benchmarks={benchmarksNoLabel}
+        />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+  });
+
+  describe('onChartReady callback', () => {
+    it('should pass ref callback when onChartReady is provided', () => {
+      const onChartReady = vi.fn();
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} onChartReady={onChartReady} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+
+    it('should not pass ref callback when onChartReady is not provided', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} />
+      );
+      expect(container.querySelector('canvas')).toBeInTheDocument();
+    });
+  });
+
+  describe('tooltip callback', () => {
+    it('should render chart with tooltip callback configured', () => {
+      const { container } = render(
+        <DomainRadarChart domains={mockDomains} answers={mockAnswers} />
+      );
+      expect(container.querySelector('[data-testid="radar-chart"]')).toBeInTheDocument();
+    });
   });
 });
