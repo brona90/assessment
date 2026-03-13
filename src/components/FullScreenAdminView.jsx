@@ -50,6 +50,12 @@ export const FullScreenAdminView = ({
   // Local sub-tab for Configure section (not URL-routed)
   const [configureSubTab, setConfigureSubTab] = useState('people');
   const [isImporting, setIsImporting] = useState(false);
+  const [resetConfirming, setResetConfirming] = useState(false);
+  const resetTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearTimeout(resetTimerRef.current);
+  }, []);
 
   const {
     getDomains,
@@ -104,6 +110,20 @@ export const FullScreenAdminView = ({
 
   // Chart instance refs for PDF capture (populated via onChartReady/onCanvasReady)
   const chartRefs = useRef({});
+  const messageTimeoutRef = useRef(null);
+
+  // Clear message timeout on unmount to prevent leaks
+  useEffect(() => {
+    return () => {
+      if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
+    };
+  }, []);
+
+  const showMessage = (type, text) => {
+    if (messageTimeoutRef.current) clearTimeout(messageTimeoutRef.current);
+    setMessage({ type, text });
+    messageTimeoutRef.current = setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+  };
 
   const handleExportPDFClick = () => {
     const snapshots = {};
@@ -167,8 +187,7 @@ export const FullScreenAdminView = ({
       await addDomain(domainForm);
       setDomainForm({ id: '', title: '', description: '', weight: 1 });
       setManagedDomains(getDomains());
-      setMessage({ type: 'success', text: 'Domain added successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Domain added successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -180,8 +199,7 @@ export const FullScreenAdminView = ({
       setEditingDomainId(null);
       setDomainForm({ id: '', title: '', description: '', weight: 1 });
       setManagedDomains(getDomains());
-      setMessage({ type: 'success', text: 'Domain updated successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Domain updated successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -192,8 +210,7 @@ export const FullScreenAdminView = ({
       try {
         await deleteDomain(domainId);
         setManagedDomains(getDomains());
-        setMessage({ type: 'success', text: 'Domain deleted successfully!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        showMessage('success', 'Domain deleted successfully!');
       } catch (error) {
         setMessage({ type: 'error', text: error.message });
       }
@@ -217,8 +234,7 @@ export const FullScreenAdminView = ({
       });
       setFrameworkForm({ id: '', name: '', description: '', threshold: 3.5, requirements: '' });
       setManagedFrameworks(getFrameworks());
-      setMessage({ type: 'success', text: 'Framework added successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Framework added successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -236,8 +252,7 @@ export const FullScreenAdminView = ({
       setEditingFrameworkId(null);
       setFrameworkForm({ id: '', name: '', description: '', threshold: 3.5, requirements: '' });
       setManagedFrameworks(getFrameworks());
-      setMessage({ type: 'success', text: 'Framework updated successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Framework updated successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -248,8 +263,7 @@ export const FullScreenAdminView = ({
       try {
         await deleteFramework(frameworkId);
         setManagedFrameworks(getFrameworks());
-        setMessage({ type: 'success', text: 'Framework deleted successfully!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        showMessage('success', 'Framework deleted successfully!');
       } catch (error) {
         setMessage({ type: 'error', text: error.message });
       }
@@ -276,8 +290,7 @@ export const FullScreenAdminView = ({
     try {
       await updateFramework(frameworkId, { mappedQuestions: newMappings });
       setManagedFrameworks(getFrameworks());
-      setMessage({ type: 'success', text: 'Framework mapping updated!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Framework mapping updated!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -290,8 +303,7 @@ export const FullScreenAdminView = ({
         : [...selectedFrameworkIds, frameworkId];
       await setSelectedFrameworks(newSelection);
       setSelectedFrameworkIds(newSelection);
-      setMessage({ type: 'success', text: 'Framework selection updated!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Framework selection updated!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -303,8 +315,7 @@ export const FullScreenAdminView = ({
       await addUser(userForm);
       setUserForm({ id: '', name: '', email: '', role: 'user' });
       setManagedUsers(getUsers());
-      setMessage({ type: 'success', text: 'User added successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'User added successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -316,8 +327,7 @@ export const FullScreenAdminView = ({
       setEditingUserId(null);
       setUserForm({ id: '', name: '', email: '', role: 'user' });
       setManagedUsers(getUsers());
-      setMessage({ type: 'success', text: 'User updated successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'User updated successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -328,8 +338,7 @@ export const FullScreenAdminView = ({
       try {
         await deleteUser(userId);
         setManagedUsers(getUsers());
-        setMessage({ type: 'success', text: 'User deleted successfully!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        showMessage('success', 'User deleted successfully!');
       } catch (error) {
         setMessage({ type: 'error', text: error.message });
       }
@@ -347,8 +356,7 @@ export const FullScreenAdminView = ({
       await addQuestion(questionForm);
       setQuestionForm({ id: '', text: '', domainId: '', categoryId: '', requiresEvidence: false });
       setManagedQuestions(getQuestions());
-      setMessage({ type: 'success', text: 'Question added successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Question added successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -360,8 +368,7 @@ export const FullScreenAdminView = ({
       setEditingQuestionId(null);
       setQuestionForm({ id: '', text: '', domainId: '', categoryId: '', requiresEvidence: false });
       setManagedQuestions(getQuestions());
-      setMessage({ type: 'success', text: 'Question updated successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Question updated successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -372,8 +379,7 @@ export const FullScreenAdminView = ({
       try {
         await deleteQuestion(questionId);
         setManagedQuestions(getQuestions());
-        setMessage({ type: 'success', text: 'Question deleted successfully!' });
-        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+        showMessage('success', 'Question deleted successfully!');
       } catch (error) {
         setMessage({ type: 'error', text: error.message });
       }
@@ -411,8 +417,7 @@ export const FullScreenAdminView = ({
       setUserAssignments(assignments);
       setSelectedUserId('');
       setSelectedQuestions([]);
-      setMessage({ type: 'success', text: 'Questions assigned successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      showMessage('success', 'Questions assigned successfully!');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
     }
@@ -1202,19 +1207,51 @@ export const FullScreenAdminView = ({
                 <h3>⚠️ Danger Zone</h3>
                 <div className="danger-content">
                   <div className="danger-description">
-                    <h4>Clear All Data</h4>
+                    <h4>Reset to Defaults</h4>
                     <p>
-                      Permanently delete all data including domains, users, frameworks, questions,
-                      assignments, answers, and evidence. This action cannot be undone.
+                      Permanently delete all user answers, evidence, comments, snapshots, and admin
+                      customizations (assignments, framework mappings). The app will reload with
+                      default questions, users, and frameworks from the original configuration.
                     </p>
                   </div>
-                  <button
-                    className="danger-btn"
-                    onClick={onClearAllData}
-                    data-testid="clear-all-data-button"
-                  >
-                    🗑️ Clear All Data
-                  </button>
+                  {!resetConfirming ? (
+                    <button
+                      className="danger-btn"
+                      onClick={() => {
+                        setResetConfirming(true);
+                        clearTimeout(resetTimerRef.current);
+                        resetTimerRef.current = setTimeout(() => setResetConfirming(false), 5000);
+                      }}
+                      data-testid="reset-to-defaults-button"
+                    >
+                      🗑️ Reset to Defaults
+                    </button>
+                  ) : (
+                    <div className="danger-confirm" data-testid="reset-confirm-row">
+                      <span>Are you sure? This cannot be undone.</span>
+                      <button
+                        className="danger-btn"
+                        onClick={() => {
+                          clearTimeout(resetTimerRef.current);
+                          setResetConfirming(false);
+                          onClearAllData();
+                        }}
+                        data-testid="reset-confirm-button"
+                      >
+                        Confirm Reset
+                      </button>
+                      <button
+                        className="cancel-btn"
+                        onClick={() => {
+                          clearTimeout(resetTimerRef.current);
+                          setResetConfirming(false);
+                        }}
+                        data-testid="reset-cancel-button"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -1259,4 +1296,3 @@ FullScreenAdminView.propTypes = {
   onClearAllData: PropTypes.func.isRequired
 };
 
-export default FullScreenAdminView;
