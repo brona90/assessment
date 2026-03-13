@@ -138,12 +138,13 @@ export const CSVImportExport = () => {
       </p>
 
       <div className="csv-entity-grid">
-        {ENTITIES.map(({ key, label, Icon }) => {
+        {/* eslint-disable-next-line no-unused-vars -- EntityIcon IS used in JSX below */}
+        {ENTITIES.map(({ key, label, Icon: EntityIcon }) => {
           const status = importStatus[key];
           return (
             <div key={key} className="csv-entity-card" data-testid={`csv-entity-${key}`}>
               <div className="csv-entity-header">
-                <span className="csv-entity-icon"><Icon size={20} /></span>
+                <span className="csv-entity-icon"><EntityIcon size={20} /></span>
                 <span className="csv-entity-label">{label}</span>
               </div>
 
@@ -200,4 +201,3 @@ export const CSVImportExport = () => {
   );
 };
 
-export default CSVImportExport;
