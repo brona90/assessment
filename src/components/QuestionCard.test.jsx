@@ -167,10 +167,12 @@ describe('QuestionCard', () => {
       expect(screen.getByTestId('comment-input-q1').value).toBe('Existing note');
     });
 
-    it('should call onCommentChange when textarea is edited', () => {
+    it('should call onCommentChange when textarea loses focus', () => {
       render(<QuestionCard {...mockProps} />);
       fireEvent.click(screen.getByTestId('comment-toggle-q1'));
-      fireEvent.change(screen.getByTestId('comment-input-q1'), { target: { value: 'new note' } });
+      const textarea = screen.getByTestId('comment-input-q1');
+      fireEvent.change(textarea, { target: { value: 'new note' } });
+      fireEvent.blur(textarea);
       expect(mockProps.onCommentChange).toHaveBeenCalledWith('new note');
     });
 
