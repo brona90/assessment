@@ -69,4 +69,3 @@ UserSelectionScreen.propTypes = {
   onSelectUser: PropTypes.func.isRequired
 };
 
-export default UserSelectionScreen;
