@@ -1,7 +1,7 @@
 export const dataService = {
   async loadQuestions() {
     try {
-      const response = await fetch('/assessment/data/questions.json');
+      const response = await fetch(`${import.meta.env.BASE_URL}data/questions.json`);
       if (!response.ok) throw new Error('Failed to load questions');
       const data = await response.json();
       return data.domains;
@@ -13,7 +13,7 @@ export const dataService = {
 
   async loadUsers() {
     try {
-      const response = await fetch('/assessment/data/users.json');
+      const response = await fetch(`${import.meta.env.BASE_URL}data/users.json`);
       if (!response.ok) throw new Error('Failed to load users');
       return await response.json();
     } catch (error) {
@@ -24,7 +24,7 @@ export const dataService = {
 
   async loadCompliance() {
     try {
-      const response = await fetch('/assessment/data/compliance.json');
+      const response = await fetch(`${import.meta.env.BASE_URL}data/compliance.json`);
       if (!response.ok) throw new Error('Failed to load compliance');
       return await response.json();
     } catch (error) {
@@ -33,20 +33,9 @@ export const dataService = {
     }
   },
 
-  async loadServices() {
-    try {
-      const response = await fetch('/assessment/data/services.json');
-      if (!response.ok) throw new Error('Failed to load services');
-      return await response.json();
-    } catch (error) {
-      console.error('Error loading services:', error);
-      return [];
-    }
-  },
-
   async loadBenchmarks() {
     try {
-      const response = await fetch('/assessment/data/benchmarks.json');
+      const response = await fetch(`${import.meta.env.BASE_URL}data/benchmarks.json`);
       if (!response.ok) throw new Error('Failed to load benchmarks');
       return await response.json();
     } catch (error) {
