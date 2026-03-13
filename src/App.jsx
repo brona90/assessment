@@ -6,7 +6,7 @@ import { EvidenceModal } from './components/EvidenceModal';
 import { UserSelectionScreen } from './components/UserSelectionScreen';
 import { FullScreenAdminView } from './components/FullScreenAdminView';
 import { UserView } from './components/UserView';
-import ResultsView from './components/ResultsView';
+import { ResultsView } from './components/ResultsView';
 import { ChartFullscreenView } from './components/ChartFullscreenView';
 import { pdfService } from './services/pdfService';
 import { useCompliance } from './hooks/useCompliance';
@@ -35,8 +35,7 @@ function App() {
     saveAnswer,
     clearAnswer,
     saveComment,
-    saveEvidenceForQuestion,
-    getProgress
+    saveEvidenceForQuestion
   } = useAssessment(currentUser?.id);
 
   const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
@@ -95,20 +94,16 @@ function App() {
     const prog = scoreCalculator.calculateProgressFromQuestions(userQuestions, answers, evidence);
     if (prog.percentage === 100 && !snapshotSavedRef.current) {
       snapshotSavedRef.current = true;
-      const domainScores = {};
-      userQuestions.forEach(q => {
-        if (!domainScores[q.domainId]) domainScores[q.domainId] = { total: 0, count: 0, title: q.domainTitle };
-        const val = answers[q.id];
-        if (val !== undefined && val !== 0) { domainScores[q.domainId].total += val; domainScores[q.domainId].count++; }
+      const builtDomains = scoreCalculator.buildDomainsFromQuestions(userQuestions);
+      const overall = scoreCalculator.calculateOverallScore(builtDomains, answers);
+      const domainScoreEntries = Object.entries(builtDomains).map(([id, domain]) => {
+        const domainQuestions = scoreCalculator.getAllQuestionsFromDomain(domain);
+        return [id, Math.round(scoreCalculator.calculateDomainScore(domainQuestions, answers) * 100) / 100];
       });
-      const overallScores = Object.values(domainScores).filter(d => d.count > 0).map(d => d.total / d.count);
-      const overall = overallScores.length > 0 ? overallScores.reduce((a, b) => a + b, 0) / overallScores.length : 0;
       const snapshot = {
         timestamp: new Date().toISOString(),
         overallScore: Math.round(overall * 100) / 100,
-        domainScores: Object.fromEntries(
-          Object.entries(domainScores).map(([id, d]) => [id, d.count > 0 ? Math.round((d.total / d.count) * 100) / 100 : 0])
-        ),
+        domainScores: Object.fromEntries(domainScoreEntries),
         percentage: prog.percentage
       };
       storageService.saveSnapshot(currentUser.id, snapshot);
@@ -206,7 +201,7 @@ function App() {
   };
 
   const handleClearAllData = async () => {
-    if (!window.confirm('Are you sure you want to permanently delete ALL data? This cannot be undone.')) return;
+    if (!window.confirm('This will delete ALL user data and admin customizations, then reload the app with default settings. Continue?')) return;
     try {
       const result = await clearAllData();
       if (result?.success === false) {
