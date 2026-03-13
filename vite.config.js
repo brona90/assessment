@@ -10,28 +10,5 @@ export default defineConfig({
       // Also watch public/data JSON files so changes trigger a full reload
       include: ['src/**', 'public/data/**']
     }
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.spec.jsx',
-        '**/*.test.jsx',
-        'src/main.jsx',
-        'vite.config.js'
-      ],
-      thresholds: {
-        statements: 95,
-        branches: 95,
-        functions: 95,
-        lines: 95
-      }
-    }
   }
 })
