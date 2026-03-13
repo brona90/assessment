@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { EvidenceModal } from './EvidenceModal';
 
@@ -9,6 +9,10 @@ describe('EvidenceModal', () => {
     onSave: vi.fn(),
     onClose: vi.fn()
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render modal', () => {
     render(<EvidenceModal {...mockProps} />);
