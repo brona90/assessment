@@ -6,7 +6,7 @@ import { DomainBarChart } from './DomainBarChart';
 import { DomainHeatmap } from './DomainHeatmap';
 import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { BenchmarkSources } from './BenchmarkSources';
-import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
+import { scoreCalculator } from '../utils/scoreCalculator';
 import { dataService } from '../services/dataService';
 import './ChartFullscreenView.css';
 
@@ -44,42 +44,11 @@ export const ChartFullscreenView = ({ chartType, questions, answers, onBack }) =
     });
   }, []);
 
-  // Build domain structure from assigned questions (same logic as ResultsView)
-  const filteredDomains = useMemo(() => {
-    const domains = {};
-    questions.forEach(q => {
-      if (!domains[q.domainId]) {
-        domains[q.domainId] = {
-          title: q.domainTitle || q.domainId,
-          weight: 1,
-          categories: {}
-        };
-      }
-      if (!domains[q.domainId].categories[q.categoryId]) {
-        domains[q.domainId].categories[q.categoryId] = {
-          title: q.categoryTitle || q.categoryId,
-          questions: []
-        };
-      }
-      domains[q.domainId].categories[q.categoryId].questions.push(q);
-    });
-    return domains;
-  }, [questions]);
+  // Build domain structure from assigned questions
+  const filteredDomains = useMemo(() => scoreCalculator.buildDomainsFromQuestions(questions), [questions]);
 
   // Overall score for trend chart
-  const overallScore = useMemo(() => {
-    const scored = Object.values(filteredDomains).map(domain => {
-      let total = 0, count = 0;
-      Object.values(domain.categories || {}).forEach(cat => {
-        (cat.questions || []).forEach(q => {
-          const val = answers[q.id];
-          if (val !== undefined && val !== NA_VALUE) { total += val; count++; }
-        });
-      });
-      return count > 0 ? total / count : null;
-    }).filter(s => s !== null);
-    return scored.length > 0 ? scored.reduce((a, b) => a + b, 0) / scored.length : 0;
-  }, [filteredDomains, answers]);
+  const overallScore = useMemo(() => scoreCalculator.calculateOverallScore(filteredDomains, answers), [filteredDomains, answers]);
 
   const domainKeys = Object.keys(filteredDomains);
   const label = CHART_LABELS[chartType] || 'Chart';
