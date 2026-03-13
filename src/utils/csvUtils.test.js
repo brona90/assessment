@@ -78,8 +78,8 @@ describe('generateCsv', () => {
 describe('downloadCsv', () => {
   beforeEach(() => {
     const mockUrl = 'blob:test';
-    global.URL.createObjectURL = vi.fn(() => mockUrl);
-    global.URL.revokeObjectURL = vi.fn();
+    globalThis.URL.createObjectURL = vi.fn(() => mockUrl);
+    globalThis.URL.revokeObjectURL = vi.fn();
     const mockA = { href: '', download: '', click: vi.fn() };
     vi.spyOn(document, 'createElement').mockReturnValue(mockA);
   });
@@ -265,5 +265,385 @@ describe('CSV roundtrip', () => {
     const parsed = parseCsv(csv);
     const rebuilt = rowsToUsers(parsed);
     expect(rebuilt[0].assignedQuestions).toEqual(['q1', 'q2']);
+  });
+});
+
+// ─── Additional branch coverage tests ─────────────────────────────────────
+
+describe('parseCsv - additional branches', () => {
+  it('handles quoted fields containing newlines', () => {
+    const result = parseCsv('name,desc\nAlice,"line1\nline2"');
+    expect(result[0].desc).toBe('line1\nline2');
+  });
+
+  it('handles bare \\r line endings', () => {
+    const result = parseCsv('a,b\r1,2\r3,4');
+    expect(result).toHaveLength(2);
+    expect(result[0].a).toBe('1');
+  });
+
+  it('handles header-only CSV (no data rows)', () => {
+    const result = parseCsv('a,b,c');
+    expect(result).toEqual([]);
+  });
+
+  it('handles rows with fewer values than headers', () => {
+    const result = parseCsv('a,b,c\n1');
+    expect(result[0].a).toBe('1');
+    expect(result[0].b).toBe('');
+    expect(result[0].c).toBe('');
+  });
+
+  it('trims whitespace from headers and values', () => {
+    const result = parseCsv(' name , value \n Alice , 42 ');
+    expect(result[0]).toHaveProperty('name', 'Alice');
+    expect(result[0]).toHaveProperty('value', '42');
+  });
+});
+
+describe('generateCsv - additional branches', () => {
+  it('escapes double quotes within field values', () => {
+    const csv = generateCsv([{ a: 'say "hello"' }], ['a']);
+    expect(csv).toBe('a\n"say ""hello"""');
+  });
+
+  it('quotes fields containing newlines', () => {
+    const csv = generateCsv([{ a: 'line1\nline2' }], ['a']);
+    expect(csv).toBe('a\n"line1\nline2"');
+  });
+
+  it('prefixes tab-starting values with single quote for injection protection', () => {
+    const csv = generateCsv([{ a: '\tfoo' }], ['a']);
+    expect(csv).toContain("'\tfoo");
+  });
+
+  it('handles missing column key in row object', () => {
+    const csv = generateCsv([{ a: '1' }], ['a', 'b']);
+    expect(csv).toBe('a,b\n1,');
+  });
+});
+
+describe('downloadCsv - additional branches', () => {
+  let mockA;
+  beforeEach(() => {
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:test');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    mockA = { href: '', download: '', click: vi.fn() };
+    vi.spyOn(document, 'createElement').mockReturnValue(mockA);
+  });
+
+  it('sets the correct filename on the download link', () => {
+    downloadCsv('export.csv', [{ a: '1' }], ['a']);
+    expect(mockA.download).toBe('export.csv');
+    expect(mockA.href).toBe('blob:test');
+  });
+
+  it('works with empty rows', () => {
+    downloadCsv('empty.csv', [], ['a', 'b']);
+    expect(URL.createObjectURL).toHaveBeenCalled();
+    expect(URL.revokeObjectURL).toHaveBeenCalled();
+  });
+});
+
+// ─── questionsToRows fallback branches ────────────────────────────────────
+
+describe('questionsToRows - fallback branches', () => {
+  it('falls back to empty string when domain.title is falsy', () => {
+    const domains = {
+      d1: {
+        weight: 0.5,
+        categories: {
+          c1: { title: 'Cat', questions: [{ id: 'q1', text: 'Q?', requiresEvidence: false }] }
+        }
+      }
+    };
+    const rows = questionsToRows(domains);
+    expect(rows[0].domain_title).toBe('');
+  });
+
+  it('falls back to 1 when domain.weight is null/undefined', () => {
+    const domains = {
+      d1: {
+        title: 'D',
+        categories: {
+          c1: { title: 'Cat', questions: [{ id: 'q1', text: 'Q?', requiresEvidence: false }] }
+        }
+      }
+    };
+    const rows = questionsToRows(domains);
+    expect(rows[0].domain_weight).toBe(1);
+  });
+
+  it('falls back to empty string when category.title is falsy', () => {
+    const domains = {
+      d1: {
+        title: 'D', weight: 0.5,
+        categories: {
+          c1: { questions: [{ id: 'q1', text: 'Q?', requiresEvidence: false }] }
+        }
+      }
+    };
+    const rows = questionsToRows(domains);
+    expect(rows[0].category_title).toBe('');
+  });
+
+  it('falls back to empty string when question.id is falsy', () => {
+    const domains = {
+      d1: {
+        title: 'D', weight: 0.5,
+        categories: {
+          c1: { title: 'Cat', questions: [{ text: 'Q?', requiresEvidence: false }] }
+        }
+      }
+    };
+    const rows = questionsToRows(domains);
+    expect(rows[0].question_id).toBe('');
+  });
+
+  it('falls back to empty string when question.text is falsy', () => {
+    const domains = {
+      d1: {
+        title: 'D', weight: 0.5,
+        categories: {
+          c1: { title: 'Cat', questions: [{ id: 'q1', requiresEvidence: false }] }
+        }
+      }
+    };
+    const rows = questionsToRows(domains);
+    expect(rows[0].question_text).toBe('');
+  });
+
+  it('handles domain with no categories key', () => {
+    const domains = { d1: { title: 'D', weight: 0.5 } };
+    const rows = questionsToRows(domains);
+    expect(rows).toEqual([]);
+  });
+
+  it('handles category with no questions key', () => {
+    const domains = {
+      d1: {
+        title: 'D', weight: 0.5,
+        categories: { c1: { title: 'Cat' } }
+      }
+    };
+    const rows = questionsToRows(domains);
+    expect(rows).toEqual([]);
+  });
+});
+
+// ─── rowsToQuestions fallback branches ────────────────────────────────────
+
+describe('rowsToQuestions - fallback branches', () => {
+  it('uses domain_id as title when domain_title is empty', () => {
+    const rows = [{ domain_id: 'myDomain', domain_title: '', domain_weight: '1', category_id: 'c1', category_title: 'Cat', question_id: 'q1', question_text: 'Q?', requires_evidence: 'false' }];
+    const result = rowsToQuestions(rows);
+    expect(result.myDomain.title).toBe('myDomain');
+  });
+
+  it('defaults domain weight to 1 when domain_weight is non-numeric', () => {
+    const rows = [{ domain_id: 'd1', domain_title: 'D', domain_weight: 'abc', category_id: 'c1', category_title: 'Cat', question_id: 'q1', question_text: 'Q?', requires_evidence: 'false' }];
+    const result = rowsToQuestions(rows);
+    expect(result.d1.weight).toBe(1);
+  });
+
+  it('uses category_id as title when category_title is empty', () => {
+    const rows = [{ domain_id: 'd1', domain_title: 'D', domain_weight: '1', category_id: 'myCat', category_title: '', question_id: 'q1', question_text: 'Q?', requires_evidence: 'false' }];
+    const result = rowsToQuestions(rows);
+    expect(result.d1.categories.myCat.title).toBe('myCat');
+  });
+
+  it('defaults question_text to empty string when missing', () => {
+    const rows = [{ domain_id: 'd1', domain_title: 'D', domain_weight: '1', category_id: 'c1', category_title: 'Cat', question_id: 'q1', question_text: '', requires_evidence: 'false' }];
+    const result = rowsToQuestions(rows);
+    expect(result.d1.categories.c1.questions[0].text).toBe('');
+  });
+
+  it('sets requiresEvidence false when requires_evidence is not "true"', () => {
+    const rows = [{ domain_id: 'd1', domain_title: 'D', domain_weight: '1', category_id: 'c1', category_title: 'Cat', question_id: 'q1', question_text: 'Q?', requires_evidence: 'false' }];
+    const result = rowsToQuestions(rows);
+    expect(result.d1.categories.c1.questions[0].requiresEvidence).toBe(false);
+  });
+
+  it('skips rows where question_id is falsy but domain_id is present', () => {
+    const rows = [{ domain_id: 'd1', question_id: '' }];
+    const result = rowsToQuestions(rows);
+    expect(Object.keys(result)).toHaveLength(0);
+  });
+
+  it('adds multiple questions to the same category', () => {
+    const rows = [
+      { domain_id: 'd1', domain_title: 'D', domain_weight: '0.5', category_id: 'c1', category_title: 'Cat', question_id: 'q1', question_text: 'Q1?', requires_evidence: 'true' },
+      { domain_id: 'd1', domain_title: 'D', domain_weight: '0.5', category_id: 'c1', category_title: 'Cat', question_id: 'q2', question_text: 'Q2?', requires_evidence: 'false' }
+    ];
+    const result = rowsToQuestions(rows);
+    expect(result.d1.categories.c1.questions).toHaveLength(2);
+  });
+});
+
+// ─── usersToRows fallback branches ────────────────────────────────────────
+
+describe('usersToRows - fallback branches', () => {
+  it('falls back for missing user fields', () => {
+    const rows = usersToRows([{}]);
+    expect(rows[0].id).toBe('');
+    expect(rows[0].name).toBe('');
+    expect(rows[0].email).toBe('');
+    expect(rows[0].role).toBe('user');
+    expect(rows[0].title).toBe('');
+    expect(rows[0].assigned_question_ids).toBe('');
+  });
+
+  it('handles user with undefined assignedQuestions', () => {
+    const rows = usersToRows([{ id: 'u1', name: 'Test' }]);
+    expect(rows[0].assigned_question_ids).toBe('');
+  });
+});
+
+// ─── rowsToUsers fallback branches ────────────────────────────────────────
+
+describe('rowsToUsers - fallback branches', () => {
+  it('falls back name to id when name is empty', () => {
+    const rows = [{ id: 'u1', name: '', email: '', role: '', title: '', assigned_question_ids: '' }];
+    const result = rowsToUsers(rows);
+    expect(result[0].name).toBe('u1');
+  });
+
+  it('falls back role to user when role is empty', () => {
+    const rows = [{ id: 'u1', name: 'Alice', email: '', role: '', title: '', assigned_question_ids: '' }];
+    const result = rowsToUsers(rows);
+    expect(result[0].role).toBe('user');
+  });
+
+  it('falls back email and title to empty string when missing', () => {
+    const rows = [{ id: 'u1', name: 'Alice' }];
+    const result = rowsToUsers(rows);
+    expect(result[0].email).toBe('');
+    expect(result[0].title).toBe('');
+  });
+
+  it('returns empty assignedQuestions when assigned_question_ids is falsy', () => {
+    const rows = [{ id: 'u1', name: 'Alice', assigned_question_ids: '' }];
+    const result = rowsToUsers(rows);
+    expect(result[0].assignedQuestions).toEqual([]);
+  });
+
+  it('trims and filters blank entries in assigned_question_ids', () => {
+    const rows = [{ id: 'u1', name: 'Alice', assigned_question_ids: 'q1 | | q2' }];
+    const result = rowsToUsers(rows);
+    expect(result[0].assignedQuestions).toEqual(['q1', 'q2']);
+  });
+});
+
+// ─── domainsToRows fallback branches ──────────────────────────────────────
+
+describe('domainsToRows - fallback branches', () => {
+  it('handles null input', () => {
+    expect(domainsToRows(null)).toEqual([]);
+  });
+
+  it('falls back title to empty string when domain.title is falsy', () => {
+    const rows = domainsToRows({ d1: { weight: 0.5 } });
+    expect(rows[0].title).toBe('');
+  });
+
+  it('falls back weight to 1 when domain.weight is null/undefined', () => {
+    const rows = domainsToRows({ d1: { title: 'D' } });
+    expect(rows[0].weight).toBe(1);
+  });
+});
+
+// ─── rowsToDomains fallback branches ──────────────────────────────────────
+
+describe('rowsToDomains - fallback branches', () => {
+  it('falls back title to id when title is empty', () => {
+    const result = rowsToDomains([{ id: 'myId', title: '', weight: '0.5' }]);
+    expect(result.myId.title).toBe('myId');
+  });
+
+  it('defaults weight to 1 when weight is non-numeric', () => {
+    const result = rowsToDomains([{ id: 'd1', title: 'D', weight: 'notanumber' }]);
+    expect(result.d1.weight).toBe(1);
+  });
+
+  it('defaults weight to 1 when weight is empty string', () => {
+    const result = rowsToDomains([{ id: 'd1', title: 'D', weight: '' }]);
+    expect(result.d1.weight).toBe(1);
+  });
+});
+
+// ─── frameworksToRows fallback branches ───────────────────────────────────
+
+describe('frameworksToRows - fallback branches', () => {
+  it('falls back for missing framework fields', () => {
+    const rows = frameworksToRows([{}]);
+    expect(rows[0].id).toBe('');
+    expect(rows[0].name).toBe('');
+    expect(rows[0].enabled).toBe('false');
+    expect(rows[0].category).toBe('');
+    expect(rows[0].threshold).toBe('');
+    expect(rows[0].color).toBe('');
+    expect(rows[0].icon).toBe('');
+    expect(rows[0].description).toBe('');
+    expect(rows[0].mapped_question_ids).toBe('');
+  });
+
+  it('uses f.questions as fallback when f.mappedQuestions is falsy', () => {
+    const rows = frameworksToRows([{
+      id: 'f1', name: 'F', enabled: true,
+      questions: ['q1', 'q3']
+    }]);
+    expect(rows[0].mapped_question_ids).toBe('q1|q3');
+  });
+
+  it('sets enabled to "false" when framework is disabled', () => {
+    const rows = frameworksToRows([{ id: 'f1', enabled: false }]);
+    expect(rows[0].enabled).toBe('false');
+  });
+
+  it('handles threshold of 0 (falsy but valid)', () => {
+    const rows = frameworksToRows([{ id: 'f1', threshold: 0 }]);
+    expect(rows[0].threshold).toBe(0);
+  });
+});
+
+// ─── rowsToFrameworks fallback branches ───────────────────────────────────
+
+describe('rowsToFrameworks - fallback branches', () => {
+  it('falls back name to id when name is empty', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: '', enabled: 'false', category: '', threshold: '', color: '', icon: '', description: '', mapped_question_ids: '' }]);
+    expect(result[0].name).toBe('f1');
+  });
+
+  it('sets enabled to false when value is not "true"', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: 'F', enabled: 'false' }]);
+    expect(result[0].enabled).toBe(false);
+  });
+
+  it('sets threshold to undefined when threshold is empty', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: 'F', threshold: '' }]);
+    expect(result[0].threshold).toBeUndefined();
+  });
+
+  it('falls back category, color, icon, description to empty string', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: 'F' }]);
+    expect(result[0].category).toBe('');
+    expect(result[0].color).toBe('');
+    expect(result[0].icon).toBe('');
+    expect(result[0].description).toBe('');
+  });
+
+  it('returns empty mappedQuestions when mapped_question_ids is falsy', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: 'F', mapped_question_ids: '' }]);
+    expect(result[0].mappedQuestions).toEqual([]);
+  });
+
+  it('trims and filters blank entries in mapped_question_ids', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: 'F', mapped_question_ids: 'q1 | | q2' }]);
+    expect(result[0].mappedQuestions).toEqual(['q1', 'q2']);
+  });
+
+  it('parses threshold as float', () => {
+    const result = rowsToFrameworks([{ id: 'f1', name: 'F', threshold: '3.5' }]);
+    expect(result[0].threshold).toBe(3.5);
   });
 });
