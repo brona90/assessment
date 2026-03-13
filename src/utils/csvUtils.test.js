@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   parseCsv,
   generateCsv,
@@ -82,6 +82,10 @@ describe('downloadCsv', () => {
     globalThis.URL.revokeObjectURL = vi.fn();
     const mockA = { href: '', download: '', click: vi.fn() };
     vi.spyOn(document, 'createElement').mockReturnValue(mockA);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('creates a link and triggers click', () => {
@@ -330,6 +334,10 @@ describe('downloadCsv - additional branches', () => {
     globalThis.URL.revokeObjectURL = vi.fn();
     mockA = { href: '', download: '', click: vi.fn() };
     vi.spyOn(document, 'createElement').mockReturnValue(mockA);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('sets the correct filename on the download link', () => {
