@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Maximize2 } from 'lucide-react';
 import { DomainHeatmap } from './DomainHeatmap';
@@ -8,7 +8,7 @@ import { BenchmarkTrendChart } from './BenchmarkTrendChart';
 import { BenchmarkSources } from './BenchmarkSources';
 import { ComplianceDashboard } from './ComplianceDashboard';
 import { dataService } from '../services/dataService';
-import { NA_VALUE } from '../utils/scoreCalculator';
+import { scoreCalculator } from '../utils/scoreCalculator';
 
 /**
  * Shared dashboard used by both ResultsView (user) and FullScreenAdminView (admin overview tab).
@@ -25,19 +25,7 @@ export const OverviewDashboard = ({ domains, answers, onExpandChart, onChartRead
   }, []);
 
   // Overall score (domain-average of domain-averages) for the trend chart user-score line
-  const overallScore = (() => {
-    const avgs = Object.values(domains).map(domain => {
-      let total = 0, count = 0;
-      Object.values(domain.categories || {}).forEach(cat => {
-        (cat.questions || []).forEach(q => {
-          const val = answers[q.id];
-          if (val !== undefined && val !== NA_VALUE) { total += val; count++; }
-        });
-      });
-      return count > 0 ? total / count : null;
-    }).filter(s => s !== null);
-    return avgs.length > 0 ? avgs.reduce((a, b) => a + b, 0) / avgs.length : 0;
-  })();
+  const overallScore = useMemo(() => scoreCalculator.calculateOverallScore(domains, answers), [domains, answers]);
 
   const canExpand = !!onExpandChart;
   const chartClickProps = (type) => canExpand ? {
