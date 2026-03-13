@@ -595,18 +595,22 @@ class DataStore {
         evidence: {}
       };
 
-      // Clear localStorage
-      localStorage.clear();
-
-      // Clear IndexedDB
-      if (window.indexedDB) {
-        const databases = await window.indexedDB.databases();
-        for (const db of databases) {
-          window.indexedDB.deleteDatabase(db.name);
+      // Clear only known app keys from localStorage (avoid wiping unrelated data)
+      const appKeyPrefixes = ['assessmentData', 'adminAssignments', 'frameworkMappings', 'complianceFrameworks', 'comments_', 'lastActive_', 'snapshots_'];
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (appKeyPrefixes.some(prefix => key.startsWith(prefix))) {
+          keysToRemove.push(key);
         }
       }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      // Clear IndexedDB via localforage (cross-browser compatible)
+      await storageService.clearAllEvidence();
 
       this.initialized = false;
+      this._initPromise = null;
       return { success: true };
     } catch (error) {
       console.error('Error clearing all data:', error);
@@ -709,14 +713,28 @@ class DataStore {
         }
       }
 
-      // If there are validation errors, throw with detailed message
+      // Validate answer values are numbers in 0-5 range
+      if (imported.answers) {
+        for (const [key, val] of Object.entries(imported.answers)) {
+          if (typeof val !== 'number' || val < 0 || val > 5) {
+            validationErrors.push(`Invalid answer value for "${key}": must be a number between 0 and 5`);
+            break;
+          }
+        }
+      }
+
       if (validationErrors.length > 0) {
         throw new Error(`Invalid data structure: ${validationErrors.join(', ')}`);
       }
 
-      // Merge imported data with defaults for optional fields
+      // Merge imported data with defaults — whitelist allowed keys only
       this.data = {
-        ...imported,
+        domains: imported.domains,
+        users: imported.users,
+        frameworks: imported.frameworks,
+        questions: imported.questions,
+        assignments: imported.assignments,
+        selectedFrameworks: imported.selectedFrameworks,
         answers: imported.answers || {},
         evidence: imported.evidence || {}
       };
