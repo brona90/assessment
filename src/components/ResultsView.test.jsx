@@ -347,4 +347,93 @@ describe('ResultsView', () => {
       });
     });
   });
+
+  describe('Assessment History / Snapshots', () => {
+    it('should not render snapshot history when snapshots is empty', () => {
+      render(<ResultsView {...defaultProps} snapshots={[]} />);
+      expect(screen.queryByTestId('snapshot-history')).not.toBeInTheDocument();
+    });
+
+    it('should not render snapshot history when snapshots is undefined', () => {
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.queryByTestId('snapshot-history')).not.toBeInTheDocument();
+    });
+
+    it('should render snapshot history section when snapshots are provided', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 3.5 },
+        { timestamp: '2025-02-20T14:30:00Z', overallScore: 4.2 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      expect(screen.getByTestId('snapshot-history')).toBeInTheDocument();
+    });
+
+    it('should render snapshots in reverse chronological order', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 2.0 },
+        { timestamp: '2025-03-01T14:30:00Z', overallScore: 4.5 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const items = screen.getByTestId('snapshot-history').querySelectorAll('.snapshot-item');
+      expect(items.length).toBe(2);
+      // The last snapshot (4.5) should appear first due to reverse()
+      expect(items[0].querySelector('.snapshot-score').textContent).toContain('4.50');
+      expect(items[1].querySelector('.snapshot-score').textContent).toContain('2.00');
+    });
+
+    it('should apply "high" score class for scores >= 4', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 4.2 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const scoreEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-score');
+      expect(scoreEl.classList.contains('snapshot-score--high')).toBe(true);
+    });
+
+    it('should apply "mid" score class for scores >= 2.5 and < 4', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 3.0 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const scoreEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-score');
+      expect(scoreEl.classList.contains('snapshot-score--mid')).toBe(true);
+    });
+
+    it('should apply "low" score class for scores < 2.5', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 1.5 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const scoreEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-score');
+      expect(scoreEl.classList.contains('snapshot-score--low')).toBe(true);
+    });
+
+    it('should display formatted date for each snapshot', () => {
+      const snapshots = [
+        { timestamp: '2025-06-15T10:00:00Z', overallScore: 3.5 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const dateEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-date');
+      // The date text should contain "Jun" and "2025"
+      expect(dateEl.textContent).toContain('2025');
+    });
+
+    it('should display maturity level label for each snapshot', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 4.5 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const labelEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-label');
+      expect(labelEl.textContent).toBeTruthy();
+    });
+
+    it('should display score formatted to 2 decimal places', () => {
+      const snapshots = [
+        { timestamp: '2025-01-15T10:00:00Z', overallScore: 3.123 }
+      ];
+      render(<ResultsView {...defaultProps} snapshots={snapshots} />);
+      const scoreEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-score');
+      expect(scoreEl.textContent).toContain('3.12');
+    });
+  });
 });
