@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paperclip, X, Check, MessageSquare } from 'lucide-react';
 import { NA_VALUE } from '../utils/scoreCalculator';
@@ -22,40 +22,34 @@ export const QuestionCard = ({
   onAddEvidence,
   hasEvidence
 }) => {
-  const [selectedValue, setSelectedValue] = useState(answer);
   const [commentOpen, setCommentOpen] = useState(!!comment);
   const [commentText, setCommentText] = useState(comment || '');
 
-  useEffect(() => {
-    setSelectedValue(answer);
-  }, [answer]);
-
-  useEffect(() => {
-    setCommentText(comment || '');
-    if (comment) setCommentOpen(true);
-  }, [comment]);
+  // Keep commentText in sync when prop changes (e.g. parent resets)
+  if (comment !== undefined && comment !== null && commentText !== comment && !commentOpen) {
+    setCommentText(comment);
+  }
 
   const handleCommentChange = (e) => {
     setCommentText(e.target.value);
-    onCommentChange(e.target.value);
+  };
+
+  const handleCommentBlur = () => {
+    onCommentChange(commentText);
   };
 
   const handleOptionClick = (value) => {
-    if (selectedValue === value) {
-      setSelectedValue(null);
+    if (answer === value) {
       onClearAnswer();
     } else {
-      setSelectedValue(value);
       onAnswerChange(value);
     }
   };
 
   const handleNAClick = () => {
-    if (selectedValue === NA_VALUE) {
-      setSelectedValue(null);
+    if (answer === NA_VALUE) {
       onClearAnswer();
     } else {
-      setSelectedValue(NA_VALUE);
       onAnswerChange(NA_VALUE);
     }
   };
@@ -92,8 +86,8 @@ export const QuestionCard = ({
           <button
             key={option.value}
             role="radio"
-            aria-checked={selectedValue === option.value}
-            className={`rating-option ${selectedValue === option.value ? 'selected' : ''}`}
+            aria-checked={answer === option.value}
+            className={`rating-option ${answer === option.value ? 'selected' : ''}`}
             onClick={() => handleOptionClick(option.value)}
             data-testid={`option-${question.id}-${option.value}`}
           >
@@ -104,10 +98,10 @@ export const QuestionCard = ({
       </div>
       
       <div className="question-actions">
-        {selectedValue && selectedValue !== NA_VALUE && (
+        {answer && answer !== NA_VALUE && (
           <button
             className="clear-btn"
-            onClick={() => handleOptionClick(selectedValue)}
+            onClick={() => handleOptionClick(answer)}
             data-testid={`clear-${question.id}`}
           >
             <X size={14} /> Clear Answer
@@ -115,12 +109,12 @@ export const QuestionCard = ({
         )}
 
         <button
-          className={`na-btn ${selectedValue === NA_VALUE ? 'selected' : ''}`}
+          className={`na-btn ${answer === NA_VALUE ? 'selected' : ''}`}
           onClick={handleNAClick}
           data-testid={`na-${question.id}`}
           title="Mark as Not Applicable — excludes this question from scoring"
         >
-          {selectedValue === NA_VALUE ? <><Check size={14} /> N/A — Not Applicable</> : 'N/A'}
+          {answer === NA_VALUE ? <><Check size={14} /> N/A — Not Applicable</> : 'N/A'}
         </button>
 
         <button
@@ -148,6 +142,7 @@ export const QuestionCard = ({
             placeholder="Add a brief note about this question…"
             value={commentText}
             onChange={handleCommentChange}
+            onBlur={handleCommentBlur}
             rows={3}
             data-testid={`comment-input-${question.id}`}
             aria-label={`Note for question ${question.id}`}
