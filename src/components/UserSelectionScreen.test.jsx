@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { UserSelectionScreen } from './UserSelectionScreen';
 
 describe('UserSelectionScreen', () => {
@@ -117,5 +118,14 @@ describe('UserSelectionScreen', () => {
 
     expect(screen.getByTestId('user-card-user1')).toHaveAttribute('aria-label', 'Select John Doe — User');
     expect(screen.getByTestId('user-card-admin1')).toHaveAttribute('aria-label', 'Select Admin User — Administrator');
+  });
+
+  describe('accessibility', () => {
+    it('should have no a11y violations', async () => {
+      const { container } = render(
+        <UserSelectionScreen users={mockUsers} onSelectUser={mockOnSelectUser} />
+      );
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 });
