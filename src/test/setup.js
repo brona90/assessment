@@ -55,12 +55,13 @@ import '@testing-library/jest-dom';
   vi.stubGlobal('sessionStorage', makeStorage());
 }());
 
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Mock ResizeObserver as a proper class
+global.ResizeObserver = class ResizeObserver {
+  constructor(cb) { this._cb = cb; }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 // Mock HTMLCanvasElement
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
@@ -95,4 +96,6 @@ afterEach(() => {
   cleanup();
   // Reset location hash so router state doesn't bleed between tests
   window.location.hash = '';
+  // Clear localStorage to prevent state bleed between tests
+  if (typeof localStorage.clear === 'function') localStorage.clear();
 });
