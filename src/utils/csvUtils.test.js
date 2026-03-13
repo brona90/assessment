@@ -77,9 +77,8 @@ describe('generateCsv', () => {
 
 describe('downloadCsv', () => {
   beforeEach(() => {
-    const mockUrl = 'blob:test';
-    globalThis.URL.createObjectURL = vi.fn(() => mockUrl);
-    globalThis.URL.revokeObjectURL = vi.fn();
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test');
+    vi.spyOn(URL, 'revokeObjectURL').mockReturnValue(undefined);
     const mockA = { href: '', download: '', click: vi.fn() };
     vi.spyOn(document, 'createElement').mockReturnValue(mockA);
   });
@@ -330,8 +329,8 @@ describe('generateCsv - additional branches', () => {
 describe('downloadCsv - additional branches', () => {
   let mockA;
   beforeEach(() => {
-    globalThis.URL.createObjectURL = vi.fn(() => 'blob:test');
-    globalThis.URL.revokeObjectURL = vi.fn();
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test');
+    vi.spyOn(URL, 'revokeObjectURL').mockReturnValue(undefined);
     mockA = { href: '', download: '', click: vi.fn() };
     vi.spyOn(document, 'createElement').mockReturnValue(mockA);
   });
