@@ -1,5 +1,5 @@
 import { loadRawData } from './rawDataProvider';
-import { NA_VALUE } from '../utils/scoreCalculator';
+import { scoreCalculator } from '../utils/scoreCalculator';
 
 export const complianceService = {
   async loadCompliance() {
@@ -17,21 +17,7 @@ export const complianceService = {
   },
 
   calculateFrameworkScore(framework, answers) {
-    if (!framework.mappedQuestions || framework.mappedQuestions.length === 0) {
-      return 0;
-    }
-
-    let total = 0;
-    let count = 0;
-
-    framework.mappedQuestions.forEach(qId => {
-      if (answers[qId] !== undefined && answers[qId] !== NA_VALUE) {
-        total += (answers[qId] / 5) * 100;
-        count++;
-      }
-    });
-
-    return count > 0 ? (total / count) : 0;
+    return scoreCalculator.calculateComplianceScore(framework, answers);
   },
 
   getComplianceStatus(score, threshold) {
