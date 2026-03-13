@@ -14,6 +14,7 @@ concurrency:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   lint:
@@ -40,6 +41,33 @@ jobs:
       - run: npm ci
       - run: npm run test:coverage
 
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm audit --audit-level=high
+
+  commitlint:
+    name: Commit Lint
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
   build:
     name: Build
     needs: [lint, test]
@@ -57,9 +85,113 @@ jobs:
           name: dist
           path: dist/
 
+  e2e:
+    name: E2E Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install chromium --with-deps
+      - uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
+      - name: Start preview server
+        run: npx vite preview --port 5173 &
+      - name: Wait for server
+        run: npx wait-on http://localhost:5173/assessment/ --timeout 30000
+      - name: Run Cucumber E2E tests
+        id: cucumber
+        continue-on-error: true
+        run: |
+          npm run cucumber -- --format json:cucumber-report.json --format summary 2>&1 | tee cucumber-output.txt
+      - name: Check pass rate (90% threshold)
+        run: |
+          if [ -f cucumber-report.json ]; then
+            TOTAL=$(node -e "const r=require('./cucumber-report.json'); let t=0; r.forEach(f => f.elements?.forEach(e => { if(e.type==='scenario') t++; })); console.log(t)")
+            PASSED=$(node -e "const r=require('./cucumber-report.json'); let p=0; r.forEach(f => f.elements?.forEach(e => { if(e.type==='scenario' && e.steps.every(s => s.result.status==='passed')) p++; })); console.log(p)")
+            RATE=$(node -e "console.log(Math.round(($PASSED/$TOTAL)*100))")
+            echo "E2E pass rate: $PASSED/$TOTAL ($RATE%)"
+            if [ "$RATE" -lt 90 ]; then
+              echo "::error::E2E pass rate $RATE% is below 90% threshold"
+              exit 1
+            fi
+          else
+            echo "::warning::No cucumber report found"
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: e2e-report
+          path: |
+            cucumber-report.json
+            cucumber-output.txt
+
+  bundle-size:
+    name: Bundle Size
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
+      - name: Check bundle size
+        run: npm run size:check
+
+  lighthouse:
+    name: Lighthouse
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
+      - name: Run Lighthouse CI
+        run: npx lhci autorun --config=lighthouserc.json
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+
+  pr-preview:
+    name: PR Preview
+    needs: build
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist/
+      - uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: dist/
+
   deploy:
     name: Deploy
-    needs: build
+    needs: [build, e2e]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
