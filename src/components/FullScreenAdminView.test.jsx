@@ -569,9 +569,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
       // Click Edit button on the domain item
-      const domainsSection = screen.getByTestId('domains-content');
-      const editBtn = domainsSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-domain-d1'));
 
       // Should now show Update Domain button and pre-filled form
       expect(screen.getByText('Update Domain')).toBeInTheDocument();
@@ -603,9 +601,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const domainsSection = screen.getByTestId('domains-content');
-      const editBtn = domainsSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-domain-d1'));
 
       fireEvent.click(screen.getByText('Update Domain'));
 
@@ -622,9 +618,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const domainsSection = screen.getByTestId('domains-content');
-      const editBtn = domainsSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-domain-d1'));
 
       expect(screen.getByText('Update Domain')).toBeInTheDocument();
 
@@ -645,9 +639,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const domainsSection = screen.getByTestId('domains-content');
-      const deleteBtn = domainsSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-domain-d1'));
 
       await waitFor(() => {
         expect(datastoreMocks.deleteDomain).toHaveBeenCalledWith('d1');
@@ -669,9 +661,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const domainsSection = screen.getByTestId('domains-content');
-      const deleteBtn = domainsSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-domain-d1'));
 
       expect(datastoreMocks.deleteDomain).not.toHaveBeenCalled();
       confirmSpy.mockRestore();
@@ -687,9 +677,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const domainsSection = screen.getByTestId('domains-content');
-      const deleteBtn = domainsSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-domain-d1'));
 
       await waitFor(() => {
         expect(screen.getByText('Cannot delete')).toBeInTheDocument();
@@ -753,9 +741,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
 
       // Click Edit on first user
-      const usersSection = screen.getByTestId('users-content');
-      const editBtn = usersSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-user-u1'));
 
       expect(screen.getByText('Update User')).toBeInTheDocument();
 
@@ -785,9 +771,7 @@ describe('FullScreenAdminView', () => {
       render(<FullScreenAdminView {...defaultProps} />);
       fireEvent.click(screen.getByTestId('configure-tab'));
 
-      const usersSection = screen.getByTestId('users-content');
-      const editBtn = usersSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-user-u1'));
 
       fireEvent.click(screen.getByText('Update User'));
 
@@ -803,9 +787,7 @@ describe('FullScreenAdminView', () => {
       render(<FullScreenAdminView {...defaultProps} />);
       fireEvent.click(screen.getByTestId('configure-tab'));
 
-      const usersSection = screen.getByTestId('users-content');
-      const editBtn = usersSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-user-u1'));
 
       expect(screen.getByText('Update User')).toBeInTheDocument();
 
@@ -823,9 +805,7 @@ describe('FullScreenAdminView', () => {
       render(<FullScreenAdminView {...defaultProps} />);
       fireEvent.click(screen.getByTestId('configure-tab'));
 
-      const usersSection = screen.getByTestId('users-content');
-      const deleteBtn = usersSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-user-u1'));
 
       await waitFor(() => {
         expect(datastoreMocks.deleteUser).toHaveBeenCalledWith('u1');
@@ -846,9 +826,7 @@ describe('FullScreenAdminView', () => {
       render(<FullScreenAdminView {...defaultProps} />);
       fireEvent.click(screen.getByTestId('configure-tab'));
 
-      const usersSection = screen.getByTestId('users-content');
-      const deleteBtn = usersSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-user-u1'));
 
       expect(datastoreMocks.deleteUser).not.toHaveBeenCalled();
       confirmSpy.mockRestore();
@@ -863,9 +841,7 @@ describe('FullScreenAdminView', () => {
       render(<FullScreenAdminView {...defaultProps} />);
       fireEvent.click(screen.getByTestId('configure-tab'));
 
-      const usersSection = screen.getByTestId('users-content');
-      const deleteBtn = usersSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-user-u1'));
 
       await waitFor(() => {
         expect(screen.getByText('Delete user error')).toBeInTheDocument();
@@ -951,9 +927,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
       // Click Edit on the question
-      const questionsSection = screen.getByTestId('questions-content');
-      const editBtn = questionsSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-question-q1'));
 
       expect(screen.getByText('Update Question')).toBeInTheDocument();
 
@@ -989,9 +963,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const questionsSection = screen.getByTestId('questions-content');
-      const editBtn = questionsSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-question-q1'));
 
       fireEvent.click(screen.getByText('Update Question'));
 
@@ -1013,9 +985,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const questionsSection = screen.getByTestId('questions-content');
-      const editBtn = questionsSection.querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-question-q1'));
 
       expect(screen.getByText('Update Question')).toBeInTheDocument();
 
@@ -1039,9 +1009,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const questionsSection = screen.getByTestId('questions-content');
-      const deleteBtn = questionsSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-question-q1'));
 
       await waitFor(() => {
         expect(datastoreMocks.deleteQuestion).toHaveBeenCalledWith('q1');
@@ -1068,9 +1036,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const questionsSection = screen.getByTestId('questions-content');
-      const deleteBtn = questionsSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-question-q1'));
 
       expect(datastoreMocks.deleteQuestion).not.toHaveBeenCalled();
       confirmSpy.mockRestore();
@@ -1091,9 +1057,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('content-sub-tab'));
 
-      const questionsSection = screen.getByTestId('questions-content');
-      const deleteBtn = questionsSection.querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-question-q1'));
 
       await waitFor(() => {
         expect(screen.getByText('Delete Q failed')).toBeInTheDocument();
@@ -1222,8 +1186,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('frameworks-sub-tab'));
 
       // Click Edit on framework
-      const editBtn = screen.getByTestId('frameworks-content').querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-framework-fw1'));
 
       expect(screen.getByText('Update Framework')).toBeInTheDocument();
 
@@ -1256,8 +1219,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('frameworks-sub-tab'));
 
-      const editBtn = screen.getByTestId('frameworks-content').querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-framework-fw1'));
 
       fireEvent.click(screen.getByText('Update Framework'));
 
@@ -1276,8 +1238,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('frameworks-sub-tab'));
 
-      const editBtn = screen.getByTestId('frameworks-content').querySelector('.cfg-btn--secondary');
-      fireEvent.click(editBtn);
+      fireEvent.click(screen.getByTestId('edit-framework-fw1'));
 
       expect(screen.getByText('Update Framework')).toBeInTheDocument();
 
@@ -1298,8 +1259,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('frameworks-sub-tab'));
 
-      const deleteBtn = screen.getByTestId('frameworks-content').querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-framework-fw1'));
 
       await waitFor(() => {
         expect(datastoreMocks.deleteFramework).toHaveBeenCalledWith('fw1');
@@ -1323,8 +1283,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('frameworks-sub-tab'));
 
-      const deleteBtn = screen.getByTestId('frameworks-content').querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-framework-fw1'));
 
       expect(datastoreMocks.deleteFramework).not.toHaveBeenCalled();
       confirmSpy.mockRestore();
@@ -1342,8 +1301,7 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('configure-tab'));
       fireEvent.click(screen.getByTestId('frameworks-sub-tab'));
 
-      const deleteBtn = screen.getByTestId('frameworks-content').querySelector('.cfg-btn--danger');
-      fireEvent.click(deleteBtn);
+      fireEvent.click(screen.getByTestId('delete-framework-fw1'));
 
       await waitFor(() => {
         expect(screen.getByText('Delete FW error')).toBeInTheDocument();

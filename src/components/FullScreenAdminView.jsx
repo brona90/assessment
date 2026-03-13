@@ -724,8 +724,8 @@ export const FullScreenAdminView = ({
                         </div>
                         <span className={`cfg-item-badge cfg-item-badge--${user.role}`}>{user.role}</span>
                         <div className="cfg-item-actions">
-                          <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditUser(user)}>Edit</button>
-                          <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteUser(user.id)}>Delete</button>
+                          <button className="cfg-btn cfg-btn--secondary" data-testid={`edit-user-${user.id}`} onClick={() => startEditUser(user)}>Edit</button>
+                          <button className="cfg-btn cfg-btn--danger" data-testid={`delete-user-${user.id}`} onClick={() => handleDeleteUser(user.id)}>Delete</button>
                         </div>
                       </div>
                     ))}
@@ -897,8 +897,8 @@ export const FullScreenAdminView = ({
                           <span className="cfg-item-sub">{domain.id} · weight {domain.weight}{domain.description ? ` · ${domain.description}` : ''}</span>
                         </div>
                         <div className="cfg-item-actions">
-                          <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditDomain(domain)}>Edit</button>
-                          <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteDomain(domain.id)}>Delete</button>
+                          <button className="cfg-btn cfg-btn--secondary" data-testid={`edit-domain-${domain.id}`} onClick={() => startEditDomain(domain)}>Edit</button>
+                          <button className="cfg-btn cfg-btn--danger" data-testid={`delete-domain-${domain.id}`} onClick={() => handleDeleteDomain(domain.id)}>Delete</button>
                         </div>
                       </div>
                     ))}
@@ -1005,8 +1005,8 @@ export const FullScreenAdminView = ({
                           <span className="cfg-item-badge cfg-item-badge--evidence">Evidence</span>
                         )}
                         <div className="cfg-item-actions">
-                          <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditQuestion(question)}>Edit</button>
-                          <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteQuestion(question.id)}>Delete</button>
+                          <button className="cfg-btn cfg-btn--secondary" data-testid={`edit-question-${question.id}`} onClick={() => startEditQuestion(question)}>Edit</button>
+                          <button className="cfg-btn cfg-btn--danger" data-testid={`delete-question-${question.id}`} onClick={() => handleDeleteQuestion(question.id)}>Delete</button>
                         </div>
                       </div>
                     ))}
@@ -1129,8 +1129,8 @@ export const FullScreenAdminView = ({
                         </div>
                       </details>
                       <div className="cfg-item-actions">
-                        <button className="cfg-btn cfg-btn--secondary" onClick={() => startEditFramework(framework)}>Edit</button>
-                        <button className="cfg-btn cfg-btn--danger" onClick={() => handleDeleteFramework(framework.id)}>Delete</button>
+                        <button className="cfg-btn cfg-btn--secondary" data-testid={`edit-framework-${framework.id}`} onClick={() => startEditFramework(framework)}>Edit</button>
+                        <button className="cfg-btn cfg-btn--danger" data-testid={`delete-framework-${framework.id}`} onClick={() => handleDeleteFramework(framework.id)}>Delete</button>
                       </div>
                     </div>
                   ))}
