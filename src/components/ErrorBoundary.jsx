@@ -12,7 +12,14 @@ export class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error(JSON.stringify({
+      type: 'react-error-boundary',
+      message: error?.message || String(error),
+      stack: error?.stack,
+      componentStack: errorInfo?.componentStack,
+      timestamp: new Date().toISOString(),
+      url: window.location.href
+    }));
   }
 
   render() {
