@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { ResultsView } from './ResultsView';
 
 vi.mock('./DomainRadarChart', () => ({
@@ -453,6 +454,13 @@ describe('ResultsView', () => {
       render(<ResultsView {...defaultProps} snapshots={snapshots} />);
       const scoreEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-score');
       expect(scoreEl.textContent).toContain('3.12');
+    });
+  });
+
+  describe('accessibility', () => {
+    it('should have no a11y violations', async () => {
+      const { container } = render(<ResultsView {...defaultProps} />);
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
