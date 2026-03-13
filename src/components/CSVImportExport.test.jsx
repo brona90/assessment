@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CSVImportExport } from './CSVImportExport';
 
@@ -476,9 +476,18 @@ describe('CSVImportExport', () => {
   // ─── Import: File read failure ────────────────────────────────────────────
 
   describe('Import file read failure', () => {
+    let OriginalFileReader;
+
+    beforeEach(() => {
+      OriginalFileReader = window.FileReader;
+    });
+
+    afterEach(() => {
+      window.FileReader = OriginalFileReader;
+    });
+
     it('should show error when file cannot be read', async () => {
       // Override FileReader so readAsText triggers onerror
-      const OriginalFileReader = window.FileReader;
       window.FileReader = class {
         readAsText() {
           // Trigger onerror asynchronously like real FileReader
@@ -494,8 +503,6 @@ describe('CSVImportExport', () => {
         expect(status).toHaveTextContent('Could not read file.');
         expect(status).toHaveClass('csv-status--error');
       });
-
-      window.FileReader = OriginalFileReader;
     });
   });
 
