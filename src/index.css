@@ -1004,3 +1004,43 @@ textarea:focus-visible {
     font-size: 2.5rem;
   }
 }
+
+/* Shared clickable chart card styles */
+.chart-display--clickable {
+  position: relative;
+  cursor: pointer;
+}
+
+.chart-display--clickable .chart-expand-hint {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  padding: 0.3rem 0.65rem;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.chart-display--clickable:hover .chart-expand-hint {
+  opacity: 1;
+}
+
+/* Disable animations and transitions for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
