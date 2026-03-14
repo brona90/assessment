@@ -1,19 +1,28 @@
-import localforage from 'localforage';
+import { openDB } from 'idb';
 
 const ASSESSMENT_KEY = 'assessmentData';
+const DB_NAME = 'assessmentApp';
 const EVIDENCE_STORE = 'evidence';
+const DB_VERSION = 1;
 
 const getAssessmentKey = (userId) => userId ? `assessmentData_${userId}` : ASSESSMENT_KEY;
 
-// Configure localforage for evidence storage
-const createEvidenceDB = () => localforage.createInstance({
-  name: 'assessmentApp',
-  storeName: EVIDENCE_STORE
-});
+// Lazily open the IndexedDB database
+let dbPromise;
+function getDB() {
+  if (!dbPromise) {
+    dbPromise = openDB(DB_NAME, DB_VERSION, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(EVIDENCE_STORE)) {
+          db.createObjectStore(EVIDENCE_STORE);
+        }
+      }
+    });
+  }
+  return dbPromise;
+}
 
 export const storageService = {
-  evidenceDB: createEvidenceDB(),
-
   // Assessment data
   async saveAssessment(userId, data) {
     try {
@@ -48,10 +57,11 @@ export const storageService = {
     }
   },
 
-  // Evidence storage
+  // Evidence storage (IndexedDB via idb)
   async saveEvidence(questionId, evidence) {
     try {
-      await this.evidenceDB.setItem(questionId, evidence);
+      const db = await getDB();
+      await db.put(EVIDENCE_STORE, evidence, questionId);
       return true;
     } catch (error) {
       console.error('Error saving evidence:', error);
@@ -61,7 +71,8 @@ export const storageService = {
 
   async loadEvidence(questionId) {
     try {
-      return await this.evidenceDB.getItem(questionId);
+      const db = await getDB();
+      return await db.get(EVIDENCE_STORE, questionId);
     } catch (error) {
       console.error('Error loading evidence:', error);
       return null;
@@ -70,8 +81,9 @@ export const storageService = {
 
   async loadAllEvidence() {
     try {
-      const keys = await this.evidenceDB.keys();
-      const values = await Promise.all(keys.map(key => this.evidenceDB.getItem(key)));
+      const db = await getDB();
+      const keys = await db.getAllKeys(EVIDENCE_STORE);
+      const values = await db.getAll(EVIDENCE_STORE);
       const evidence = {};
       keys.forEach((key, i) => { evidence[key] = values[i]; });
       return evidence;
@@ -190,7 +202,8 @@ export const storageService = {
 
   async clearAllEvidence() {
     try {
-      await this.evidenceDB.clear();
+      const db = await getDB();
+      await db.clear(EVIDENCE_STORE);
       return true;
     } catch (error) {
       console.error('Error clearing evidence:', error);
@@ -232,5 +245,10 @@ export const storageService = {
     } catch {
       return false;
     }
+  },
+
+  // Exposed for testing — resets the cached DB promise
+  _resetDB() {
+    dbPromise = null;
   }
 };
