@@ -1,21 +1,33 @@
 .benchmark-sources {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.benchmark-sources-label {
-  font-size: 0.75rem;
+.benchmark-sources-toggle {
+  background: none;
+  border: none;
   color: #64748b;
-  white-space: nowrap;
+  font-size: 0.75rem;
   font-weight: 500;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.benchmark-sources-toggle:hover {
+  color: #94a3b8;
 }
 
 .benchmark-sources-chips {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.benchmark-sources-chips.bsc-open {
+  display: flex;
 }
 
 .benchmark-source-chip {
@@ -57,4 +69,20 @@
 .bsc-arrow {
   color: #86efac;
   font-size: 0.75rem;
+}
+
+/* On larger screens, auto-expand and hide toggle */
+@media (min-width: 769px) {
+  .benchmark-sources {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .benchmark-sources-chips {
+    display: flex;
+  }
+
+  .benchmark-sources-toggle {
+    display: none;
+  }
 }

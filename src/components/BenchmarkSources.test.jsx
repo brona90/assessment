@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { BenchmarkSources } from './BenchmarkSources';
 
 describe('BenchmarkSources', () => {
@@ -40,7 +40,7 @@ describe('BenchmarkSources', () => {
   it('should render sources when provided', () => {
     render(<BenchmarkSources sources={mockSources} />);
     expect(screen.getByTestId('benchmark-sources')).toBeInTheDocument();
-    expect(screen.getByText('Benchmark sources:')).toBeInTheDocument();
+    expect(screen.getByTestId('benchmark-sources-toggle')).toBeInTheDocument();
   });
 
   it('should render a chip for each source', () => {
@@ -64,5 +64,26 @@ describe('BenchmarkSources', () => {
     render(<BenchmarkSources sources={mockSources} />);
     expect(screen.getByText('(2024)')).toBeInTheDocument();
     expect(screen.getByText('(2023)')).toBeInTheDocument();
+  });
+
+  it('should toggle chips visibility on button click', () => {
+    render(<BenchmarkSources sources={mockSources} />);
+    const toggle = screen.getByTestId('benchmark-sources-toggle');
+    const chips = screen.getByTestId('benchmark-sources').querySelector('.benchmark-sources-chips');
+
+    expect(chips.classList.contains('bsc-open')).toBe(false);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(toggle);
+    expect(chips.classList.contains('bsc-open')).toBe(true);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(toggle);
+    expect(chips.classList.contains('bsc-open')).toBe(false);
+  });
+
+  it('should show source count in toggle button', () => {
+    render(<BenchmarkSources sources={mockSources} />);
+    expect(screen.getByTestId('benchmark-sources-toggle').textContent).toContain('(2)');
   });
 });

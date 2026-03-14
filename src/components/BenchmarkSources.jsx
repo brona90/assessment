@@ -1,13 +1,23 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import './BenchmarkSources.css';
 
 export const BenchmarkSources = ({ sources }) => {
+  const [open, setOpen] = useState(false);
+
   if (!sources || sources.length === 0) return null;
 
   return (
     <div className="benchmark-sources" data-testid="benchmark-sources">
-      <span className="benchmark-sources-label">Benchmark sources:</span>
-      <div className="benchmark-sources-chips">
+      <button
+        className="benchmark-sources-toggle"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        data-testid="benchmark-sources-toggle"
+      >
+        Benchmark sources ({sources.length}) {open ? '▾' : '▸'}
+      </button>
+      <div className={`benchmark-sources-chips${open ? ' bsc-open' : ''}`}>
         {sources.map(s => (
           <a
             key={s.id}
