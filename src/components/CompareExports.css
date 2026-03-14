@@ -76,7 +76,7 @@
 
 .compare-table {
   width: 100%;
-  min-width: 360px;
+  min-width: min(360px, 100%);
   border-collapse: collapse;
   font-size: 0.9rem;
 }
