@@ -44,29 +44,29 @@ const mockAnswers = { q1: 4, q2: 3, q3: 5 };
 const mockEvidence = { q1: { text: 'We have policies' } };
 
 describe('excelExportService', () => {
-  it('generates a workbook with Summary, Domain Scores, and All Answers sheets', () => {
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+  it('generates a workbook with Summary, Domain Scores, and All Answers sheets', async () => {
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
     const names = sheetNames(wb);
     expect(names).toContain('Summary');
     expect(names).toContain('Domain Scores');
     expect(names).toContain('All Answers');
   });
 
-  it('does not add Compliance sheet when no frameworks provided', () => {
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+  it('does not add Compliance sheet when no frameworks provided', async () => {
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
     expect(sheetNames(wb)).not.toContain('Compliance');
   });
 
-  it('adds Compliance sheet when frameworks provided', () => {
+  it('adds Compliance sheet when frameworks provided', async () => {
     const frameworks = [
       { id: 'fw1', name: 'GDPR', category: 'Privacy', score: 85, threshold: 80, mappedQuestions: ['q1'] }
     ];
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence, frameworks);
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence, frameworks);
     expect(sheetNames(wb)).toContain('Compliance');
   });
 
-  it('Summary sheet contains overall score and completion info', () => {
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+  it('Summary sheet contains overall score and completion info', async () => {
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
     const ws = wb.getWorksheet('Summary');
     // Row 4: Overall Score
     expect(cell(ws, 'A4')).toBe('Overall Score');
@@ -76,8 +76,8 @@ describe('excelExportService', () => {
     expect(cell(ws, 'B6')).toBe('3 / 3');
   });
 
-  it('Domain Scores sheet has correct domain rows', () => {
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+  it('Domain Scores sheet has correct domain rows', async () => {
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
     const ws = wb.getWorksheet('Domain Scores');
     // Header row
     expect(cell(ws, 'A1')).toBe('Domain');
@@ -89,8 +89,8 @@ describe('excelExportService', () => {
     expect(cell(ws, 'E3')).toBe(5);
   });
 
-  it('All Answers sheet lists every question with score and evidence flag', () => {
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+  it('All Answers sheet lists every question with score and evidence flag', async () => {
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
     const ws = wb.getWorksheet('All Answers');
     // Header
     expect(cell(ws, 'A1')).toBe('Domain');
@@ -101,15 +101,15 @@ describe('excelExportService', () => {
     expect(cell(ws, 'F3')).toBe('No');
   });
 
-  it('handles empty answers gracefully', () => {
-    const wb = excelExportService.generateReport(mockDomains, {}, {});
+  it('handles empty answers gracefully', async () => {
+    const wb = await excelExportService.generateReport(mockDomains, {}, {});
     expect(sheetNames(wb).length).toBe(3);
     const ws = wb.getWorksheet('Summary');
     expect(cell(ws, 'B6')).toBe('0 / 3');
   });
 
   it('downloadReport creates a download link', async () => {
-    const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+    const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
     const mockUrl = 'blob:test';
     const mockAnchor = { click: vi.fn(), href: '', download: '' };
     vi.spyOn(URL, 'createObjectURL').mockReturnValue(mockUrl);
@@ -133,7 +133,7 @@ describe('excelExportService', () => {
     });
 
     it('uses a default date-based filename when none is provided', async () => {
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
       const mockAnchor = { click: vi.fn(), href: '', download: '' };
       vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test');
       vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -146,7 +146,7 @@ describe('excelExportService', () => {
     });
 
     it('uses a default filename when filename is empty string', async () => {
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, mockEvidence);
       const mockAnchor = { click: vi.fn(), href: '', download: '' };
       vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test');
       vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -162,11 +162,11 @@ describe('excelExportService', () => {
   // ── Branch coverage: Summary sheet with zero total questions ──
 
   describe('_addSummarySheet', () => {
-    it('shows 0% completion when there are no questions (empty domains)', () => {
+    it('shows 0% completion when there are no questions (empty domains)', async () => {
       const emptyDomains = {
         d1: { title: 'Empty Domain', weight: 1.0, categories: {} }
       };
-      const wb = excelExportService.generateReport(emptyDomains, {}, {});
+      const wb = await excelExportService.generateReport(emptyDomains, {}, {});
       const ws = wb.getWorksheet('Summary');
       // Completion row (row 7)
       expect(cell(ws, 'A7')).toBe('Completion');
@@ -175,8 +175,8 @@ describe('excelExportService', () => {
       expect(cell(ws, 'B6')).toBe('0 / 0');
     });
 
-    it('shows percentage completion when some questions are answered', () => {
-      const wb = excelExportService.generateReport(mockDomains, { q1: 4 }, {});
+    it('shows percentage completion when some questions are answered', async () => {
+      const wb = await excelExportService.generateReport(mockDomains, { q1: 4 }, {});
       const ws = wb.getWorksheet('Summary');
       expect(cell(ws, 'B7')).toBe('33%'); // 1/3 = 33%
     });
@@ -185,8 +185,8 @@ describe('excelExportService', () => {
   // ── Branch coverage: Domain Scores with various answer states ──
 
   describe('_addDomainSheet', () => {
-    it('handles domains with no answered questions', () => {
-      const wb = excelExportService.generateReport(mockDomains, {}, {});
+    it('handles domains with no answered questions', async () => {
+      const wb = await excelExportService.generateReport(mockDomains, {}, {});
       const ws = wb.getWorksheet('Domain Scores');
       // Answered column (D) should be 0
       expect(cell(ws, 'D2')).toBe(0);
@@ -196,18 +196,18 @@ describe('excelExportService', () => {
       expect(cell(ws, 'E3')).toBe(0);
     });
 
-    it('handles domains with empty categories', () => {
+    it('handles domains with empty categories', async () => {
       const domainsEmptyCats = {
         d1: { title: 'Empty', weight: 1.0, categories: {} }
       };
-      const wb = excelExportService.generateReport(domainsEmptyCats, {}, {});
+      const wb = await excelExportService.generateReport(domainsEmptyCats, {}, {});
       const ws = wb.getWorksheet('Domain Scores');
       expect(cell(ws, 'A2')).toBe('Empty');
       expect(cell(ws, 'C2')).toBe(0); // Questions count
       expect(cell(ws, 'D2')).toBe(0); // Answered count
     });
 
-    it('rounds domain scores to two decimal places', () => {
+    it('rounds domain scores to two decimal places', async () => {
       const domains = {
         d1: {
           title: 'Test',
@@ -225,7 +225,7 @@ describe('excelExportService', () => {
         }
       };
       const answers = { q1: 1, q2: 2, q3: 3 };
-      const wb = excelExportService.generateReport(domains, answers, {});
+      const wb = await excelExportService.generateReport(domains, answers, {});
       const ws = wb.getWorksheet('Domain Scores');
       expect(cell(ws, 'E2')).toBe(2); // (1+2+3)/3 = 2.0
     });
@@ -234,18 +234,18 @@ describe('excelExportService', () => {
   // ── Branch coverage: All Answers sheet with NA_VALUE, undefined, and normal values ──
 
   describe('_addAnswersSheet', () => {
-    it('displays N/A for score and maturity when answer is NA_VALUE', () => {
+    it('displays N/A for score and maturity when answer is NA_VALUE', async () => {
       const answers = { q1: NA_VALUE, q2: 4, q3: 5 };
-      const wb = excelExportService.generateReport(mockDomains, answers, {});
+      const wb = await excelExportService.generateReport(mockDomains, answers, {});
       const ws = wb.getWorksheet('All Answers');
       // q1 is NA_VALUE (row 2)
       expect(cell(ws, 'D2')).toBe('N/A');
       expect(cell(ws, 'E2')).toBe('N/A');
     });
 
-    it('displays empty string for score and maturity when answer is undefined', () => {
+    it('displays empty string for score and maturity when answer is undefined', async () => {
       const answers = { q2: 3 }; // q1 and q3 are unanswered
-      const wb = excelExportService.generateReport(mockDomains, answers, {});
+      const wb = await excelExportService.generateReport(mockDomains, answers, {});
       const ws = wb.getWorksheet('All Answers');
       // q1 is undefined (row 2)
       expect(cell(ws, 'D2')).toBe('');
@@ -255,9 +255,9 @@ describe('excelExportService', () => {
       expect(cell(ws, 'E3')).toBe('Defined'); // 2.5-3.5
     });
 
-    it('displays numeric score and maturity level for normal answered questions', () => {
+    it('displays numeric score and maturity level for normal answered questions', async () => {
       const answers = { q1: 5, q2: 2, q3: 1 };
-      const wb = excelExportService.generateReport(mockDomains, answers, {});
+      const wb = await excelExportService.generateReport(mockDomains, answers, {});
       const ws = wb.getWorksheet('All Answers');
       // q1 scored 5 -> Optimized
       expect(cell(ws, 'D2')).toBe(5);
@@ -270,35 +270,35 @@ describe('excelExportService', () => {
       expect(cell(ws, 'E4')).toBe('Not Implemented');
     });
 
-    it('shows evidence flag correctly when evidence exists for some questions', () => {
+    it('shows evidence flag correctly when evidence exists for some questions', async () => {
       const evidence = { q1: { text: 'proof' }, q3: { images: ['img.png'] } };
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, evidence);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, evidence);
       const ws = wb.getWorksheet('All Answers');
       expect(cell(ws, 'F2')).toBe('Yes'); // q1 has evidence
       expect(cell(ws, 'F3')).toBe('No');  // q2 has no evidence
       expect(cell(ws, 'F4')).toBe('Yes'); // q3 has evidence
     });
 
-    it('shows No for evidence when evidence parameter is null', () => {
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, null);
+    it('shows No for evidence when evidence parameter is null', async () => {
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, null);
       const ws = wb.getWorksheet('All Answers');
       expect(cell(ws, 'F2')).toBe('No');
       expect(cell(ws, 'F3')).toBe('No');
       expect(cell(ws, 'F4')).toBe('No');
     });
 
-    it('handles domains with missing categories gracefully', () => {
+    it('handles domains with missing categories gracefully', async () => {
       const domainsNoCats = {
         d1: { title: 'No Cats', weight: 1.0 }
       };
-      const wb = excelExportService.generateReport(domainsNoCats, {}, {});
+      const wb = await excelExportService.generateReport(domainsNoCats, {}, {});
       const ws = wb.getWorksheet('All Answers');
       // Only the header row should exist
       expect(cell(ws, 'A1')).toBe('Domain');
       expect(cell(ws, 'A2')).toBeNull();
     });
 
-    it('handles categories with missing questions array gracefully', () => {
+    it('handles categories with missing questions array gracefully', async () => {
       const domainsNoQs = {
         d1: {
           title: 'Has Category',
@@ -309,7 +309,7 @@ describe('excelExportService', () => {
           }
         }
       };
-      const wb = excelExportService.generateReport(domainsNoQs, {}, {});
+      const wb = await excelExportService.generateReport(domainsNoQs, {}, {});
       const ws = wb.getWorksheet('All Answers');
       // Only the header row should exist
       expect(cell(ws, 'A1')).toBe('Domain');
@@ -320,106 +320,106 @@ describe('excelExportService', () => {
   // ── Branch coverage: Compliance sheet with various framework data shapes ──
 
   describe('_addComplianceSheet', () => {
-    it('uses fw.id when fw.name is missing', () => {
+    it('uses fw.id when fw.name is missing', async () => {
       const frameworks = [
         { id: 'SOC2', score: 90, threshold: 80, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'A2')).toBe('SOC2');
     });
 
-    it('uses empty string when fw.category is missing', () => {
+    it('uses empty string when fw.category is missing', async () => {
       const frameworks = [
         { id: 'fw1', name: 'GDPR', score: 85, threshold: 80, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'B2')).toBe('');
     });
 
-    it('shows empty string for score when fw.score is undefined', () => {
+    it('shows empty string for score when fw.score is undefined', async () => {
       const frameworks = [
         { id: 'fw1', name: 'Pending', category: 'Security', mappedQuestions: [] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'C2')).toBe('');
     });
 
-    it('shows rounded score when fw.score is defined', () => {
+    it('shows rounded score when fw.score is defined', async () => {
       const frameworks = [
         { id: 'fw1', name: 'SOC2', category: 'Security', score: 87.6, threshold: 80, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'C2')).toBe(88);
     });
 
-    it('shows Compliant when score meets threshold', () => {
+    it('shows Compliant when score meets threshold', async () => {
       const frameworks = [
         { id: 'fw1', name: 'GDPR', score: 80, threshold: 80, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'D2')).toBe('Compliant');
     });
 
-    it('shows Non-Compliant when score is below threshold', () => {
+    it('shows Non-Compliant when score is below threshold', async () => {
       const frameworks = [
         { id: 'fw1', name: 'GDPR', score: 79, threshold: 80, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'D2')).toBe('Non-Compliant');
     });
 
-    it('uses default threshold of 80 when fw.threshold is missing', () => {
+    it('uses default threshold of 80 when fw.threshold is missing', async () => {
       const frameworks = [
         { id: 'fw1', name: 'Custom', score: 80, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       // score 80 >= default threshold 80 -> Compliant
       expect(cell(ws, 'D2')).toBe('Compliant');
       expect(cell(ws, 'E2')).toBe(80); // Default threshold
     });
 
-    it('uses default threshold of 80 and shows Non-Compliant when score below', () => {
+    it('uses default threshold of 80 and shows Non-Compliant when score below', async () => {
       const frameworks = [
         { id: 'fw1', name: 'Custom', score: 79, mappedQuestions: ['q1'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'D2')).toBe('Non-Compliant');
       expect(cell(ws, 'E2')).toBe(80);
     });
 
-    it('handles missing mappedQuestions gracefully', () => {
+    it('handles missing mappedQuestions gracefully', async () => {
       const frameworks = [
         { id: 'fw1', name: 'NoMappings', score: 50, threshold: 80 }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'F2')).toBe(0); // (undefined || []).length = 0
     });
 
-    it('reports correct count of mapped questions', () => {
+    it('reports correct count of mapped questions', async () => {
       const frameworks = [
         { id: 'fw1', name: 'GDPR', category: 'Privacy', score: 85, threshold: 80, mappedQuestions: ['q1', 'q2', 'q3'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       expect(cell(ws, 'F2')).toBe(3);
     });
 
-    it('handles multiple frameworks with mixed data', () => {
+    it('handles multiple frameworks with mixed data', async () => {
       const frameworks = [
         { id: 'fw1', name: 'GDPR', category: 'Privacy', score: 90, threshold: 85, mappedQuestions: ['q1'] },
         { id: 'fw2', score: 50, mappedQuestions: [] },
         { id: 'fw3', name: 'ISO', category: 'Quality', score: 75, threshold: 70, mappedQuestions: ['q1', 'q2'] }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       // fw1: name=GDPR, category=Privacy, score=90, Compliant
       expect(cell(ws, 'A2')).toBe('GDPR');
@@ -433,11 +433,11 @@ describe('excelExportService', () => {
       expect(cell(ws, 'D4')).toBe('Compliant');
     });
 
-    it('handles Non-Compliant when score is undefined (NaN >= threshold is false)', () => {
+    it('handles Non-Compliant when score is undefined (NaN >= threshold is false)', async () => {
       const frameworks = [
         { id: 'fw1', name: 'Pending', threshold: 80 }
       ];
-      const wb = excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
+      const wb = await excelExportService.generateReport(mockDomains, mockAnswers, {}, frameworks);
       const ws = wb.getWorksheet('Compliance');
       // undefined >= 80 is false -> Non-Compliant
       expect(cell(ws, 'D2')).toBe('Non-Compliant');

@@ -1,4 +1,3 @@
-import jsPDF from 'jspdf';
 import { scoreCalculator } from '../utils/scoreCalculator';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -140,6 +139,7 @@ export const pdfService = {
   },
 
   async generatePDF(domains, answers, evidence, complianceFrameworks, options = {}, comments = {}) {
+    const { default: jsPDF } = await import('jspdf');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const { orgName = 'Organisation', reportTitle = 'Technology Maturity Assessment' } = options || {};
 

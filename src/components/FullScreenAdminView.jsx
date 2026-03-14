@@ -1178,10 +1178,10 @@ export const FullScreenAdminView = ({
                   </button>
                   <button
                     className="export-btn"
-                    onClick={() => {
+                    onClick={async () => {
                       try {
-                        const wb = excelExportService.generateReport(domains, answers, evidence, frameworks);
-                        excelExportService.downloadReport(wb);
+                        const wb = await excelExportService.generateReport(domains, answers, evidence, frameworks);
+                        await excelExportService.downloadReport(wb);
                       } catch (err) {
                         console.error('Excel export failed:', err);
                         alert('Failed to generate Excel report.');

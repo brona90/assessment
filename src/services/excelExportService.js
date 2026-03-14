@@ -1,12 +1,20 @@
-import ExcelJS from 'exceljs';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
+
+let _ExcelJS;
+async function getExcelJS() {
+  if (!_ExcelJS) {
+    _ExcelJS = (await import('exceljs')).default;
+  }
+  return _ExcelJS;
+}
 
 /**
  * Generates and downloads a multi-sheet Excel workbook
  * containing the full assessment report.
  */
 export const excelExportService = {
-  generateReport(domains, answers, evidence, frameworks = []) {
+  async generateReport(domains, answers, evidence, frameworks = []) {
+    const ExcelJS = await getExcelJS();
     const wb = new ExcelJS.Workbook();
 
     // ── Sheet 1: Executive Summary ──

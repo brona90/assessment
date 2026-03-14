@@ -1633,20 +1633,22 @@ describe('FullScreenAdminView', () => {
   describe('Excel Export', () => {
     it('should call excelExportService on export button click', async () => {
       const { excelExportService } = await import('../services/excelExportService');
-      vi.spyOn(excelExportService, 'generateReport').mockReturnValue({});
-      vi.spyOn(excelExportService, 'downloadReport').mockImplementation(() => {});
+      vi.spyOn(excelExportService, 'generateReport').mockResolvedValue({});
+      vi.spyOn(excelExportService, 'downloadReport').mockResolvedValue();
 
       render(<FullScreenAdminView {...defaultProps} />);
       fireEvent.click(screen.getByTestId('data-tab'));
       fireEvent.click(screen.getByTestId('export-excel-button'));
 
-      expect(excelExportService.generateReport).toHaveBeenCalledWith(
-        defaultProps.domains,
-        defaultProps.answers,
-        defaultProps.evidence,
-        defaultProps.frameworks
-      );
-      expect(excelExportService.downloadReport).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(excelExportService.generateReport).toHaveBeenCalledWith(
+          defaultProps.domains,
+          defaultProps.answers,
+          defaultProps.evidence,
+          defaultProps.frameworks
+        );
+        expect(excelExportService.downloadReport).toHaveBeenCalled();
+      });
 
       excelExportService.generateReport.mockRestore();
       excelExportService.downloadReport.mockRestore();
@@ -1654,9 +1656,7 @@ describe('FullScreenAdminView', () => {
 
     it('should show alert when excel export fails', async () => {
       const { excelExportService } = await import('../services/excelExportService');
-      vi.spyOn(excelExportService, 'generateReport').mockImplementation(() => {
-        throw new Error('Export error');
-      });
+      vi.spyOn(excelExportService, 'generateReport').mockRejectedValue(new Error('Export error'));
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -1664,7 +1664,9 @@ describe('FullScreenAdminView', () => {
       fireEvent.click(screen.getByTestId('data-tab'));
       fireEvent.click(screen.getByTestId('export-excel-button'));
 
-      expect(alertSpy).toHaveBeenCalledWith('Failed to generate Excel report.');
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalledWith('Failed to generate Excel report.');
+      });
 
       excelExportService.generateReport.mockRestore();
       alertSpy.mockRestore();
