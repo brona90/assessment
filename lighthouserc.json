@@ -1,8 +1,9 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./dist",
-      "url": ["http://localhost/assessment/"]
+      "startServerCommand": "npx vite preview --port 9876",
+      "startServerReadyPattern": "Local:",
+      "url": ["http://localhost:9876/assessment/"]
     },
     "assert": {
       "assertions": {
