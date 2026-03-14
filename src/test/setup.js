@@ -67,6 +67,7 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 // Mock HTMLCanvasElement
+HTMLCanvasElement.prototype.toDataURL = vi.fn(() => 'data:image/png;base64,mock');
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
   fillRect: vi.fn(),
   clearRect: vi.fn(),
