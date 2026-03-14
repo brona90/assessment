@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
 
 /**
@@ -7,7 +7,7 @@ import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
  */
 export const excelExportService = {
   generateReport(domains, answers, evidence, frameworks = []) {
-    const wb = XLSX.utils.book_new();
+    const wb = new ExcelJS.Workbook();
 
     // ── Sheet 1: Executive Summary ──
     this._addSummarySheet(wb, domains, answers);
@@ -26,9 +26,16 @@ export const excelExportService = {
     return wb;
   },
 
-  downloadReport(wb, filename) {
+  async downloadReport(wb, filename) {
     const name = filename || `assessment-report-${new Date().toISOString().slice(0, 10)}.xlsx`;
-    XLSX.writeFile(wb, name);
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
   },
 
   // ── Internal sheet builders ──
@@ -42,52 +49,46 @@ export const excelExportService = {
     }, 0);
     const answered = Object.keys(answers).filter(k => answers[k] !== undefined).length;
 
-    const rows = [
-      ['Assessment Report'],
-      ['Generated', new Date().toLocaleDateString()],
-      [],
-      ['Overall Score', overall],
-      ['Maturity Level', maturity],
-      ['Questions Answered', `${answered} / ${totalQuestions}`],
-      ['Completion', totalQuestions > 0 ? `${Math.round((answered / totalQuestions) * 100)}%` : '0%'],
-    ];
+    const ws = wb.addWorksheet('Summary');
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws.addRow(['Assessment Report']);
+    ws.addRow(['Generated', new Date().toLocaleDateString()]);
+    ws.addRow([]);
+    ws.addRow(['Overall Score', overall]);
+    ws.addRow(['Maturity Level', maturity]);
+    ws.addRow(['Questions Answered', `${answered} / ${totalQuestions}`]);
+    ws.addRow(['Completion', totalQuestions > 0 ? `${Math.round((answered / totalQuestions) * 100)}%` : '0%']);
 
-    // Column widths
-    ws['!cols'] = [{ wch: 22 }, { wch: 30 }];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'Summary');
+    ws.getColumn(1).width = 22;
+    ws.getColumn(2).width = 30;
   },
 
   _addDomainSheet(wb, domains, answers) {
-    const headers = ['Domain', 'Weight', 'Questions', 'Answered', 'Score', 'Maturity Level'];
-    const rows = [headers];
+    const ws = wb.addWorksheet('Domain Scores');
+    ws.addRow(['Domain', 'Weight', 'Questions', 'Answered', 'Score', 'Maturity Level']);
 
     Object.entries(domains).forEach(([, domain]) => {
       const questions = scoreCalculator.getAllQuestionsFromDomain(domain);
       const score = scoreCalculator.calculateDomainScore(questions, answers);
-      const answered = questions.filter(q => answers[q.id] !== undefined).length;
+      const answeredCount = questions.filter(q => answers[q.id] !== undefined).length;
 
-      rows.push([
+      ws.addRow([
         domain.title,
         domain.weight,
         questions.length,
-        answered,
+        answeredCount,
         Math.round(score * 100) / 100,
         scoreCalculator.getMaturityLevel(score)
       ]);
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch: 35 }, { wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 8 }, { wch: 18 }];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'Domain Scores');
+    const widths = [35, 8, 12, 10, 8, 18];
+    widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
   },
 
   _addAnswersSheet(wb, domains, answers, evidence) {
-    const headers = ['Domain', 'Category', 'Question', 'Score', 'Maturity Level', 'Has Evidence'];
-    const rows = [headers];
+    const ws = wb.addWorksheet('All Answers');
+    ws.addRow(['Domain', 'Category', 'Question', 'Score', 'Maturity Level', 'Has Evidence']);
 
     Object.entries(domains).forEach(([, domain]) => {
       Object.entries(domain.categories || {}).forEach(([, category]) => {
@@ -99,7 +100,7 @@ export const excelExportService = {
             ? scoreCalculator.getMaturityLevel(val)
             : (val === NA_VALUE ? 'N/A' : '');
 
-          rows.push([
+          ws.addRow([
             domain.title,
             category.title,
             q.text,
@@ -111,21 +112,16 @@ export const excelExportService = {
       });
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [
-      { wch: 30 }, { wch: 25 }, { wch: 60 },
-      { wch: 8 }, { wch: 18 }, { wch: 14 }
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'All Answers');
+    const widths = [30, 25, 60, 8, 18, 14];
+    widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
   },
 
   _addComplianceSheet(wb, frameworks) {
-    const headers = ['Framework', 'Category', 'Score (%)', 'Status', 'Threshold (%)', 'Mapped Questions'];
-    const rows = [headers];
+    const ws = wb.addWorksheet('Compliance');
+    ws.addRow(['Framework', 'Category', 'Score (%)', 'Status', 'Threshold (%)', 'Mapped Questions']);
 
     frameworks.forEach(fw => {
-      rows.push([
+      ws.addRow([
         fw.name || fw.id,
         fw.category || '',
         fw.score !== undefined ? Math.round(fw.score) : '',
@@ -135,9 +131,7 @@ export const excelExportService = {
       ]);
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch: 30 }, { wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 14 }, { wch: 18 }];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'Compliance');
+    const widths = [30, 18, 12, 16, 14, 18];
+    widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
   }
 };
