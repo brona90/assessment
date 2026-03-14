@@ -21,8 +21,14 @@
   },
   "size-limit": [
     {
-      "path": "dist/**/*.js",
-      "limit": "450 kB",
+      "name": "Initial bundle (excludes lazy-loaded PDF/Excel/canvas)",
+      "path": [
+        "dist/**/*.js",
+        "!dist/**/jspdf*",
+        "!dist/**/excel*",
+        "!dist/**/html2canvas*"
+      ],
+      "limit": "250 kB",
       "gzip": true
     }
   ],
