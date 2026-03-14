@@ -1,14 +1,16 @@
 Feature: Compliance Framework Management
-  As a user
+  As an administrator
   I want to work with compliance frameworks
   So that I can map my assessment to industry standards
 
   Background:
-    Given I am on the compliance section
+    Given the application is loaded
+    And I am logged in as an admin user
+    And I am on the compliance frameworks section
     And compliance data is loaded
 
   Scenario: View available compliance frameworks
-    When I navigate to the compliance tab
+    When I navigate to the compliance frameworks
     Then I should see available frameworks
     And I should see framework descriptions
     And I should see enable/disable toggles
@@ -33,8 +35,8 @@ Feature: Compliance Framework Management
 
   Scenario: Hide compliance when no frameworks enabled
     When all frameworks are disabled
-    Then the compliance tab should be hidden
-    And the main navigation should update
+    Then the compliance section should be hidden
+    And the overview should reflect no active frameworks
     And the layout should adjust accordingly
 
   Scenario: Multiple frameworks simultaneously

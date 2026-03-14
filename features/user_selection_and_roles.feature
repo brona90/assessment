@@ -28,31 +28,31 @@ Feature: User Selection and Role-Based Interface
     And I should see an "Export My Data" button
     And I should see a "Logout" button
     And I should not see admin features
-    And I should not see the "Admin Panel" tab
-    And I should not see the "Dashboard" tab
-    And I should not see the "Compliance" tab
+    And I should not see the "Overview" tab
+    And I should not see the "Configure" tab
+    And I should not see the "Data" tab
 
   Scenario: Admin user selects themselves and sees admin view
     Given I am on the user selection screen
     When I select "Admin User" from the user list
     Then I should see the admin view interface
-    And I should see three tabs: "Admin Panel", "Dashboard", and "Compliance"
-    And I should see the "Admin Panel" tab as active
+    And I should see three tabs: "Overview", "Configure", and "Data"
+    And I should see the "Overview" tab as active
     And I should see an "Export PDF Report" button
     And I should not see the user view interface
 
   Scenario: Admin can switch between tabs
     Given I am logged in as "Admin User"
     And I am on the admin view
-    When I click on the "Dashboard" tab
-    Then I should see the dashboard with charts
-    And the "Dashboard" tab should be active
-    When I click on the "Compliance" tab
-    Then I should see the compliance dashboard
-    And the "Compliance" tab should be active
-    When I click on the "Admin Panel" tab
-    Then I should see the admin panel
-    And the "Admin Panel" tab should be active
+    When I click on the "Overview" tab
+    Then I should see the overview with charts
+    And the "Overview" tab should be active
+    When I click on the "Data" tab
+    Then I should see the data management interface
+    And the "Data" tab should be active
+    When I click on the "Configure" tab
+    Then I should see the configure interface
+    And the "Configure" tab should be active
 
   Scenario: User logs out and returns to selection screen
     Given I am logged in as "John Doe"

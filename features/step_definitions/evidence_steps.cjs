@@ -195,16 +195,16 @@ When('I add evidence for multiple questions', async () => {
 });
 
 When('I navigate between sections', async () => {
-  // Switch between assessment and dashboard sections
-  const dashboardTab = await global.page.locator('button:has-text("Dashboard")');
-  if (await dashboardTab.isVisible()) {
-    await dashboardTab.click();
+  // Switch between assessment sections — navigate using results button or domain tabs
+  const viewResultsBtn = await global.page.locator('[data-testid="view-results-btn"]');
+  if (await viewResultsBtn.isVisible({ timeout: 2000 })) {
+    await viewResultsBtn.click();
     await global.page.waitForTimeout(1000);
   }
-  
-  const assessmentTab = await global.page.locator('button:has-text("Assessment")');
-  if (await assessmentTab.isVisible()) {
-    await assessmentTab.click();
+
+  const backToAssessmentBtn = await global.page.locator('[data-testid="back-to-assessment-btn"]');
+  if (await backToAssessmentBtn.isVisible({ timeout: 2000 })) {
+    await backToAssessmentBtn.click();
     await global.page.waitForTimeout(1000);
   }
 });

@@ -115,12 +115,18 @@ Then('it should handle multiple pages correctly', async () => {
 });
 
 Given('I have compliance frameworks enabled', async () => {
-  // Check if compliance tab exists and enable a framework
-  const complianceTab = await global.page.locator('button:has-text("Compliance")');
-  if (await complianceTab.isVisible()) {
-    await complianceTab.click();
+  // Navigate to Configure > Frameworks to enable a framework
+  const configureTab = await global.page.locator('[data-testid="configure-tab"]');
+  if (await configureTab.isVisible({ timeout: 3000 })) {
+    await configureTab.click();
     await global.page.waitForTimeout(500);
-    
+
+    const frameworksSubTab = await global.page.locator('[data-testid="frameworks-sub-tab"]');
+    if (await frameworksSubTab.isVisible({ timeout: 3000 })) {
+      await frameworksSubTab.click();
+      await global.page.waitForTimeout(500);
+    }
+
     // Try to enable first framework if toggle exists
     const toggle = await global.page.locator('[data-testid^="framework-toggle"]').first();
     if (await toggle.isVisible()) {
@@ -136,21 +142,18 @@ Then('the PDF should include compliance information', async () => {
 });
 
 Then('it should show framework mappings', async () => {
-  // Verify compliance data exists if tab is visible
-  const complianceTab = await global.page.locator('button:has-text("Compliance")');
-  if (await complianceTab.isVisible()) {
-    await complianceTab.click();
-    const complianceContent = await global.page.locator('[data-testid="compliance-content"]');
-    // Don't fail if compliance content is not loaded
+  // Verify compliance data exists — compliance is visible on Overview tab
+  const overviewTab = await global.page.locator('[data-testid="overview-tab"]');
+  if (await overviewTab.isVisible({ timeout: 2000 })) {
+    await overviewTab.click();
+    await global.page.waitForTimeout(500);
   }
+  // Don't fail if compliance content is not loaded
 });
 
 Then('it should display compliance scores', async () => {
-  // Verify compliance scores would be included in PDF
-  const complianceTab = await global.page.locator('button:has-text("Compliance")');
-  if (await complianceTab.isVisible()) {
-    const complianceContent = await global.page.locator('[data-testid="compliance-content"]');
-  }
+  // Verify compliance scores would be included in PDF — visible on Overview tab
+  await global.page.waitForTimeout(500);
 });
 
 Given('PDF generation fails', async () => {
@@ -274,10 +277,10 @@ Given('I have completed an assessment with scores', async () => {
 });
 
 Then('the PDF should include the radar chart', async () => {
-  // Verify radar chart exists on the page
-  const dashboardTab = await global.page.locator('button:has-text("Dashboard")');
-  if (await dashboardTab.isVisible()) {
-    await dashboardTab.click();
+  // Verify radar chart exists — check Overview tab for admin or results for user
+  const overviewTab = await global.page.locator('[data-testid="overview-tab"]');
+  if (await overviewTab.isVisible({ timeout: 2000 })) {
+    await overviewTab.click();
     await global.page.waitForTimeout(1000);
 
     const radarChart = await global.page.locator('[data-testid="radar-chart"]');
@@ -305,20 +308,20 @@ Then('the PDF should include the bar chart', async () => {
 });
 
 Then('charts should be clearly visible', async () => {
-  // Verify charts are rendered by checking if we're on the dashboard
+  // Verify charts are rendered by checking the Overview tab
   await global.page.waitForTimeout(1000);
-  
-  // Navigate to dashboard to see charts
-  const dashboardBtn = await global.page.locator('button:has-text("Dashboard")');
-  if (await dashboardBtn.isVisible()) {
-    await dashboardBtn.click();
+
+  // Navigate to Overview to see charts
+  const overviewTab = await global.page.locator('[data-testid="overview-tab"]');
+  if (await overviewTab.isVisible({ timeout: 2000 })) {
+    await overviewTab.click();
     await global.page.waitForTimeout(1500);
   }
-  
+
   const canvas = await global.page.locator('canvas');
   const count = await canvas.count();
-  
-  // Charts should be visible on dashboard
+
+  // Charts should be visible on overview
   expect(count).toBeGreaterThan(0);
 });
 

@@ -77,7 +77,7 @@ Then('I should see a radar chart', async () => {
   } catch (error) {
     console.log('Radar chart not found - this is expected if no answers exist yet');
     // Check if we're on the dashboard tab at least
-    const dashboardContent = await global.page.locator('[data-testid="dashboard-content"]');
+    const dashboardContent = await global.page.locator('[data-testid="overview-content"]');
     if (await dashboardContent.isVisible({ timeout: 2000 })) {
       console.log('Dashboard is visible, charts may not render without data');
       // Pass the test if dashboard is visible even without charts
@@ -112,7 +112,7 @@ Then('I should see a bar chart', async () => {
   } catch (error) {
     console.log('Bar chart not found - this is expected if no answers exist yet');
     // Check if we're on the dashboard tab at least
-    const dashboardContent = await global.page.locator('[data-testid="dashboard-content"]');
+    const dashboardContent = await global.page.locator('[data-testid="overview-content"]');
     if (await dashboardContent.isVisible({ timeout: 2000 })) {
       console.log('Dashboard is visible, charts may not render without data');
       // Pass the test if dashboard is visible even without charts

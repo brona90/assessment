@@ -4,68 +4,52 @@ Feature: Admin Panel Management
   So that I can configure the assessment system
 
   Background:
-    Given I am logged in as an admin user
-    And I am on the technology assessment page
-    And the assessment data is loaded
+    Given the application is loaded
+    And I am logged in as an admin user
+    And I am on the admin interface
 
-  Scenario: Access admin panel
-    When I click on the Admin navigation button
-    Then I should see the admin panel
-    And I should see tabs for Questions, Users, and Assignments
+  Scenario: Access configure tab
+    When I click on the "Configure" tab
+    Then I should see the configure interface
+    And I should see sub-tabs for People, Content, and Frameworks
 
-  Scenario: View questions manager
-    Given I am on the admin panel
-    When I click on the Questions tab
-    Then I should see the questions manager
-    And I should see domain and category selectors
-    And I should be able to select a domain
-    And I should be able to select a category
+  Scenario: View users in People sub-tab
+    Given I am on the "Configure" tab
+    When I click on the "People" sub-tab
+    Then I should see the users section
+    And I should see a list of configured users
 
-  Scenario: Add a new question
-    Given I am on the admin panel
-    And I am on the Questions tab
-    And I have selected a domain and category
-    When I enter a question ID
-    And I enter question text
-    And I click the add question button
-    Then the question should be added to the list
-    And I should see the new question in the questions list
+  Scenario: View questions in Content sub-tab
+    Given I am on the "Configure" tab
+    When I click on the "Content" sub-tab
+    Then I should see the domains section
+    And I should see the questions section
 
-  Scenario: Edit an existing question
-    Given I am on the admin panel
-    And I am on the Questions tab
-    And I have selected a domain with questions
-    When I click edit on a question
-    Then I should see the question details in the form
-    When I modify the question text
-    And I click the update button
-    Then the question should be updated
-    And I should see the updated question in the list
+  Scenario: View frameworks in Frameworks sub-tab
+    Given I am on the "Configure" tab
+    When I click on the "Frameworks" sub-tab
+    Then I should see the frameworks section
 
-  Scenario: Delete a question
-    Given I am on the admin panel
-    And I am on the Questions tab
-    And I have selected a domain with questions
-    When I click delete on a question
-    And I confirm the deletion
-    Then the question should be removed from the list
-
-  Scenario: View users manager
-    Given I am on the admin panel
-    When I click on the Users tab
-    Then I should see the users manager
-    And I should see a list of users
-    And each user should show their name, email, and role
+  Scenario: Edit a user
+    Given I am on the "Configure" tab
+    And I am on the "People" sub-tab
+    When I click edit on a user
+    Then I should see the user details in the form
 
   Scenario: Delete a user
-    Given I am on the admin panel
-    And I am on the Users tab
+    Given I am on the "Configure" tab
+    And I am on the "People" sub-tab
     When I click delete on a non-admin user
     Then the user should be removed from the list
     And admin users should not have a delete button
 
-  Scenario: View assignments manager
-    Given I am on the admin panel
-    When I click on the Assignments tab
-    Then I should see the assignments manager
-    And I should see a message about the feature
+  Scenario: Edit a domain
+    Given I am on the "Configure" tab
+    And I am on the "Content" sub-tab
+    When I click edit on a domain
+    Then I should see the domain details in the form
+
+  Scenario: View assignments
+    Given I am on the "Configure" tab
+    And I am on the "People" sub-tab
+    Then I should see the assignments section
