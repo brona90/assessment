@@ -415,4 +415,18 @@
   .chart-fullscreen-main {
     padding: 0.375rem 0.75rem;
   }
+
+  /* Keep benchmark sources collapsed — overrides BenchmarkSources.css auto-expand */
+  .cfs-sources-bar .benchmark-sources-toggle {
+    display: block;
+  }
+  .cfs-sources-bar .benchmark-sources-chips {
+    display: none;
+  }
+  .cfs-sources-bar .benchmark-sources-chips.bsc-open {
+    display: flex;
+  }
+  .cfs-sources-bar {
+    padding: 0.25rem 0.75rem;
+  }
 }
