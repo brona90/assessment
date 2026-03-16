@@ -50,7 +50,7 @@ Feature: Full-Screen Admin Interface
 
   Scenario: Admin cancels data clearing
     Given I am on the "Data" tab
-    When I click the "Clear All Data" button
+    When I click the "Reset to Defaults" button
     And I see the confirmation dialog
     When I cancel the dialog
     Then no data should be deleted

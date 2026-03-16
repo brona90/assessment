@@ -3,8 +3,15 @@ const { expect } = require('chai');
 
 // Background steps
 Given('the application is loaded', async function () {
-  await global.page.goto('http://localhost:5173/assessment/');
-  await global.page.waitForLoadState('networkidle');
+  const ports = [5173, 5174, 5175];
+  for (const port of ports) {
+    try {
+      await global.page.goto(`http://localhost:${port}/assessment/`, { timeout: 5000 });
+      await global.page.waitForLoadState('networkidle', { timeout: 10000 });
+      return;
+    } catch (e) { continue; }
+  }
+  throw new Error('Could not connect to dev server on any port');
 });
 
 Given('the following users exist:', async function (dataTable) {
@@ -45,8 +52,15 @@ Then('I should not see any assessment content', async function () {
 
 // User Selection steps
 Given('I am on the user selection screen', async function () {
-  await global.page.goto('http://localhost:5173/assessment/');
-  await global.page.waitForSelector('[data-testid="user-selection-screen"]', { timeout: 5000 });
+  const ports = [5173, 5174, 5175];
+  for (const port of ports) {
+    try {
+      await global.page.goto(`http://localhost:${port}/assessment/`, { timeout: 5000 });
+      await global.page.waitForSelector('[data-testid="user-selection-screen"]', { timeout: 5000 });
+      return;
+    } catch (e) { continue; }
+  }
+  throw new Error('Could not connect to dev server on any port');
 });
 
 When('I select {string} from the user list', async function (userName) {
@@ -82,6 +96,18 @@ Then('I should see only my assigned questions', async function () {
   expect(isVisible).to.be.true;
 });
 
+Then('I should see domain tabs or sections', async function () {
+  // Wait for domain tabs or dropdown to render
+  try {
+    await global.page.waitForSelector('[role="tab"], select.domain-tab-select', { timeout: 5000 });
+  } catch (e) { /* fall through to assertion */ }
+  const tabs = global.page.locator('[role="tab"]');
+  const select = global.page.locator('select.domain-tab-select');
+  const tabCount = await tabs.count();
+  const selectCount = await select.count();
+  expect(tabCount + selectCount).to.be.greaterThan(0);
+});
+
 Then('I should see a progress bar', async function () {
   const progressBar = global.page.locator('[data-testid="progress-bar"]');
   const isVisible = await progressBar.isVisible();
@@ -100,7 +126,8 @@ Then('I should not see admin features', async function () {
 });
 
 Then('I should not see the {string} tab', async function (tabName) {
-  const tab = global.page.locator('button', { hasText: tabName });
+  const testId = tabName.toLowerCase().replace(/\s+/g, '-') + '-tab';
+  const tab = global.page.locator(`[data-testid="${testId}"]`);
   expect(await tab.count()).to.equal(0);
 });
 
@@ -146,8 +173,17 @@ Then('I should not see the admin view interface', async function () {
 
 // Tab Navigation steps
 Given('I am logged in as {string}', async function (userName) {
-  await global.page.goto('http://localhost:5173/assessment/');
-  await global.page.waitForSelector('[data-testid="user-selection-screen"]', { timeout: 5000 });
+  const ports = [5173, 5174, 5175];
+  let connected = false;
+  for (const port of ports) {
+    try {
+      await global.page.goto(`http://localhost:${port}/assessment/`, { timeout: 5000 });
+      connected = true;
+      break;
+    } catch (e) { continue; }
+  }
+  if (!connected) throw new Error('Could not connect to dev server');
+  await global.page.waitForSelector('[data-testid="user-selection-screen"]', { timeout: 10000 });
   const userCard = global.page.locator('.user-card', { hasText: userName });
   await userCard.click();
   await global.page.waitForTimeout(500);

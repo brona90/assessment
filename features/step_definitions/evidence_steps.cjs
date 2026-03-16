@@ -46,7 +46,7 @@ Given('I am on the assessment page', async () => {
 });
 
 When('I click on the evidence button', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
     await global.page.waitForTimeout(500);
@@ -55,7 +55,7 @@ When('I click on the evidence button', async () => {
 
 When('I have existing evidence', async () => {
   // Setup evidence for a question
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
     await global.page.waitForTimeout(500);
@@ -81,13 +81,26 @@ Then('the changes should be persisted', async () => {
 });
 
 Given('I have answered some questions', async () => {
-  // Make sure we're on the Assessment tab
-  const assessmentButton = await global.page.locator('button:has-text("Assessment")');
-  if (await assessmentButton.isVisible()) {
-    await assessmentButton.click();
-    await global.page.waitForTimeout(1000);
+  // Make sure we're on the user view — use testid-based navigation
+  const userView = await global.page.locator('[data-testid="user-view"]');
+  if (!await userView.isVisible({ timeout: 2000 }).catch(() => false)) {
+    // Try back-to-assessment button (from results view)
+    const backBtn = await global.page.locator('[data-testid="back-to-assessment"]');
+    if (await backBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await backBtn.click();
+      await global.page.waitForTimeout(1000);
+    }
   }
-  
+
+  // Click first domain tab if available
+  try {
+    const domainTabs = await global.page.locator('[role="tab"]');
+    if (await domainTabs.count() > 0) {
+      await domainTabs.first().click();
+      await global.page.waitForTimeout(500);
+    }
+  } catch (e) { /* no tabs */ }
+
   // Answer a question
   try {
     await global.page.waitForSelector('[data-testid^="question-"]', { timeout: 10000 });
@@ -105,8 +118,8 @@ Given('I have answered some questions', async () => {
 });
 
 When('I click on an evidence button for a question', async () => {
-  await global.page.waitForSelector('[data-testid^="evidence-"]', { timeout: 10000 });
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  await global.page.waitForSelector('button[data-testid^="evidence-"]', { timeout: 10000 });
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   await evidenceButton.click();
   await global.page.waitForTimeout(1000);
 });
@@ -123,7 +136,7 @@ When('I enter evidence and save', async () => {
 });
 
 Given('I have evidence for a question', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
     await global.page.waitForTimeout(500);
@@ -156,7 +169,7 @@ When('I save the changes', async () => {
 });
 
 When('I open the evidence modal', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
     await global.page.waitForTimeout(500);
@@ -175,7 +188,7 @@ When('I click delete', async () => {
 });
 
 When('I add evidence for multiple questions', async () => {
-  const evidenceButtons = await global.page.locator('[data-testid^="evidence-"]').all();
+  const evidenceButtons = await global.page.locator('button[data-testid^="evidence-"]').all();
   for (let i = 0; i < Math.min(3, evidenceButtons.length); i++) {
     if (await evidenceButtons[i].isVisible()) {
       await evidenceButtons[i].click();
@@ -202,7 +215,7 @@ When('I navigate between sections', async () => {
     await global.page.waitForTimeout(1000);
   }
 
-  const backToAssessmentBtn = await global.page.locator('[data-testid="back-to-assessment-btn"]');
+  const backToAssessmentBtn = await global.page.locator('[data-testid="back-to-assessment"]');
   if (await backToAssessmentBtn.isVisible({ timeout: 2000 })) {
     await backToAssessmentBtn.click();
     await global.page.waitForTimeout(1000);
@@ -246,7 +259,7 @@ Then('I should see input fields for evidence', async () => {
 
 Then('the evidence should be stored', async () => {
   // Check if evidence indicator shows evidence exists
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   await expect(evidenceButton).toBeVisible();
 });
 
@@ -282,7 +295,7 @@ Then('I should be able to delete it', async () => {
 
 Then('the evidence should be updated', async () => {
   // Evidence should be modified
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   await expect(evidenceButton).toBeVisible();
 });
 
@@ -295,17 +308,17 @@ Then('the evidence should be removed', async () => {
 });
 
 Then('the evidence indicator should update', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   await expect(evidenceButton).toBeVisible();
 });
 
 Then('all evidence should be preserved', async () => {
-  const evidenceButtons = await global.page.locator('[data-testid^="evidence-"]').all();
+  const evidenceButtons = await global.page.locator('button[data-testid^="evidence-"]').all();
   expect(evidenceButtons.length).toBeGreaterThan(0);
 });
 
 Then('evidence should be available when I return', async () => {
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
     await global.page.waitForTimeout(500);
@@ -323,7 +336,7 @@ Then('evidence should survive page reload', async () => {
   await global.page.reload();
   await global.page.waitForTimeout(2000);
   
-  const evidenceButton = await global.page.locator('[data-testid^="evidence-"]').first();
+  const evidenceButton = await global.page.locator('button[data-testid^="evidence-"]').first();
   if (await evidenceButton.isVisible()) {
     await evidenceButton.click();
     await global.page.waitForTimeout(500);
