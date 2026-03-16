@@ -173,8 +173,8 @@ describe('PdfService', () => {
 
     it('should handle empty domains and still produce a PDF with structure', async () => {
       await pdfService.generatePDF({}, {}, {}, {});
-      expectTextContaining('Executive Summary');
-      expectTextContaining('Detailed Assessment Results');
+      expectTextContaining('1.  Executive Summary');
+      expectTextContaining('2.  Detailed Assessment Results');
     });
 
     it('should handle null and undefined evidence without crashing', async () => {
@@ -195,7 +195,7 @@ describe('PdfService', () => {
         soc2: { name: 'SOC 2', enabled: false, score: 60.0 }
       };
       await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
-      expectTextContaining('Compliance Framework Scores');
+      expectTextContaining('4.  Compliance Framework Scores');
       expectTextContaining('ISO 27001');
       expectTextContaining('85.5%');
     });
@@ -204,7 +204,7 @@ describe('PdfService', () => {
       const frameworks = { iso27001: { name: 'ISO 27001', enabled: true } };
       await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
       expectTextContaining('ISO 27001');
-      expectTextContaining('Compliance Framework Scores');
+      expectTextContaining('4.  Compliance Framework Scores');
     });
 
     it('should handle many questions causing page overflow with multiple addPage calls', async () => {
@@ -262,7 +262,7 @@ describe('PdfService', () => {
       const spy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
       await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
       // "Visual Analysis" should NOT appear because there are no charts
-      expectTextNotContaining('Visual Analysis');
+      expectTextNotContaining('3.  Visual Analysis');
       spy.mockRestore();
     });
 
@@ -276,7 +276,7 @@ describe('PdfService', () => {
       const spy = vi.spyOn(document, 'querySelector').mockReturnValue(mockContainer);
       await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
       // Visual Analysis heading should appear
-      expectTextContaining('Visual Analysis');
+      expectTextContaining('3.  Visual Analysis');
       spy.mockRestore();
     });
   });
@@ -573,12 +573,12 @@ describe('PdfService', () => {
         fw1: { name: 'Disabled', enabled: false, score: 90.0 }
       };
       await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
-      expectTextNotContaining('Compliance Framework Scores');
+      expectTextNotContaining('4.  Compliance Framework Scores');
     });
 
     it('should skip compliance section when complianceFrameworks is null', async () => {
       await pdfService.generatePDF(mockDomains, mockAnswers, {}, null);
-      expectTextNotContaining('Compliance Framework Scores');
+      expectTextNotContaining('4.  Compliance Framework Scores');
     });
   });
 
@@ -656,7 +656,7 @@ describe('PdfService', () => {
           chartSnapshots: { heatmap: b64, radar: b64, bar: b64 }
         }
       );
-      expectTextContaining('Visual Analysis');
+      expectTextContaining('3.  Visual Analysis');
       expect(mockPdfInstance._calls.addImage.length).toBeGreaterThanOrEqual(3);
       expectTextContaining('Assessment Heatmap');
       expectTextContaining('Domain Radar Chart');
@@ -684,7 +684,7 @@ describe('PdfService', () => {
           chartSnapshots: { heatmap: b64 }
         }
       );
-      expectTextContaining('Visual Analysis');
+      expectTextContaining('3.  Visual Analysis');
       expect(mockPdfInstance.addImage).toHaveBeenCalled();
       spy.mockRestore();
     });

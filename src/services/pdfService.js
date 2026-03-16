@@ -54,6 +54,15 @@ function scoreBar(pdf, x, y, score, { barH = 3, barW = 40, max = 5 } = {}) {
   fillRect(pdf, x, y, barW * pct, barH, color);
 }
 
+function sectionHeader(pdf, y, number, title) {
+  fillRect(pdf, MARGIN, y - 5, CONTENT_W, 12, BRAND_BLUE);
+  setColor(pdf, [255, 255, 255], 'text');
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(13);
+  pdf.text(`${number}.  ${title}`, MARGIN + 4, y + 3);
+  return y + 18;
+}
+
 function ensureSpace(pdf, y, needed, pageNum, totalPages) {
   if (y + needed > PAGE_H - MARGIN) {
     pageNum++;
@@ -240,12 +249,7 @@ export const pdfService = {
     addPageFooter(pdf, pageNum, totalPages);
 
     y = MARGIN;
-    setColor(pdf, BRAND_BLUE, 'text');
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(16);
-    pdf.text('Executive Summary', MARGIN, y);
-    hRule(pdf, y + 4, { color: BRAND_BLUE, width: 0.5 });
-    y += 16;
+    y = sectionHeader(pdf, y, 1, 'Executive Summary');
 
     // Score interpretation
     setColor(pdf, TEXT_DARK, 'text');
@@ -363,12 +367,7 @@ export const pdfService = {
     addPageFooter(pdf, pageNum, totalPages);
 
     y = MARGIN;
-    setColor(pdf, BRAND_BLUE, 'text');
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(16);
-    pdf.text('Detailed Assessment Results', MARGIN, y);
-    hRule(pdf, y + 4, { color: BRAND_BLUE, width: 0.5 });
-    y += 16;
+    y = sectionHeader(pdf, y, 2, 'Detailed Assessment Results');
 
     for (const [, domain] of Object.entries(domains)) {
       ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages));
@@ -523,12 +522,7 @@ export const pdfService = {
         addPageFooter(pdf, pageNum, totalPages);
         y = MARGIN;
 
-        setColor(pdf, BRAND_BLUE, 'text');
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(16);
-        pdf.text('Compliance Framework Scores', MARGIN, y);
-        hRule(pdf, y + 4, { color: BRAND_BLUE, width: 0.5 });
-        y += 18;
+        y = sectionHeader(pdf, y, 4, 'Compliance Framework Scores');
 
         for (const [key, fw] of enabled) {
           ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages));
@@ -571,12 +565,7 @@ export const pdfService = {
       addPageFooter(pdf, pageNum, totalPages);
       let y = MARGIN;
 
-      setColor(pdf, BRAND_BLUE, 'text');
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
-      pdf.text('Visual Analysis', MARGIN, y);
-      hRule(pdf, y + 4, { color: BRAND_BLUE, width: 0.5 });
-      y += 16;
+      y = sectionHeader(pdf, y, 3, 'Visual Analysis');
 
       const maxH = PAGE_H - MARGIN * 2 - 30;
 
