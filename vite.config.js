@@ -7,9 +7,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'charts': ['chart.js', 'react-chartjs-2'],
-          'excel': ['exceljs']
+        manualChunks(id) {
+          if (id.includes('chart.js') || id.includes('react-chartjs-2')) {
+            return 'charts'
+          }
+          if (id.includes('exceljs')) {
+            return 'excel'
+          }
         }
       }
     }
