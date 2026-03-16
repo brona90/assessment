@@ -1,0 +1,16 @@
+name: CodeQL Config
+
+queries:
+  - uses: security-and-quality
+
+paths:
+  - src
+  - features
+
+paths-ignore:
+  - node_modules
+  - dist
+  - coverage
+  - '**/*.test.jsx'
+  - '**/*.test.js'
+  - features/step_definitions
