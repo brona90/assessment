@@ -366,6 +366,20 @@ describe('PdfService', () => {
     });
   });
 
+  describe('enhanced domain detail cards', () => {
+    it('should show answered count in domain header', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextContaining('2 / 2 answered');  // domain1 has 2 questions, both answered
+      expectTextContaining('1 / 1 answered');  // domain2 has 1 question, answered
+    });
+
+    it('should show benchmark delta in domain header when benchmarks provided', async () => {
+      const benchmarks = { current: { domain1: 2.0 }, topQuartile: { domain1: 4.0 } };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {}, { benchmarks });
+      expectTextContaining('vs industry avg');
+    });
+  });
+
   describe('answer value branches in detailed results', () => {
     it('should render N/A for answer = 0', async () => {
       const domains = {

@@ -483,26 +483,62 @@ export const pdfService = {
     y = MARGIN;
     y = sectionHeader(pdf, y, 2, 'Detailed Assessment Results');
 
-    for (const [, domain] of Object.entries(domains)) {
-      ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages, orgName));
+    for (const [domainKey, domain] of Object.entries(domains)) {
+      ({ y, pageNum } = ensureSpace(pdf, y, 34, pageNum, totalPages, orgName));
 
       // Domain header: navy-blue left border + title
       const domScore = this.calculateDomainScore(domain, answers);
-      fillRect(pdf, MARGIN, y - 4, 4, 14, BRAND_BLUE);
-      fillRect(pdf, MARGIN + 4, y - 4, CONTENT_W - 4, 14, [238, 242, 255]);
+      const domQuestions = scoreCalculator.getAllQuestionsFromDomain(domain);
+      const domAnswered = domQuestions.filter(q => answers[q.id] !== undefined).length;
+      const domTotal = domQuestions.length;
+      const domMaturity = this.getMaturityLevel(domScore);
+      const domColor = MATURITY_COLORS[domMaturity] || TEXT_MID;
 
+      // Card background
+      fillRect(pdf, MARGIN, y - 4, CONTENT_W, 28, SURFACE);
+      fillRect(pdf, MARGIN, y - 4, 4, 28, BRAND_BLUE);
+      setColor(pdf, BORDER, 'draw');
+      pdf.setLineWidth(0.2);
+      pdf.rect(MARGIN, y - 4, CONTENT_W, 28);
+
+      // Title
       setColor(pdf, TEXT_DARK, 'text');
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
       pdf.text(domain.title, MARGIN + 8, y + 4);
 
+      // Score + maturity badge
       if (domScore > 0) {
-        const dLabel = `${domScore.toFixed(2)} / 5.0  —  ${this.getMaturityLevel(domScore)}`;
-        setColor(pdf, BRAND_BLUE, 'text');
-        pdf.setFontSize(9);
-        pdf.text(dLabel, PAGE_W - MARGIN, y + 4, { align: 'right' });
+        setColor(pdf, domColor, 'text');
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(10);
+        pdf.text(`${domScore.toFixed(2)} / 5.0`, PAGE_W - MARGIN - 4, y + 4, { align: 'right' });
+
+        // Score bar
+        scoreBar(pdf, MARGIN + 8, y + 9, domScore, { barW: 60, barH: 3 });
+
+        // Maturity label
+        setColor(pdf, domColor, 'text');
+        pdf.setFontSize(8);
+        pdf.text(domMaturity, MARGIN + 72, y + 12);
       }
-      y += 16;
+
+      // Answered count + benchmark delta
+      setColor(pdf, TEXT_MID, 'text');
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8);
+      pdf.text(`${domAnswered} / ${domTotal} answered`, MARGIN + 8, y + 20);
+
+      const domBenchAvg = benchmarks?.current?.[domainKey] ?? null;
+      if (domBenchAvg !== null && domScore > 0) {
+        const delta = domScore - domBenchAvg;
+        const deltaColor = delta >= 0 ? [22, 163, 74] : [185, 28, 28];
+        setColor(pdf, deltaColor, 'text');
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`${delta >= 0 ? '+' : ''}${delta.toFixed(1)} vs industry avg`, PAGE_W - MARGIN - 4, y + 20, { align: 'right' });
+      }
+
+      y += 30;
 
       for (const [, category] of Object.entries(domain.categories || {})) {
         // Category subheading
