@@ -63,22 +63,35 @@ function sectionHeader(pdf, y, number, title) {
   return y + 18;
 }
 
-function ensureSpace(pdf, y, needed, pageNum, totalPages) {
+function ensureSpace(pdf, y, needed, pageNum, totalPages, orgName) {
   if (y + needed > PAGE_H - MARGIN) {
     pageNum++;
     pdf.addPage();
-    addPageFooter(pdf, pageNum, totalPages);
+    addPageFooter(pdf, pageNum, totalPages, orgName);
     return { y: MARGIN + 10, pageNum };
   }
   return { y, pageNum };
 }
 
-function addPageFooter(pdf, pageNum, totalPages) {
+function addPageFooter(pdf, pageNum, totalPages, orgName) {
+  hRule(pdf, PAGE_H - 16, { color: BORDER, width: 0.2 });
+
+  // Left: org name + report title
   setColor(pdf, TEXT_LIGHT, 'text');
-  pdf.setFontSize(8);
-  pdf.text('Technology Maturity Assessment Report', MARGIN, PAGE_H - 10);
+  pdf.setFontSize(7);
+  const leftLabel = orgName ? `${orgName}  |  Technology Maturity Assessment` : 'Technology Maturity Assessment';
+  pdf.text(leftLabel, MARGIN, PAGE_H - 10);
+
+  // Center: CONFIDENTIAL
+  setColor(pdf, TEXT_MID, 'text');
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(7);
+  pdf.text('CONFIDENTIAL', PAGE_W / 2, PAGE_H - 10, { align: 'center' });
+
+  // Right: page number
+  setColor(pdf, TEXT_LIGHT, 'text');
+  pdf.setFont('helvetica', 'normal');
   pdf.text(`Page ${pageNum} of ${totalPages}`, PAGE_W - MARGIN, PAGE_H - 10, { align: 'right' });
-  hRule(pdf, PAGE_H - 14, { color: BORDER, width: 0.2 });
 }
 
 function loadImageAsBase64(url) {
@@ -239,14 +252,14 @@ export const pdfService = {
       y += 15;
     }
 
-    addPageFooter(pdf, 1, totalPages);
+    addPageFooter(pdf, 1, totalPages, orgName);
 
     // ────────────────────────────────────────────────────────────────────────
     // PAGE 2: Executive Summary
     // ────────────────────────────────────────────────────────────────────────
     pdf.addPage();
     let pageNum = 2;
-    addPageFooter(pdf, pageNum, totalPages);
+    addPageFooter(pdf, pageNum, totalPages, orgName);
 
     y = MARGIN;
     y = sectionHeader(pdf, y, 1, 'Executive Summary');
@@ -315,7 +328,7 @@ export const pdfService = {
 
     // Top gaps table
     if (topGaps.length > 0) {
-      ({ y, pageNum } = ensureSpace(pdf, y, 20, pageNum, totalPages));
+      ({ y, pageNum } = ensureSpace(pdf, y, 20, pageNum, totalPages, orgName));
 
       setColor(pdf, TEXT_DARK, 'text');
       pdf.setFont('helvetica', 'bold');
@@ -334,7 +347,7 @@ export const pdfService = {
       y += 10;
 
       for (const gap of topGaps) {
-        ({ y, pageNum } = ensureSpace(pdf, y, 14, pageNum, totalPages));
+        ({ y, pageNum } = ensureSpace(pdf, y, 14, pageNum, totalPages, orgName));
 
         const questionLines = pdf.splitTextToSize(gap.text, 94);
         const rowH = questionLines.length * 5 + 4;
@@ -364,13 +377,13 @@ export const pdfService = {
     // ────────────────────────────────────────────────────────────────────────
     pdf.addPage();
     pageNum = 3;
-    addPageFooter(pdf, pageNum, totalPages);
+    addPageFooter(pdf, pageNum, totalPages, orgName);
 
     y = MARGIN;
     y = sectionHeader(pdf, y, 2, 'Detailed Assessment Results');
 
     for (const [, domain] of Object.entries(domains)) {
-      ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages));
+      ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages, orgName));
 
       // Domain header: navy-blue left border + title
       const domScore = this.calculateDomainScore(domain, answers);
@@ -393,7 +406,7 @@ export const pdfService = {
       for (const [, category] of Object.entries(domain.categories || {})) {
         // Category subheading
         if (category.title || category.name) {
-          ({ y, pageNum } = ensureSpace(pdf, y, 10, pageNum, totalPages));
+          ({ y, pageNum } = ensureSpace(pdf, y, 10, pageNum, totalPages, orgName));
           setColor(pdf, TEXT_MID, 'text');
           pdf.setFont('helvetica', 'bold');
           pdf.setFontSize(9);
@@ -405,7 +418,7 @@ export const pdfService = {
           const ans = answers[question.id];
           if (ans === undefined) continue;
 
-          ({ y, pageNum } = ensureSpace(pdf, y, 14, pageNum, totalPages));
+          ({ y, pageNum } = ensureSpace(pdf, y, 14, pageNum, totalPages, orgName));
 
           const ansLabel = ans === 0 ? 'N/A' : `${ans}/5 — ${this.getMaturityLevel(ans)}`;
           const qColor = ans === 0 ? TEXT_LIGHT
@@ -443,13 +456,13 @@ export const pdfService = {
           // Assessor comment
           const note = comments?.[question.id];
           if (note?.trim()) {
-            ({ y, pageNum } = ensureSpace(pdf, y, 8, pageNum, totalPages));
+            ({ y, pageNum } = ensureSpace(pdf, y, 8, pageNum, totalPages, orgName));
             setColor(pdf, [79, 70, 229], 'text');
             pdf.setFont('helvetica', 'italic');
             pdf.setFontSize(8);
             const noteLines = pdf.splitTextToSize(`Note: ${note}`, CONTENT_W - 10);
             noteLines.slice(0, 3).forEach(line => {
-              ({ y, pageNum } = ensureSpace(pdf, y, 6, pageNum, totalPages));
+              ({ y, pageNum } = ensureSpace(pdf, y, 6, pageNum, totalPages, orgName));
               pdf.text(line, MARGIN + 6, y);
               y += 5;
             });
@@ -458,13 +471,13 @@ export const pdfService = {
           // Evidence text
           const ev = evidence?.[question.id];
           if (ev?.text) {
-            ({ y, pageNum } = ensureSpace(pdf, y, 8, pageNum, totalPages));
+            ({ y, pageNum } = ensureSpace(pdf, y, 8, pageNum, totalPages, orgName));
             setColor(pdf, TEXT_LIGHT, 'text');
             pdf.setFont('helvetica', 'italic');
             pdf.setFontSize(8);
             const evLines = pdf.splitTextToSize(`Evidence: ${ev.text}`, CONTENT_W - 10);
             evLines.slice(0, 3).forEach(line => {
-              ({ y, pageNum } = ensureSpace(pdf, y, 6, pageNum, totalPages));
+              ({ y, pageNum } = ensureSpace(pdf, y, 6, pageNum, totalPages, orgName));
               pdf.text(line, MARGIN + 6, y);
               y += 5;
             });
@@ -477,7 +490,7 @@ export const pdfService = {
               const imgUrl = typeof imgData === 'string' ? imgData : imgData?.data;
               if (!imgUrl) continue;
               try {
-                ({ y, pageNum } = ensureSpace(pdf, y, 65, pageNum, totalPages));
+                ({ y, pageNum } = ensureSpace(pdf, y, 65, pageNum, totalPages, orgName));
                 const base64 = await loadImageAsBase64(imgUrl);
                 const { width: iw, height: ih } = await new Promise(res => {
                   const img = new Image();
@@ -511,7 +524,7 @@ export const pdfService = {
     }
 
     // ── Visual Analysis ─────────────────────────────────────────────────────
-    await this.addChartsToPage(pdf, domains, answers, pageNum, totalPages, options?.chartSnapshots);
+    await this.addChartsToPage(pdf, domains, answers, pageNum, totalPages, options?.chartSnapshots, orgName);
 
     // ── Compliance Frameworks ───────────────────────────────────────────────
     if (complianceFrameworks) {
@@ -519,13 +532,13 @@ export const pdfService = {
       if (enabled.length > 0) {
         pdf.addPage();
         pageNum++;
-        addPageFooter(pdf, pageNum, totalPages);
+        addPageFooter(pdf, pageNum, totalPages, orgName);
         y = MARGIN;
 
         y = sectionHeader(pdf, y, 4, 'Compliance Framework Scores');
 
         for (const [key, fw] of enabled) {
-          ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages));
+          ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages, orgName));
           setColor(pdf, TEXT_DARK, 'text');
           pdf.setFont('helvetica', 'bold');
           pdf.setFontSize(11);
@@ -545,7 +558,7 @@ export const pdfService = {
     return pdf;
   },
 
-  async addChartsToPage(pdf, _domains, _answers, pageNum, totalPages, chartSnapshots = {}) {
+  async addChartsToPage(pdf, _domains, _answers, pageNum, totalPages, chartSnapshots = {}, orgName) {
     try {
       // Build list of {img: dataUrl, title} — prefer pre-captured snapshots over DOM queries
       const toRender = [
@@ -562,7 +575,7 @@ export const pdfService = {
 
       pdf.addPage();
       pageNum++;
-      addPageFooter(pdf, pageNum, totalPages);
+      addPageFooter(pdf, pageNum, totalPages, orgName);
       let y = MARGIN;
 
       y = sectionHeader(pdf, y, 3, 'Visual Analysis');
@@ -584,7 +597,7 @@ export const pdfService = {
         if (y + ih + 15 > PAGE_H - MARGIN) {
           pdf.addPage();
           pageNum++;
-          addPageFooter(pdf, pageNum, totalPages);
+          addPageFooter(pdf, pageNum, totalPages, orgName);
           y = MARGIN;
         }
 

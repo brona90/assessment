@@ -158,6 +158,16 @@ describe('PdfService', () => {
       expect(mockPdfInstance._calls.addPage.length).toBeGreaterThanOrEqual(2);
     });
 
+    it('should render CONFIDENTIAL in footer on every page', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextContaining('CONFIDENTIAL');
+    });
+
+    it('should render org name in footer when provided', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {}, { orgName: 'Acme Corp' });
+      expectTextContaining('Acme Corp  |  Technology Maturity Assessment');
+    });
+
     it('should handle empty answers and show "No data" for all domains', async () => {
       await pdfService.generatePDF(mockDomains, {}, {}, {});
       expectTextContaining('No data');
