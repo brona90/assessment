@@ -34,6 +34,8 @@ function resetMockPdf() {
   mockPdfInstance.line = vi.fn();
   mockPdfInstance.circle = vi.fn();
   mockPdfInstance.splitTextToSize = vi.fn(splitTextImpl);
+  mockPdfInstance.setPage = vi.fn();
+  mockPdfInstance.getNumberOfPages = vi.fn(() => mockPdfInstance._calls.addPage.length + 1);
   mockPdfInstance.internal = { pageSize: { getWidth: () => 210, getHeight: () => 297 } };
 }
 
