@@ -41,7 +41,6 @@ export const EvidenceModal = ({ questionId, existingEvidence, onSave, onClose })
   // Update state when existingEvidence changes (for rerender scenarios)
   useEffect(() => {
     if (existingEvidence) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTextEvidence(existingEvidence.text || '');
        
       setImages(existingEvidence.images || []);
