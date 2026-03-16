@@ -80,7 +80,7 @@ function addPageFooter(pdf, pageNum, totalPages, orgName) {
   setColor(pdf, TEXT_LIGHT, 'text');
   pdf.setFontSize(7);
   const leftLabel = orgName ? `${orgName}  |  Technology Maturity Assessment` : 'Technology Maturity Assessment';
-  pdf.text(leftLabel, MARGIN, PAGE_H - 10);
+  pdf.text(pdf.splitTextToSize(leftLabel, CONTENT_W * 0.45)[0], MARGIN, PAGE_H - 10);
 
   // Center: CONFIDENTIAL
   setColor(pdf, TEXT_MID, 'text');
@@ -247,7 +247,9 @@ export const pdfService = {
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       const label = d.score > 0 ? `${d.score.toFixed(2)} / 5.0  (${this.getMaturityLevel(d.score)})` : 'No data';
-      pdf.text(d.title, MARGIN, y);
+      // Truncate long domain titles to prevent overlap with right-aligned score
+      const truncTitle = pdf.splitTextToSize(d.title, CONTENT_W * 0.55)[0];
+      pdf.text(truncTitle, MARGIN, y);
       setColor(pdf, TEXT_MID, 'text');
       pdf.text(label, PAGE_W - MARGIN, y, { align: 'right' });
       scoreBar(pdf, MARGIN, y + 2, d.score);
@@ -286,10 +288,11 @@ export const pdfService = {
       pdf.text(`${sec.num}.`, MARGIN, y);
       pdf.text(sec.title, MARGIN + 10, y);
 
-      // Dot leader
+      // Dot leader — clip to available width between title and page number
       setColor(pdf, TEXT_LIGHT, 'text');
       pdf.setFontSize(9);
-      const dots = '.'.repeat(60);
+      const dotsWidth = CONTENT_W - 80;
+      const dots = pdf.splitTextToSize('.'.repeat(80), dotsWidth)[0];
       pdf.text(dots, MARGIN + 80, y);
 
       if (sec.page) {
@@ -503,11 +506,11 @@ export const pdfService = {
       pdf.setLineWidth(0.2);
       pdf.rect(MARGIN, y - 4, CONTENT_W, 28);
 
-      // Title
+      // Title (truncate to prevent overlap with score on right)
       setColor(pdf, TEXT_DARK, 'text');
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
-      pdf.text(domain.title, MARGIN + 8, y + 4);
+      pdf.text(pdf.splitTextToSize(domain.title, CONTENT_W * 0.6)[0], MARGIN + 8, y + 4);
 
       // Score + maturity badge
       if (domScore > 0) {
