@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { LogOut, ArrowLeft, BarChart2, AlertTriangle, AlertCircle, Check, FileText, ArrowRight, History } from 'lucide-react';
+import { LogOut, ArrowLeft, BarChart2, AlertTriangle, AlertCircle, Check, FileText, ArrowRight, History, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { OverviewDashboard } from './OverviewDashboard';
 import { scoreCalculator, NA_VALUE } from '../utils/scoreCalculator';
+import { dataService } from '../services/dataService';
 import './ResultsView.css';
 
 export const ResultsView = ({
@@ -17,6 +18,25 @@ export const ResultsView = ({
 }) => {
   const filteredDomains = useMemo(() => scoreCalculator.buildDomainsFromQuestions(questions), [questions]);
   const overallScore = useMemo(() => scoreCalculator.calculateOverallScore(filteredDomains, answers), [filteredDomains, answers]);
+
+  const [benchmarks, setBenchmarks] = useState(null);
+  useEffect(() => {
+    dataService.loadBenchmarks().then(data => {
+      if (data?.current) setBenchmarks(data);
+    });
+  }, []);
+
+  const domainCards = Object.entries(filteredDomains).map(([domainId, domain]) => {
+    const domainQuestions = scoreCalculator.getAllQuestionsFromDomain(domain);
+    const score = scoreCalculator.calculateDomainScore(domainQuestions, answers);
+    const maturityLevel = scoreCalculator.getMaturityLevel(score);
+    const answeredCount = domainQuestions.filter(q => answers[q.id] !== undefined).length;
+    const totalCount = domainQuestions.length;
+    const industryAvg = benchmarks?.current?.[domainId] ?? null;
+    const topQuartile = benchmarks?.topQuartile?.[domainId] ?? null;
+    const delta = industryAvg !== null && score > 0 ? score - industryAvg : null;
+    return { domainId, title: domain.title, score, maturityLevel, answeredCount, totalCount, industryAvg, topQuartile, delta };
+  });
 
   return (
     <div className="results-view" data-testid="results-view">
@@ -70,6 +90,59 @@ export const ResultsView = ({
             <span className="progress-percentage">{progress.percentage}%</span>
           </div>
         </div>
+
+        {/* Domain Score Cards */}
+        {domainCards.length > 0 && (
+          <div className="domain-score-cards" data-testid="domain-score-cards">
+            {domainCards.map(card => {
+              const pct = Math.min(card.score / 5, 1) * 100;
+              const maturityClass = card.maturityLevel.toLowerCase().replace(/\s+/g, '-');
+              const DeltaIcon = card.delta > 0.05 ? TrendingUp : card.delta < -0.05 ? TrendingDown : Minus;
+              return (
+                <div key={card.domainId} className="domain-score-card" data-testid={`domain-card-${card.domainId}`}>
+                  <div className="domain-card-header">
+                    <div className="domain-card-title">{card.title}</div>
+                    <span className={`domain-card-maturity maturity--${maturityClass}`}>
+                      {card.maturityLevel}
+                    </span>
+                  </div>
+                  <div className="domain-card-score">
+                    <span className="domain-card-score-value">{card.score.toFixed(2)}</span>
+                    <span className="domain-card-score-max"> / 5.0</span>
+                  </div>
+                  <div className="domain-card-bar">
+                    <div className="domain-card-bar-track">
+                      <div className="domain-card-bar-fill" style={{ width: `${pct}%` }} />
+                      {card.industryAvg !== null && (
+                        <div
+                          className="domain-card-bar-marker domain-card-bar-marker--avg"
+                          style={{ left: `${Math.min(card.industryAvg / 5, 1) * 100}%` }}
+                          title={`Industry Avg: ${card.industryAvg.toFixed(1)}`}
+                        />
+                      )}
+                      {card.topQuartile !== null && (
+                        <div
+                          className="domain-card-bar-marker domain-card-bar-marker--top"
+                          style={{ left: `${Math.min(card.topQuartile / 5, 1) * 100}%` }}
+                          title={`Top Quartile: ${card.topQuartile.toFixed(1)}`}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className="domain-card-meta">
+                    <span className="domain-card-answered">{card.answeredCount} / {card.totalCount} answered</span>
+                    {card.delta !== null && (
+                      <span className={`domain-card-delta ${card.delta >= 0 ? 'delta-positive' : 'delta-negative'}`} data-testid={`domain-delta-${card.domainId}`}>
+                        <DeltaIcon size={12} />
+                        {card.delta >= 0 ? '+' : ''}{card.delta.toFixed(1)} vs avg
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Charts + Compliance — shared with admin overview */}
         <OverviewDashboard

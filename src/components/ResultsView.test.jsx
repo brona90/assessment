@@ -143,7 +143,7 @@ describe('ResultsView', () => {
 
   it('should show 0.00 overall score when no answers', () => {
     render(<ResultsView {...defaultProps} answers={{}} />);
-    expect(screen.getByText('0.00')).toBeInTheDocument();
+    expect(screen.getByTestId('overall-score-value')).toHaveTextContent('0.00');
   });
 
   it('should display a maturity label for overall score', () => {
@@ -454,6 +454,64 @@ describe('ResultsView', () => {
       render(<ResultsView {...defaultProps} snapshots={snapshots} />);
       const scoreEl = screen.getByTestId('snapshot-history').querySelector('.snapshot-score');
       expect(scoreEl.textContent).toContain('3.12');
+    });
+  });
+
+  describe('Domain Score Cards', () => {
+    it('should render domain score cards section', () => {
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.getByTestId('domain-score-cards')).toBeInTheDocument();
+    });
+
+    it('should render one card per domain', () => {
+      render(<ResultsView {...defaultProps} />);
+      expect(screen.getByTestId('domain-card-domain1')).toBeInTheDocument();
+    });
+
+    it('should show domain title in card', () => {
+      render(<ResultsView {...defaultProps} />);
+      const card = screen.getByTestId('domain-card-domain1');
+      expect(card.querySelector('.domain-card-title').textContent).toBe('Test Domain');
+    });
+
+    it('should show maturity badge', () => {
+      render(<ResultsView {...defaultProps} />);
+      const card = screen.getByTestId('domain-card-domain1');
+      expect(card.querySelector('.domain-card-maturity')).toBeInTheDocument();
+    });
+
+    it('should show score value', () => {
+      render(<ResultsView {...defaultProps} />);
+      const card = screen.getByTestId('domain-card-domain1');
+      expect(card.querySelector('.domain-card-score-value').textContent).toMatch(/\d+\.\d+/);
+    });
+
+    it('should show answered count', () => {
+      render(<ResultsView {...defaultProps} />);
+      const card = screen.getByTestId('domain-card-domain1');
+      expect(card.querySelector('.domain-card-answered').textContent).toContain('2 / 3 answered');
+    });
+
+    it('should show delta vs industry when benchmarks load', async () => {
+      render(<ResultsView {...defaultProps} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('domain-delta-domain1')).toBeInTheDocument();
+      });
+    });
+
+    it('should not render cards when no questions', () => {
+      render(<ResultsView {...defaultProps} questions={[]} />);
+      expect(screen.queryByTestId('domain-score-cards')).not.toBeInTheDocument();
+    });
+
+    it('should render multiple domain cards for multi-domain questions', async () => {
+      const multiDomainQuestions = [
+        { id: 'q1', domainId: 'domain1', domainTitle: 'Domain A', categoryId: 'c1', categoryTitle: 'Cat' },
+        { id: 'q2', domainId: 'domain2', domainTitle: 'Domain B', categoryId: 'c1', categoryTitle: 'Cat' }
+      ];
+      render(<ResultsView {...defaultProps} questions={multiDomainQuestions} answers={{ q1: 4, q2: 2 }} />);
+      expect(screen.getByTestId('domain-card-domain1')).toBeInTheDocument();
+      expect(screen.getByTestId('domain-card-domain2')).toBeInTheDocument();
     });
   });
 

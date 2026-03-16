@@ -87,6 +87,137 @@
   color: var(--primary-color);
 }
 
+/* Domain Score Cards */
+.domain-score-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.domain-score-card {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.domain-score-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.domain-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.domain-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.domain-card-maturity {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.maturity--optimized { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.maturity--managed { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+.maturity--defined { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+.maturity--initial { background: rgba(249, 115, 22, 0.2); color: #fdba74; }
+.maturity--not-implemented { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+
+.domain-card-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.domain-card-score-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #86efac;
+}
+
+.domain-card-score-max {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.domain-card-bar {
+  margin-bottom: 0.75rem;
+}
+
+.domain-card-bar-track {
+  position: relative;
+  height: 6px;
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 3px;
+  overflow: visible;
+}
+
+.domain-card-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #22c55e, #86efac);
+  transition: width 0.4s ease;
+}
+
+.domain-card-bar-marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
+  transform: translateX(-1px);
+}
+
+.domain-card-bar-marker--avg {
+  background: #facc15;
+}
+
+.domain-card-bar-marker--top {
+  background: #38bdf8;
+}
+
+.domain-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.domain-card-answered {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.domain-card-delta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.delta-positive { color: #86efac; }
+.delta-negative { color: #fca5a5; }
+
 /* Chart display wrappers (used by OverviewDashboard) */
 .chart-display {
   min-height: 400px;
