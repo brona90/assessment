@@ -186,6 +186,16 @@ describe('PdfService', () => {
       expectTextContaining('Acme Corp  |  Technology Maturity Assessment');
     });
 
+    it('should stamp footers on every page using two-pass approach', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      // stampAllFooters calls getNumberOfPages, then setPage for each page
+      expect(mockPdfInstance.getNumberOfPages).toHaveBeenCalled();
+      const totalPages = mockPdfInstance._calls.addPage.length + 1;
+      expect(mockPdfInstance.setPage).toHaveBeenCalledTimes(totalPages);
+      // Verify "Page X of Y" appears for correct total
+      expectTextContaining(`Page 1 of ${totalPages}`);
+    });
+
     it('should handle empty answers and show "No data" for all domains', async () => {
       await pdfService.generatePDF(mockDomains, {}, {}, {});
       expectTextContaining('No data');
