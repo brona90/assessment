@@ -178,7 +178,9 @@ export const pdfService = {
 
     const topGaps = computeTopGaps(domains, answers, 5);
 
-    const totalPages = 3 + Math.ceil(domainRows.length / 3);
+    const hasCompliance = complianceFrameworks && Object.entries(complianceFrameworks).some(([, f]) => f.enabled);
+    // Cover + TOC + Exec Summary + Detail pages + Visual Analysis + Compliance (optional)
+    const totalPages = 4 + Math.ceil(domainRows.length / 3) + (hasCompliance ? 1 : 0);
 
     // ────────────────────────────────────────────────────────────────────────
     // PAGE 1: Cover
@@ -255,10 +257,52 @@ export const pdfService = {
     addPageFooter(pdf, 1, totalPages, orgName);
 
     // ────────────────────────────────────────────────────────────────────────
-    // PAGE 2: Executive Summary
+    // PAGE 2: Table of Contents
     // ────────────────────────────────────────────────────────────────────────
     pdf.addPage();
-    let pageNum = 2;
+    addPageFooter(pdf, 2, totalPages, orgName);
+
+    y = MARGIN;
+    setColor(pdf, BRAND_BLUE, 'text');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(18);
+    pdf.text('Table of Contents', MARGIN, y + 6);
+    hRule(pdf, y + 12, { color: BRAND_BLUE, width: 0.5 });
+    y += 28;
+
+    const tocSections = [
+      { num: 1, title: 'Executive Summary', page: 3 },
+      { num: 2, title: 'Detailed Assessment Results', page: 4 },
+      { num: 3, title: 'Visual Analysis', page: null },
+      ...(hasCompliance ? [{ num: 4, title: 'Compliance Framework Scores', page: null }] : [])
+    ];
+
+    for (const sec of tocSections) {
+      setColor(pdf, TEXT_DARK, 'text');
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(11);
+      pdf.text(`${sec.num}.`, MARGIN, y);
+      pdf.text(sec.title, MARGIN + 10, y);
+
+      // Dot leader
+      setColor(pdf, TEXT_LIGHT, 'text');
+      pdf.setFontSize(9);
+      const dots = '.'.repeat(60);
+      pdf.text(dots, MARGIN + 80, y);
+
+      if (sec.page) {
+        setColor(pdf, TEXT_DARK, 'text');
+        pdf.setFontSize(11);
+        pdf.text(`${sec.page}`, PAGE_W - MARGIN, y, { align: 'right' });
+      }
+      y += 10;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // PAGE 3: Executive Summary
+    // ────────────────────────────────────────────────────────────────────────
+    pdf.addPage();
+    let pageNum = 3;
     addPageFooter(pdf, pageNum, totalPages, orgName);
 
     y = MARGIN;
@@ -376,7 +420,7 @@ export const pdfService = {
     // PAGE 3+: Detailed Results
     // ────────────────────────────────────────────────────────────────────────
     pdf.addPage();
-    pageNum = 3;
+    pageNum = 4;
     addPageFooter(pdf, pageNum, totalPages, orgName);
 
     y = MARGIN;

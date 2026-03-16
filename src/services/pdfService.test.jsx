@@ -153,9 +153,24 @@ describe('PdfService', () => {
       // Domain titles appear in the domain summary table
       expectTextContaining('Domain 1');
       expectTextContaining('Domain 2');
-      // At least 2 addPage calls: executive summary + detailed results
+      // At least 3 addPage calls: TOC + executive summary + detailed results
       expect(mockPdfInstance.addPage).toHaveBeenCalled();
-      expect(mockPdfInstance._calls.addPage.length).toBeGreaterThanOrEqual(2);
+      expect(mockPdfInstance._calls.addPage.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should render a Table of Contents page', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextContaining('Table of Contents');
+      expectTextContaining('1.');
+      expectTextContaining('Executive Summary');
+      expectTextContaining('2.');
+      expectTextContaining('Detailed Assessment Results');
+    });
+
+    it('should include compliance in TOC when frameworks are enabled', async () => {
+      const frameworks = { iso: { name: 'ISO 27001', enabled: true, score: 80 } };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expectTextContaining('4.');
     });
 
     it('should render CONFIDENTIAL in footer on every page', async () => {
