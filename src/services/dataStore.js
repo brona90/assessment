@@ -812,7 +812,7 @@ class DataStore {
       return true;
     } catch (error) {
       console.error('Error importing user export:', error);
-      throw new Error('Failed to import user export: ' + error.message);
+      throw new Error('Failed to import user export: ' + error.message, { cause: error });
     }
   }
 
