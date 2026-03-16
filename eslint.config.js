@@ -26,6 +26,9 @@ export default defineConfig([
       'eqeqeq': ['error', 'always'],
       'prefer-const': 'error',
       'no-var': 'error',
+      // Canary rules not yet stable — disable until promoted to a stable release
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/immutability': 'off',
     },
   },
 ])
