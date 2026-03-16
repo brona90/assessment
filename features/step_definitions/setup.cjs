@@ -1,6 +1,8 @@
 import { Given, When, Then, Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
 const { expect } = require('@playwright/test');
 import { chromium } from 'playwright';
+import { spawn } from 'child_process';
+import http from 'http';
 
 // Set default timeout for all steps to 60 seconds
 setDefaultTimeout(60000);
@@ -8,8 +10,50 @@ setDefaultTimeout(60000);
 // Global setup for cucumber tests
 global.browser = null;
 global.page = null;
+global._devServer = null;
+global._devServerPort = null;
+
+function checkPort(port) {
+  return new Promise((resolve) => {
+    const req = http.get(`http://localhost:${port}/assessment/`, (res) => {
+      res.resume();
+      resolve(true);
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(2000, () => { req.destroy(); resolve(false); });
+  });
+}
+
+async function findOrStartDevServer() {
+  // Check if a dev server is already running
+  for (const port of [5173, 5174, 5175]) {
+    if (await checkPort(port)) {
+      global._devServerPort = port;
+      return;
+    }
+  }
+
+  // Start one ourselves
+  const child = spawn('npx', ['vite', '--port', '5173'], {
+    cwd: process.cwd(),
+    stdio: 'pipe',
+    detached: true,
+  });
+  global._devServer = child;
+
+  // Wait for it to be ready (up to 30s)
+  for (let i = 0; i < 60; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    if (await checkPort(5173)) {
+      global._devServerPort = 5173;
+      return;
+    }
+  }
+  throw new Error('Dev server failed to start within 30s');
+}
 
 BeforeAll(async () => {
+  await findOrStartDevServer();
   global.browser = await chromium.launch({ headless: true });
 });
 
@@ -99,5 +143,15 @@ AfterAll(async () => {
       console.log('Error closing browser:', error.message);
     }
     global.browser = null;
+  }
+
+  // Stop dev server if we started it
+  if (global._devServer) {
+    try {
+      process.kill(-global._devServer.pid, 'SIGTERM');
+    } catch (e) {
+      global._devServer.kill('SIGTERM');
+    }
+    global._devServer = null;
   }
 });
