@@ -277,18 +277,6 @@ Then('I should receive a download file', async function () {
   expect(await errorMessage.count()).to.equal(0);
 });
 
-Given('I have added evidence to only {int} question(s)', function (count) {
-  this.evidenceCount = count;
-});
-
-Then('I should see an error message about missing evidence', async function () {
-  await global.page.waitForTimeout(500);
-});
-
-Then('the export should not proceed', async function () {
-  await global.page.waitForTimeout(500);
-});
-
 // Domain and Category Grouping steps
 Given('I have questions from domain {string} category {string}', function (domain, category) {
   if (!this.questionGroups) this.questionGroups = [];
