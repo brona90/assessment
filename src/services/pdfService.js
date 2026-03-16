@@ -556,7 +556,8 @@ export const pdfService = {
           setColor(pdf, TEXT_MID, 'text');
           pdf.setFont('helvetica', 'bold');
           pdf.setFontSize(9);
-          pdf.text((category.title || category.name || '').toUpperCase(), MARGIN + 6, y);
+          const catLabel = (category.title || category.name || '').toUpperCase();
+          pdf.text(pdf.splitTextToSize(catLabel, CONTENT_W - 12)[0], MARGIN + 6, y);
           y += 7;
         }
 
@@ -653,7 +654,7 @@ export const pdfService = {
                   setColor(pdf, TEXT_LIGHT, 'text');
                   pdf.setFontSize(7);
                   pdf.setFont('helvetica', 'normal');
-                  pdf.text(imgData.name, MARGIN + 6, y + ih + 3);
+                  pdf.text(pdf.splitTextToSize(imgData.name, CONTENT_W - 12)[0], MARGIN + 6, y + ih + 3);
                 }
                 y += ih + 8;
               } catch {
@@ -695,7 +696,7 @@ export const pdfService = {
           setColor(pdf, TEXT_DARK, 'text');
           pdf.setFont('helvetica', 'bold');
           pdf.setFontSize(11);
-          pdf.text(fw.name || key, MARGIN + 4, y + 3);
+          pdf.text(pdf.splitTextToSize(fw.name || key, CONTENT_W * 0.55)[0], MARGIN + 4, y + 3);
 
           // Score + status badge
           if (fw.score !== undefined) {
