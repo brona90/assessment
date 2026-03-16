@@ -675,19 +675,52 @@ export const pdfService = {
         y = sectionHeader(pdf, y, 4, 'Compliance Framework Scores');
 
         for (const [key, fw] of enabled) {
-          ({ y, pageNum } = ensureSpace(pdf, y, 22, pageNum, totalPages, orgName));
+          ({ y, pageNum } = ensureSpace(pdf, y, 30, pageNum, totalPages, orgName));
+
+          // Framework card background
+          fillRect(pdf, MARGIN, y - 4, CONTENT_W, 24, SURFACE);
+          setColor(pdf, BORDER, 'draw');
+          pdf.setLineWidth(0.2);
+          pdf.rect(MARGIN, y - 4, CONTENT_W, 24);
+
+          // Framework name
           setColor(pdf, TEXT_DARK, 'text');
           pdf.setFont('helvetica', 'bold');
           pdf.setFontSize(11);
-          pdf.text(fw.name || key, MARGIN, y);
+          pdf.text(fw.name || key, MARGIN + 4, y + 3);
 
+          // Score + status badge
           if (fw.score !== undefined) {
-            const sc = fw.score >= 80 ? [22, 163, 74] : fw.score >= 60 ? [161, 98, 7] : [185, 28, 28];
-            setColor(pdf, sc, 'text');
-            pdf.text(`${fw.score.toFixed(1)}%`, PAGE_W - MARGIN, y, { align: 'right' });
+            const statusLabel = fw.score >= 80 ? 'Excellent' : fw.score >= 60 ? 'Good' : fw.score >= 40 ? 'Needs Work' : 'Critical';
+            const statusColor = fw.score >= 80 ? [22, 163, 74] : fw.score >= 60 ? [161, 98, 7] : [185, 28, 28];
+
+            setColor(pdf, statusColor, 'text');
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(10);
+            pdf.text(`${fw.score.toFixed(1)}%`, PAGE_W - MARGIN - 4, y + 3, { align: 'right' });
+
+            // Status badge
+            setColor(pdf, statusColor, 'fill');
+            pdf.roundedRect(PAGE_W - MARGIN - 54, y + 6, 50, 8, 2, 2, 'F');
+            setColor(pdf, [255, 255, 255], 'text');
+            pdf.setFontSize(7);
+            pdf.text(statusLabel, PAGE_W - MARGIN - 29, y + 11.5, { align: 'center' });
           }
-          scoreBar(pdf, MARGIN, y + 3, (fw.score || 0) / 20, { barW: CONTENT_W, max: 5 });
-          y += 18;
+
+          // Score bar
+          scoreBar(pdf, MARGIN + 4, y + 9, (fw.score || 0) / 20, { barW: CONTENT_W - 68, max: 5 });
+
+          // Threshold + requirement count
+          setColor(pdf, TEXT_MID, 'text');
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(7.5);
+          const reqCount = fw.mappedQuestions?.length || 0;
+          const thresholdLabel = fw.threshold ? `Threshold: ${(fw.threshold / 5 * 100).toFixed(0)}%` : '';
+          const reqLabel = reqCount > 0 ? `${reqCount} requirements` : '';
+          const metaText = [thresholdLabel, reqLabel].filter(Boolean).join('  |  ');
+          if (metaText) pdf.text(metaText, MARGIN + 4, y + 16);
+
+          y += 28;
         }
       }
     }

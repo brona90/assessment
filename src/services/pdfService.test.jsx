@@ -607,6 +607,33 @@ describe('PdfService', () => {
   });
 
   describe('compliance framework edge cases', () => {
+    it('should render status badge "Excellent" for score >= 80', async () => {
+      const frameworks = { fw: { name: 'FW', enabled: true, score: 90.0 } };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expectTextContaining('Excellent');
+    });
+
+    it('should render status badge "Good" for score >= 60', async () => {
+      const frameworks = { fw: { name: 'FW', enabled: true, score: 65.0 } };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expectTextContaining('Good');
+    });
+
+    it('should render status badge "Critical" for score < 40', async () => {
+      const frameworks = { fw: { name: 'FW', enabled: true, score: 30.0 } };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expectTextContaining('Critical');
+    });
+
+    it('should render threshold and requirement count', async () => {
+      const frameworks = {
+        fw: { name: 'FW', enabled: true, score: 75, threshold: 4.0, mappedQuestions: ['q1', 'q2', 'q3'] }
+      };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, frameworks);
+      expectTextContaining('Threshold: 80%');
+      expectTextContaining('3 requirements');
+    });
+
     it('should use framework key when name is not provided', async () => {
       const frameworks = {
         customFramework: { enabled: true, score: 70.0 }
