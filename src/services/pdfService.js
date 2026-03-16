@@ -270,11 +270,13 @@ export const pdfService = {
     hRule(pdf, y + 12, { color: BRAND_BLUE, width: 0.5 });
     y += 28;
 
+    const appendixNum = hasCompliance ? 5 : 4;
     const tocSections = [
       { num: 1, title: 'Executive Summary', page: 3 },
       { num: 2, title: 'Detailed Assessment Results', page: 4 },
       { num: 3, title: 'Visual Analysis', page: null },
-      ...(hasCompliance ? [{ num: 4, title: 'Compliance Framework Scores', page: null }] : [])
+      ...(hasCompliance ? [{ num: 4, title: 'Compliance Framework Scores', page: null }] : []),
+      { num: appendixNum, title: 'Methodology & Scoring Guide', page: null }
     ];
 
     for (const sec of tocSections) {
@@ -723,6 +725,81 @@ export const pdfService = {
           y += 28;
         }
       }
+    }
+
+    // ── Methodology & Scoring Guide (Appendix) ────────────────────────────
+    pdf.addPage();
+    pageNum++;
+    addPageFooter(pdf, pageNum, totalPages, orgName);
+    y = MARGIN;
+
+    y = sectionHeader(pdf, y, appendixNum, 'Methodology & Scoring Guide');
+
+    // Maturity scale definitions
+    setColor(pdf, TEXT_DARK, 'text');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.text('Maturity Scale', MARGIN, y);
+    y += 8;
+
+    const maturityDefs = [
+      { level: 'Not Implemented', range: '0 – 1.49', desc: 'Controls are absent or ad hoc with no formal processes.' },
+      { level: 'Initial', range: '1.50 – 2.49', desc: 'Some controls exist but implementation is inconsistent and undocumented.' },
+      { level: 'Defined', range: '2.50 – 3.49', desc: 'Processes are documented and consistently followed across the organisation.' },
+      { level: 'Managed', range: '3.50 – 4.49', desc: 'Controls are measured, monitored, and continuously improved with metrics.' },
+      { level: 'Optimized', range: '4.50 – 5.00', desc: 'Best-in-class practices are fully embedded with automated continuous improvement.' }
+    ];
+
+    for (const def of maturityDefs) {
+      const color = MATURITY_COLORS[def.level] || TEXT_MID;
+
+      // Color indicator dot
+      setColor(pdf, color, 'fill');
+      pdf.circle(MARGIN + 3, y + 1, 2, 'F');
+
+      // Level name + range
+      setColor(pdf, TEXT_DARK, 'text');
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(9);
+      pdf.text(def.level, MARGIN + 8, y + 2);
+
+      setColor(pdf, TEXT_MID, 'text');
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8);
+      pdf.text(`(${def.range})`, MARGIN + 42, y + 2);
+
+      // Description
+      setColor(pdf, TEXT_DARK, 'text');
+      pdf.setFontSize(8.5);
+      const descLines = pdf.splitTextToSize(def.desc, CONTENT_W - 10);
+      pdf.text(descLines, MARGIN + 8, y + 7);
+      y += 7 + descLines.length * 4.5 + 4;
+    }
+
+    y += 6;
+
+    // Scoring methodology
+    setColor(pdf, TEXT_DARK, 'text');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.text('Scoring Methodology', MARGIN, y);
+    y += 8;
+
+    const methodologyItems = [
+      'Each question is scored on a 1–5 maturity scale. A score of 0 indicates N/A.',
+      'Domain scores are the weighted average of all answered questions within that domain.',
+      'The overall maturity score is a weighted average across all domains.',
+      'Priority improvement areas are ranked by gap × domain weight, where gap = target (4.0) − current score.',
+      'Industry benchmarks are sourced from published research (FinOps Foundation, Databricks, McKinsey, DORA, TDWI).'
+    ];
+
+    for (const item of methodologyItems) {
+      setColor(pdf, TEXT_DARK, 'text');
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      const itemLines = pdf.splitTextToSize(`•  ${item}`, CONTENT_W - 6);
+      pdf.text(itemLines, MARGIN + 2, y);
+      y += itemLines.length * 4.5 + 3;
     }
 
     return pdf;

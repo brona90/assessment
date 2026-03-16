@@ -32,6 +32,7 @@ function resetMockPdf() {
   mockPdfInstance.rect = vi.fn();
   mockPdfInstance.roundedRect = vi.fn();
   mockPdfInstance.line = vi.fn();
+  mockPdfInstance.circle = vi.fn();
   mockPdfInstance.splitTextToSize = vi.fn(splitTextImpl);
   mockPdfInstance.internal = { pageSize: { getWidth: () => 210, getHeight: () => 297 } };
 }
@@ -499,6 +500,27 @@ describe('PdfService', () => {
       await pdfService.generatePDF(domains, {}, {}, {});
       expectTextContaining('No data');
       expectTextContaining('Domain With No Answers');
+    });
+  });
+
+  describe('methodology appendix', () => {
+    it('should render methodology section with maturity scale definitions', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextContaining('Methodology & Scoring Guide');
+      expectTextContaining('Maturity Scale');
+      expectTextContaining('Not Implemented');
+      expectTextContaining('Optimized');
+    });
+
+    it('should render scoring methodology bullet points', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextContaining('Scoring Methodology');
+      expectTextContaining('weighted average');
+    });
+
+    it('should include methodology in Table of Contents', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextContaining('Methodology & Scoring Guide');
     });
   });
 
