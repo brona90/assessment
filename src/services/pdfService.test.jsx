@@ -505,6 +505,33 @@ describe('PdfService', () => {
     });
   });
 
+  describe('domain benchmark comparison table', () => {
+    it('should render comparison table when benchmarks are provided', async () => {
+      const benchmarks = {
+        current: { domain1: 3.2, domain2: 2.8 },
+        topQuartile: { domain1: 4.1, domain2: 3.9 }
+      };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {}, { benchmarks });
+      expectTextContaining('Domain Benchmark Comparison');
+      expectTextContaining('Industry Avg');
+      expectTextContaining('Top Quartile');
+    });
+
+    it('should show positive gap for domain scoring above industry avg', async () => {
+      const benchmarks = {
+        current: { domain1: 2.0, domain2: 2.0 },
+        topQuartile: { domain1: 4.0, domain2: 4.0 }
+      };
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {}, { benchmarks });
+      expectTextContaining('+');
+    });
+
+    it('should not render comparison table without benchmarks', async () => {
+      await pdfService.generatePDF(mockDomains, mockAnswers, {}, {});
+      expectTextNotContaining('Domain Benchmark Comparison');
+    });
+  });
+
   describe('gap color branches in priority improvement areas', () => {
     it('should render critical gap (>= 3) in priority improvement areas', async () => {
       const domains = {

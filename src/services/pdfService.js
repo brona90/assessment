@@ -163,7 +163,7 @@ export const pdfService = {
   async generatePDF(domains, answers, evidence, complianceFrameworks, options = {}, comments = {}) {
     const { default: jsPDF } = await import('jspdf');
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const { orgName = 'Organisation', reportTitle = 'Technology Maturity Assessment' } = options || {};
+    const { orgName = 'Organisation', reportTitle = 'Technology Maturity Assessment', benchmarks = null } = options || {};
 
     // ── Pre-calculate data ──────────────────────────────────────────────────
     const overallScore = this.calculateOverallScore(domains, answers);
@@ -369,6 +369,63 @@ export const pdfService = {
     }
 
     y += 6;
+
+    // Domain comparison table (with benchmarks)
+    if (benchmarks?.current && domainRows.length > 0) {
+      ({ y, pageNum } = ensureSpace(pdf, y, 20 + domainRows.length * 8, pageNum, totalPages, orgName));
+
+      setColor(pdf, TEXT_DARK, 'text');
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(11);
+      pdf.text('Domain Benchmark Comparison', MARGIN, y);
+      y += 8;
+
+      // Table header
+      fillRect(pdf, MARGIN, y - 4, CONTENT_W, 8, BRAND_NAVY);
+      setColor(pdf, [255, 255, 255], 'text');
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(8);
+      pdf.text('Domain', MARGIN + 2, y + 1);
+      pdf.text('Score', MARGIN + 88, y + 1);
+      pdf.text('Industry Avg', MARGIN + 108, y + 1);
+      pdf.text('Top Quartile', MARGIN + 138, y + 1);
+      pdf.text('Gap', PAGE_W - MARGIN - 2, y + 1, { align: 'right' });
+      y += 10;
+
+      for (let i = 0; i < domainRows.length; i++) {
+        const d = domainRows[i];
+        const avg = benchmarks.current[d.key] ?? null;
+        const top = benchmarks.topQuartile?.[d.key] ?? null;
+        const gap = avg !== null && d.score > 0 ? d.score - avg : null;
+
+        // Alternating row background
+        if (i % 2 === 0) fillRect(pdf, MARGIN, y - 4, CONTENT_W, 8, [248, 250, 252]);
+
+        setColor(pdf, TEXT_DARK, 'text');
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8.5);
+        pdf.text(pdf.splitTextToSize(d.title, 80)[0], MARGIN + 2, y + 1);
+
+        const scoreColor = d.score >= 4 ? [22, 163, 74] : d.score >= 3 ? [161, 98, 7] : d.score > 0 ? [185, 28, 28] : TEXT_LIGHT;
+        setColor(pdf, scoreColor, 'text');
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(d.score > 0 ? d.score.toFixed(2) : '—', MARGIN + 92, y + 1);
+
+        setColor(pdf, TEXT_MID, 'text');
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(avg !== null ? avg.toFixed(2) : '—', MARGIN + 116, y + 1);
+        pdf.text(top !== null ? top.toFixed(2) : '—', MARGIN + 146, y + 1);
+
+        if (gap !== null) {
+          const gapColor = gap >= 0 ? [22, 163, 74] : [185, 28, 28];
+          setColor(pdf, gapColor, 'text');
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(`${gap >= 0 ? '+' : ''}${gap.toFixed(1)}`, PAGE_W - MARGIN - 2, y + 1, { align: 'right' });
+        }
+        y += 8;
+      }
+      y += 8;
+    }
 
     // Top gaps table
     if (topGaps.length > 0) {

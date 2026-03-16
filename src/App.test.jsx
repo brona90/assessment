@@ -609,7 +609,7 @@ describe('App', () => {
           {},                      // adminAnswers (empty since loadAllUsersAnswers resolves to {})
           defaultUseAssessment.evidence,
           expect.any(Object),      // scoredFrameworks
-          { chartSnapshots: {} },
+          expect.objectContaining({ chartSnapshots: {} }),
           defaultUseAssessment.comments
         );
         expect(pdfService.downloadPDF).toHaveBeenCalled();
@@ -651,7 +651,7 @@ describe('App', () => {
           expect.objectContaining({
             sox: expect.objectContaining({ id: 'sox', name: 'SOX', score: 85 })
           }),
-          { chartSnapshots: {} },
+          expect.objectContaining({ chartSnapshots: {} }),
           defaultUseAssessment.comments
         );
       });
@@ -1429,7 +1429,7 @@ describe('App', () => {
           expect.any(Object),
           expect.any(Object),
           {},                       // empty scoredFrameworks
-          { chartSnapshots: {} },
+          expect.objectContaining({ chartSnapshots: {} }),
           expect.any(Object)
         );
       });

@@ -15,6 +15,7 @@ import { userExportService } from './services/userExportService';
 import { useDataStore } from './hooks/useDataStore';
 import { scoreCalculator } from './utils/scoreCalculator';
 import { storageService } from './services/storageService';
+import { dataService } from './services/dataService';
 
 function App() {
   const {
@@ -141,8 +142,9 @@ function App() {
         ])
       );
 
+      const benchmarks = await dataService.loadBenchmarks().catch(() => null);
       const pdf = await pdfService.generatePDF(
-        domains, reportAnswers, evidence, scoredFrameworks, { chartSnapshots }, comments
+        domains, reportAnswers, evidence, scoredFrameworks, { chartSnapshots, benchmarks }, comments
       );
       await pdfService.downloadPDF(pdf);
     } catch (error) {
