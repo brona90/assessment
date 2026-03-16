@@ -776,6 +776,22 @@ describe('PdfService', () => {
       expectTextContaining('Assessment Heatmap');
       expectTextContaining('Domain Radar Chart');
       expectTextContaining('Domain Bar Chart');
+      // Each chart gets its own page (3 charts = 3 addPage calls from charts alone)
+      // Plus dark background rects behind each chart
+      expect(mockPdfInstance.rect).toHaveBeenCalled();
+      spy.mockRestore();
+    });
+
+    it('should render chart subtitles for each chart', async () => {
+      const b64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      const spy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      await pdfService.generatePDF(
+        mockDomains, mockAnswers, {}, {}, {
+          chartSnapshots: { heatmap: b64, radar: b64 }
+        }
+      );
+      expectTextContaining('Average maturity score per domain and category');
+      expectTextContaining('Overall domain scores with benchmark overlays');
       spy.mockRestore();
     });
 
@@ -815,19 +831,7 @@ describe('PdfService', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should add new page when chart does not fit on current page', async () => {
-      vi.stubGlobal('Image', class {
-        constructor() {
-          this.onload = null;
-          this.onerror = null;
-          this.width = 100;
-          this.height = 2000;
-        }
-        set src(_) {
-          Promise.resolve().then(() => this.onload?.());
-        }
-      });
-
+    it('should allocate one page per chart', async () => {
       const b64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
       const spy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
       await pdfService.generatePDF(
@@ -835,8 +839,8 @@ describe('PdfService', () => {
           chartSnapshots: { heatmap: b64, radar: b64, bar: b64 }
         }
       );
-      // Very tall images should force extra page breaks
-      expect(mockPdfInstance._calls.addPage.length).toBeGreaterThanOrEqual(5);
+      // 3 charts = 3 dedicated chart pages + other pages (cover, TOC, exec, detail, methodology)
+      expect(mockPdfInstance._calls.addPage.length).toBeGreaterThanOrEqual(7);
       spy.mockRestore();
     });
   });

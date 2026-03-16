@@ -807,54 +807,78 @@ export const pdfService = {
 
   async addChartsToPage(pdf, _domains, _answers, pageNum, totalPages, chartSnapshots = {}, orgName) {
     try {
-      // Build list of {img: dataUrl, title} — prefer pre-captured snapshots over DOM queries
+      // Build list of {img: dataUrl, title, subtitle, maxW} — prefer pre-captured snapshots
       const toRender = [
-        { key: 'heatmap', selector: '[data-testid="domain-heatmap"]',  title: 'Assessment Heatmap' },
-        { key: 'radar',   selector: '[data-testid="radar-chart"]',     title: 'Domain Radar Chart' },
-        { key: 'bar',     selector: '[data-testid="bar-chart"]',       title: 'Domain Bar Chart' }
+        { key: 'heatmap', selector: '[data-testid="domain-heatmap"]',
+          title: 'Assessment Heatmap', subtitle: 'Average maturity score per domain and category',
+          maxW: CONTENT_W },
+        { key: 'radar', selector: '[data-testid="radar-chart"]',
+          title: 'Domain Radar Chart', subtitle: 'Overall domain scores with benchmark overlays',
+          maxW: 140 },
+        { key: 'bar', selector: '[data-testid="bar-chart"]',
+          title: 'Domain Bar Chart', subtitle: 'Domain scores compared against industry benchmarks',
+          maxW: CONTENT_W }
       ].map(c => {
         const img = chartSnapshots[c.key]
           || (document.querySelector(c.selector)?.querySelector('canvas'))?.toDataURL('image/png');
-        return img ? { img, title: c.title } : null;
+        return img ? { img, title: c.title, subtitle: c.subtitle, maxW: c.maxW } : null;
       }).filter(Boolean);
 
       if (toRender.length === 0) return;
 
-      pdf.addPage();
-      pageNum++;
-      addPageFooter(pdf, pageNum, totalPages, orgName);
-      let y = MARGIN;
+      // First chart page gets the section header
+      let isFirstChart = true;
 
-      y = sectionHeader(pdf, y, 3, 'Visual Analysis');
+      for (const { img, title, subtitle, maxW } of toRender) {
+        // Each chart gets its own page for readability
+        pdf.addPage();
+        pageNum++;
+        addPageFooter(pdf, pageNum, totalPages, orgName);
+        let y = MARGIN;
 
-      const maxH = PAGE_H - MARGIN * 2 - 30;
+        if (isFirstChart) {
+          y = sectionHeader(pdf, y, 3, 'Visual Analysis');
+          isFirstChart = false;
+        }
 
-      for (const { img, title } of toRender) {
-        // Determine aspect ratio from the data URL via a temporary image element
+        // Chart title
+        setColor(pdf, TEXT_DARK, 'text');
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(12);
+        pdf.text(title, MARGIN, y);
+        y += 5;
+
+        // Subtitle
+        setColor(pdf, TEXT_MID, 'text');
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(9);
+        pdf.text(subtitle, MARGIN, y);
+        y += 8;
+
+        // Determine image dimensions preserving aspect ratio
         const ar = await new Promise(res => {
           const i = new Image();
           i.onload = () => res(i.width / i.height || 1);
           i.onerror = () => res(1);
           i.src = img;
         });
-        let iw = CONTENT_W;
+
+        const availH = PAGE_H - y - MARGIN - 10;
+        let iw = Math.min(maxW, CONTENT_W);
         let ih = iw / ar;
-        if (ih > maxH) { ih = maxH; iw = ih * ar; }
+        if (ih > availH) { ih = availH; iw = ih * ar; }
 
-        if (y + ih + 15 > PAGE_H - MARGIN) {
-          pdf.addPage();
-          pageNum++;
-          addPageFooter(pdf, pageNum, totalPages, orgName);
-          y = MARGIN;
-        }
+        // Center horizontally if narrower than content width
+        const imgX = MARGIN + (CONTENT_W - iw) / 2;
 
-        setColor(pdf, TEXT_MID, 'text');
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(11);
-        pdf.text(title, MARGIN, y);
-        y += 6;
+        // Dark background card behind the chart (matches the dark canvas theme)
+        const cardPad = 4;
+        fillRect(pdf, imgX - cardPad, y - cardPad, iw + cardPad * 2, ih + cardPad * 2, BRAND_NAVY);
+        setColor(pdf, [100, 116, 139], 'draw');
+        pdf.setLineWidth(0.3);
+        pdf.rect(imgX - cardPad, y - cardPad, iw + cardPad * 2, ih + cardPad * 2);
 
-        pdf.addImage(img, 'PNG', MARGIN, y, iw, ih);
+        pdf.addImage(img, 'PNG', imgX, y, iw, ih);
         y += ih + 14;
       }
     } catch (err) {
