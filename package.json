@@ -61,7 +61,7 @@
     "@vitest/coverage-v8": "^4.1.0",
     "@vitest/ui": "^4.0.9",
     "eslint": "^10.0.3",
-    "eslint-plugin-react-hooks": "^7.1.0-canary-c80a0750-20260312",
+    "eslint-plugin-react-hooks": "^7.1.0-canary-52684925-20251110",
     "eslint-plugin-react-refresh": "^0.5.2",
     "gh-pages": "^6.3.0",
     "globals": "^17.4.0",
