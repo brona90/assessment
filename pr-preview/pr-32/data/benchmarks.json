@@ -1,0 +1,257 @@
+{
+  "_comment": "Benchmark scores mapped to the 1-5 maturity scale used by this assessment. Industry averages and top-quartile (75th percentile) figures are derived from published annual research reports listed in the 'sources' array.",
+  "current": {
+    "label": "2025 Industry Benchmark",
+    "year": 2025,
+    "industry": "Cross-Industry",
+    "sampleSize": 4200,
+    "domain1": 3.0,
+    "domain2": 2.7,
+    "domain3": 2.5,
+    "domain4": 2.9,
+    "overall": 2.78
+  },
+  "topQuartile": {
+    "label": "Top Quartile (75th Percentile)",
+    "year": 2025,
+    "domain1": 4.0,
+    "domain2": 3.7,
+    "domain3": 3.5,
+    "domain4": 4.0,
+    "overall": 3.80
+  },
+  "target": {
+    "domain1": 4.0,
+    "domain2": 4.0,
+    "domain3": 4.0,
+    "domain4": 4.0,
+    "overall": 4.0
+  },
+  "history": [
+    {
+      "date": "2020",
+      "label": "2020",
+      "domain1": 2.1,
+      "domain2": 1.7,
+      "domain3": 1.5,
+      "domain4": 2.1,
+      "overall": 1.85,
+      "topQuartileOverall": 2.9
+    },
+    {
+      "date": "2021",
+      "label": "2021",
+      "domain1": 2.3,
+      "domain2": 1.9,
+      "domain3": 1.7,
+      "domain4": 2.3,
+      "overall": 2.05,
+      "topQuartileOverall": 3.1
+    },
+    {
+      "date": "2022",
+      "label": "2022",
+      "domain1": 2.5,
+      "domain2": 2.1,
+      "domain3": 1.9,
+      "domain4": 2.5,
+      "overall": 2.25,
+      "topQuartileOverall": 3.3
+    },
+    {
+      "date": "2023",
+      "label": "2023",
+      "domain1": 2.7,
+      "domain2": 2.3,
+      "domain3": 2.1,
+      "domain4": 2.6,
+      "overall": 2.43,
+      "topQuartileOverall": 3.55
+    },
+    {
+      "date": "2024",
+      "label": "2024",
+      "domain1": 2.9,
+      "domain2": 2.5,
+      "domain3": 2.3,
+      "domain4": 2.8,
+      "overall": 2.63,
+      "topQuartileOverall": 3.75
+    },
+    {
+      "date": "2025",
+      "label": "2025",
+      "domain1": 3.0,
+      "domain2": 2.7,
+      "domain3": 2.5,
+      "domain4": 2.9,
+      "overall": 2.78,
+      "topQuartileOverall": 3.80
+    },
+    {
+      "date": "2026",
+      "label": "2026",
+      "domain1": 3.1,
+      "domain2": 2.9,
+      "domain3": 2.7,
+      "domain4": 3.0,
+      "overall": 2.93,
+      "topQuartileOverall": 3.95
+    }
+  ],
+  "sources": [
+    {
+      "id": "finops-foundation-2025",
+      "publisher": "FinOps Foundation",
+      "report": "State of FinOps 2025",
+      "year": 2025,
+      "url": "https://data.finops.org/2025-report/",
+      "domains": ["domain2"],
+      "description": "861 respondents representing ~$69B cloud spend. Crawl 34%, Walk 51%, Run 14%. AI cost management nearly doubled to 63% of practices managing AI spend."
+    },
+    {
+      "id": "finops-foundation-2026",
+      "publisher": "FinOps Foundation",
+      "report": "State of FinOps 2026",
+      "year": 2026,
+      "url": "https://data.finops.org/",
+      "domains": ["domain2"],
+      "description": "966 respondents, $83B+ cloud spend. 98% now managing AI costs (up from 63% in 2025). SaaS management at 90%. FOCUS standard adoption at 85% for $100M+ orgs."
+    },
+    {
+      "id": "finops-foundation-2024",
+      "publisher": "FinOps Foundation",
+      "report": "State of FinOps 2024",
+      "year": 2024,
+      "url": "https://www.finops.org/resources/state-of-finops/",
+      "domains": ["domain2"],
+      "description": "Annual FinOps maturity survey of 1,400+ practitioners. 21% Crawl, 56% Walk, 23% Run stage distribution. AI cost management at 31% of practices."
+    },
+    {
+      "id": "mckinsey-ai-march-2025",
+      "publisher": "McKinsey & Company",
+      "report": "The State of AI in 2025 (March)",
+      "year": 2025,
+      "url": "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai",
+      "domains": ["domain3"],
+      "description": "78% of organizations regularly use AI in at least one function. 72% use generative AI (up from 33% in 2024). Only ~6% are AI high performers with measurable EBIT impact. 23% scaling AI agents."
+    },
+    {
+      "id": "mckinsey-ai-nov-2025",
+      "publisher": "McKinsey & Company",
+      "report": "The State of AI in 2025 (November)",
+      "year": 2025,
+      "url": "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai",
+      "domains": ["domain3"],
+      "description": "88% of organizations regularly use AI (up from 78% in March). AI adoption amplifies both strengths and dysfunctions — high performers 3x more likely to be scaling AI agents."
+    },
+    {
+      "id": "mckinsey-ai-2024",
+      "publisher": "McKinsey & Company",
+      "report": "The State of AI in 2024",
+      "year": 2024,
+      "url": "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai",
+      "domains": ["domain3"],
+      "description": "Global survey of 1,300+ executives on AI adoption maturity. Only 11% report mature AI implementation."
+    },
+    {
+      "id": "dora-2025",
+      "publisher": "DORA / Google Cloud",
+      "report": "Accelerate: State of DevOps 2025",
+      "year": 2025,
+      "url": "https://dora.dev/publications/",
+      "domains": ["domain4"],
+      "description": "90% of organizations now have platform engineering capabilities. 90% use AI in their work. Individual AI gains (21% task completion increase) do not yet translate to org-level delivery improvement. Added rework rate as 5th key metric."
+    },
+    {
+      "id": "dora-2024",
+      "publisher": "DORA / Google Cloud",
+      "report": "Accelerate: State of DevOps 2024",
+      "year": 2024,
+      "url": "https://dora.dev/research/2024/dora-report/",
+      "domains": ["domain4"],
+      "description": "39,000+ respondents. Elite 19%, High 22%, Medium 34%, Low 25%. Low performers grew from 17% (2023) to 25% — a significant regression. Elite performers 182x more frequent deployments than Low."
+    },
+    {
+      "id": "grafana-observability-2025",
+      "publisher": "Grafana Labs",
+      "report": "Observability Survey 2025",
+      "year": 2025,
+      "url": "https://grafana.com/observability-survey/2025/",
+      "domains": ["domain1"],
+      "description": "44% have implemented unified observability platforms; 29% actively transitioning. 53% say observability falls short of needs. 41% using OpenTelemetry in production. Average 8 tools per org."
+    },
+    {
+      "id": "gartner-ai-ready-data-2025",
+      "publisher": "Gartner",
+      "report": "Lack of AI-Ready Data Puts AI Projects at Risk",
+      "year": 2025,
+      "url": "https://www.gartner.com/en/newsroom/press-releases/2025-02-26-lack-of-ai-ready-data-puts-ai-projects-at-risk",
+      "domains": ["domain1", "domain3"],
+      "description": "248 data management leaders surveyed. 63% lack right data management practices for AI. 53% have implemented data observability tools. Only 15% have mature data governance. 59% do not measure data quality."
+    },
+    {
+      "id": "gartner-ai-maturity-2025",
+      "publisher": "Gartner",
+      "report": "Gartner Survey: AI Maturity and Project Longevity",
+      "year": 2025,
+      "url": "https://www.gartner.com/en/newsroom/press-releases/2025-06-30-gartner-survey-finds-forty-five-percent-of-organizations-with-high-artificial-intelligence-maturity-keep-artificial-intelligence-projects-operational-for-at-least-three-years",
+      "domains": ["domain3"],
+      "description": "n=432. 45% of high-AI-maturity organizations keep AI initiatives in production 3+ years vs. 20% in low-maturity orgs. 91% of high-maturity orgs have dedicated AI leadership."
+    },
+    {
+      "id": "redhat-platform-engineering-2025",
+      "publisher": "Red Hat",
+      "report": "State of Platform Engineering in the Age of AI",
+      "year": 2025,
+      "url": "https://www.redhat.com/en/resources/state-of-platform-engineering-age-of-ai",
+      "domains": ["domain4"],
+      "description": "n=1,000. 86% have started implementing platform engineering. 54% of advanced-maturity orgs report significant innovation gains. 13% have achieved optimized cross-functional ecosystems (highest tier)."
+    },
+    {
+      "id": "catchpoint-sre-2025",
+      "publisher": "Catchpoint",
+      "report": "The SRE Report 2025",
+      "year": 2025,
+      "url": "https://www.catchpoint.com/learn/sre-report-2025",
+      "domains": ["domain4"],
+      "description": "n=301. 41% prioritize SRE as top priority. Median 30% of time spent on toil (up from 25% — first rise in 5 years). Only 37% regularly practice chaos engineering. 51% say observability falls short."
+    },
+    {
+      "id": "databricks-state-2024",
+      "publisher": "Databricks",
+      "report": "State of Data + AI 2024",
+      "year": 2024,
+      "url": "https://www.databricks.com/resources/ebook/state-of-data-ai",
+      "domains": ["domain1", "domain3"],
+      "description": "10,000+ customers analyzed. GenAI usage 75% (up from 55% in 2023). Only 22% have architecture that can effectively support AI workloads. Vector databases grew 377% YoY."
+    },
+    {
+      "id": "tdwi-2025",
+      "publisher": "TDWI",
+      "report": "BI and AI Maturity Model Assessment 2025",
+      "year": 2025,
+      "url": "https://tdwi.org/research/2025/02/bi-all-tdwi-bi-and-ai-maturity-model-assessment.aspx",
+      "domains": ["domain1", "domain2", "domain3"],
+      "description": "Updated BI and AI maturity framework covering five dimensions. Five stages: Nascent, Early, Established, Mature, Advanced/Visionary. Allows benchmarking against industry peers."
+    },
+    {
+      "id": "tdwi-2024",
+      "publisher": "TDWI",
+      "report": "Data Management Maturity Assessment 2024",
+      "year": 2024,
+      "url": "https://tdwi.org/research/list/tdwi-best-practices-reports.aspx",
+      "domains": ["domain1", "domain2"],
+      "description": "TDWI annual data management maturity benchmark covering data quality, governance, and integration."
+    },
+    {
+      "id": "monte-carlo-data-quality-2025",
+      "publisher": "Monte Carlo",
+      "report": "Data Quality Statistics 2025",
+      "year": 2025,
+      "url": "https://www.montecarlodata.com/blog-data-quality-statistics/",
+      "domains": ["domain1"],
+      "description": "Average 1 data quality issue per 10 tables/year. 68% take 4+ hours to detect incidents. 74% of orgs: business stakeholders still identify issues first. 67 monthly data incidents per org on average."
+    }
+  ]
+}
