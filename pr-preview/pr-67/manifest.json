@@ -1,0 +1,18 @@
+{
+  "name": "Foster the Code Assessment",
+  "short_name": "FTC Assessment",
+  "description": "Technology maturity assessment tool for data and engineering teams",
+  "start_url": "/assessment/",
+  "scope": "/assessment/",
+  "display": "standalone",
+  "background_color": "#0c1a10",
+  "theme_color": "#0c1a10",
+  "icons": [
+    {
+      "src": "ftc-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
